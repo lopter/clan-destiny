@@ -1,14 +1,21 @@
-# Replace this file with an actual hardware-configuration.nix!
-throw ''
-  Did you forget to generate your hardware config?
+{ config, lib, modulesPath, ... }:
+{
+  imports =
+    [ (modulesPath + "/installer/scan/not-detected.nix")
+    ];
 
-  Run the following command:
+  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "ehci_pci" "usb_storage" "sd_mod" "sdhci_pci" ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-amd" ];
+  boot.extraModulePackages = [ ];
+  boot.kernelParams = [ "console=ttyS0,115200n8" ];
 
-  'clan machines hw-generate <maschine_name> <hostname>'
+  networking.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp1s0.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp2s0.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp3s0.useDHCP = lib.mkDefault true;
 
-  OR:
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 
-  'ssh root@<hostname> nixos-generate-config --no-filesystems --show-hardware-config > hardware-configuration.nix'
-
-  And manually eplace this file with the generated "hardware-configuration.nix".
-''
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+}
