@@ -2,6 +2,8 @@
 let
   cfg = nginxCfg.nixos-proxy-cache;
   nginxCfg = config.clan.clan-destiny.services.nginx;
+  nginxUser = config.services.nginx.user;
+  nginxGroup = config.services.nginx.group;
 
   cacheName = "nixos-proxy-cache";
 in
@@ -89,7 +91,7 @@ in
       services.nginx.serviceConfig.ReadWritePaths = [ cfg.storageDir ];
 
       tmpfiles.rules = [
-        "d ${cfg.storageDir} 0755 ${nginxCfg.user} ${nginxCfg.group} - -"
+        "d ${cfg.storageDir} 0755 ${nginxUser} ${nginxGroup} - -"
       ];
     };
   };

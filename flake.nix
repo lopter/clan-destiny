@@ -22,6 +22,7 @@
     destiny-config.inputs.destiny-core.follows = "destiny-core";
 
     nixpkgs.follows = "destiny-core/nixpkgs";
+    nixpkgs-unfree.follows = "destiny-core/nixpkgs-unfree";
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
 
@@ -52,8 +53,8 @@
         imports = [
           inputs.clan-core.flakeModules.default
 
-          ./library/clanModules/flake-module.nix
-          ./library/nixosModules/flake-module.nix
+          ./library/nix/clanModules/flake-module.nix
+          ./library/nix/nixosModules/flake-module.nix
         ];
         # https://docs.clan.lol/getting-started/flake-parts/
         clan = {

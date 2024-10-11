@@ -1,7 +1,7 @@
 { self, config, lib, pkgs, ... }:
 let
   inherit (config.networking) hostName;
-  destiny-core' = self.inputs.destiny-core.packages.${builtins.currentSystem};
+  destiny-core' = self.inputs.destiny-core.packages.${pkgs.system};
 in
 {
   options.clan.clan-destiny.services.backups = with lib; with types; {

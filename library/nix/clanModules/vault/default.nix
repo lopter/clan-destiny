@@ -1,7 +1,7 @@
-{ self, config, lib, ... }:
+{ self, config, lib, pkgs, ... }:
 let
   inherit (config.networking) hostName;
-  nixpkgs-unfree' = self.inputs.nixpkgs-unfree.packages.${builtins.currentSystem};
+  nixpkgs-unfree' = self.inputs.nixpkgs-unfree.legacyPackages.${pkgs.system};
   serverCfg = config.clan.clan-destiny.services.vault-server;
   clientCfg = config.clan.clan-destiny.services.vault-client;
   vars = config.clan.core.vars.generators.clan-destiny-vault;
@@ -37,8 +37,9 @@ in
         };
       };
       services.vault = {
-        tlsCertFile = vars.tlsCertChain.path;
-        tlsKeyFile = vars.tlsKey.path;
+        enable = true;
+        tlsCertFile = vars.files.tlsCertChain.path;
+        tlsKeyFile = vars.files.tlsKey.path;
         storageBackend = "file";
         storagePath = config.users.users.vault.home;
 #   Note: the binaries built par Nix do not support the UI:
@@ -61,11 +62,11 @@ in
     (lib.mkIf clientCfg.enable {
       environment.variables = {
         VAULT_ADDR = config.services.vault.address;
-        VAULT_CACERT = commonVars.tlsCaCert.path;
+        VAULT_CACERT = commonVars.files.tlsCaCert.path;
         VAULT_CLIENT_TIMEOUT = "3";
       };
       environment.systemPackages = [
-        nixpkgs-unfree'.legacyPackages.vault
+        nixpkgs-unfree'.vault
       ];
       clan.core.vars.generators.clan-destiny-vault-common = {
         prompts.tlsCaCert = {

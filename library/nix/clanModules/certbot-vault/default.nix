@@ -11,8 +11,9 @@
 #
 # DOMAIN=example.com
 # sudo -u certbot -- certbot-vault -d $DOMAIN
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, self, ... }:
 let
+  inherit (self.inputs) destiny-core;
   cfg = config.clan.clan-destiny.services.certbot-vault;
 in
 {
@@ -56,7 +57,7 @@ in
 
             "d ''${logDir} 0750 certbot certbot 180d -"
       '';
-      type = lib.types.nullOrPath;
+      type = lib.types.nullOr lib.types.path;
       default = "/var/log/certbot";
     };
     vaultAddr = lib.mkOption {
@@ -76,8 +77,8 @@ in
   config = 
   let
     certbotPlugins = certbotPythonPkgs: with pkgs.python3Packages; [
-      (callPackage ../../third_party/pypi/certbot-plugin-gandi.nix { })
-      (callPackage ../../third_party/pypi/certbot-vault.nix { })
+      (callPackage (destiny-core + "/third_party/pypi/certbot-plugin-gandi.nix") { })
+      (callPackage (destiny-core + "/third_party/pypi/certbot-vault.nix") { })
     ];
     # TODO: wrap the original certbot binary with our arguments too.
     certbot = pkgs.python3Packages.certbot.withPlugins certbotPlugins;

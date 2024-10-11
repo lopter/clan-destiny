@@ -118,11 +118,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1728675964,
-        "narHash": "sha256-GJ4cCzHpqmp2T1G56vVCMn3IjqrVbFs7ElIVeETKVUo=",
+        "lastModified": 1728689823,
+        "narHash": "sha256-EtBZ+uqAr2YxLQkwtlvb1vK1NS/MRTIvtMgoppoiiek=",
         "ref": "refs/heads/main",
-        "rev": "0513079351501eb50f7511f9ea484fd15bee3c5a",
-        "revCount": 2,
+        "rev": "b1ff94962febf1645734667a8ce1dbadfc275168",
+        "revCount": 3,
         "type": "git",
         "url": "file:///stash/home/kal/cu/projs/destiny-config"
       },
@@ -1048,6 +1048,10 @@
         "nixpkgs": [
           "destiny-core",
           "nixpkgs"
+        ],
+        "nixpkgs-unfree": [
+          "destiny-core",
+          "nixpkgs-unfree"
         ],
         "plasma-manager": "plasma-manager"
       }
