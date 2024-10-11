@@ -169,7 +169,14 @@ in
     systemd.tmpfiles.rules = lib.mkIf (cfg.logDir == null) [
       "d ${logDir} 0750 certbot certbot 180d -"
     ];
-
+    users.groups.certbot = lib.mkDefault { };
+    users.users.certbot = lib.mkDefault {
+      home = "/var/lib/certbot";
+      createHome = true;
+      isSystemUser = true;
+      description = "Certbot ACME agent";
+      group = "certbot";
+    };
     environment.systemPackages = certbotPkgs;
   };
 }

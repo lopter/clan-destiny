@@ -22,7 +22,6 @@ in
   # the controller can be offline and routing still works.
   clan.core.networking.zerotier.controller.enable = false;
 
-  /*
   clan.clan-destiny.services = {
     certbot-vault.enable = true;
     nginx.nixos-proxy-cache.enable = true;
@@ -35,5 +34,4 @@ in
     tailscale.enable = true;
     unbound.enable = true;
   };
-  */
 }

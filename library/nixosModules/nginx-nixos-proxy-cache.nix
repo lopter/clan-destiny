@@ -1,12 +1,12 @@
 { config, lib, ... }:
 let
-  cfg = config.clan-destiny.nginx.nixos-proxy-cache;
+  cfg = nginxCfg.nixos-proxy-cache;
   nginxCfg = config.clan.clan-destiny.services.nginx;
 
   cacheName = "nixos-proxy-cache";
 in
 {
-  options.clan-destiny.nginx.nixos-proxy-cache = {
+  options.clan.clan-destiny.services.nginx.nixos-proxy-cache = {
     enable = lib.mkEnableOption "Setup a read-through cache for cache.nixos.org";
     storageDir = lib.mkOption {
       type = lib.types.path;

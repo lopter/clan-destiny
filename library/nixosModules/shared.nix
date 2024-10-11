@@ -14,7 +14,7 @@ in
     clan-core.clanModules.root-password
     clan-core.clanModules.state-version
 
-    # self.clanModules.backups
+    self.clanModules.backups
     self.clanModules.certbot-vault
     self.clanModules.nginx
     self.clanModules.postfix-relay
