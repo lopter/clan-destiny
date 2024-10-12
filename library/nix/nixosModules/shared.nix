@@ -27,21 +27,37 @@ in
     self.nixosModules.typed-tags
   ];
 
-  # Set this for clan commands use ssh i.e. `clan machines update`
-  # If you change the hostname, you need to update this line to root@<new-hostname>
-  # This only works however if you have avahi running on your admin machine else use IP
-  clan.core.networking.targetHost = "root@${hostDetails.endPoint}";
+  options.clan-destiny.nixpkgs.unfreePredicates = lib.mkOption {
+    description = ''
+      The list of unfree package names that are allowed for installation.
+    '';
+    type = lib.types.listOf lib.types.nonEmptyStr;
+    default = [ ];
+  };
 
-  i18n.defaultLocale = "en_US.UTF-8";
+  config = {
+    # Set this for clan commands use ssh i.e. `clan machines update`
+    # If you change the hostname, you need to update this line to root@<new-hostname>
+    # This only works however if you have avahi running on your admin machine else use IP
+    clan.core.networking.targetHost = "root@${hostDetails.endPoint}";
 
-  powerManagement.powertop.enable = true;
-  powerManagement.cpuFreqGovernor = lib.mkDefault "ondemand";
+    i18n.defaultLocale = "en_US.UTF-8";
 
-  # Locale service discovery and mDNS
-  services.avahi.enable = true;
+    nixpkgs.config.allowUnfreePredicate =
+    let
+      cfg = config.clan-destiny.nixpkgs;
+    in
+      pkg: builtins.elem (lib.getName pkg) cfg.unfreePredicates;
 
-  networking.domain = "clandestiny.org";
-  networking.firewall.enable = true;
+    powerManagement.powertop.enable = true;
+    powerManagement.cpuFreqGovernor = lib.mkDefault "ondemand";
 
-  time.timeZone = "UTC";
+    # Locale service discovery and mDNS
+    services.avahi.enable = true;
+
+    networking.domain = "clandestiny.org";
+    networking.firewall.enable = true;
+
+    time.timeZone = "UTC";
+  };
 }

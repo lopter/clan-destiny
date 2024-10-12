@@ -118,11 +118,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1728689823,
-        "narHash": "sha256-EtBZ+uqAr2YxLQkwtlvb1vK1NS/MRTIvtMgoppoiiek=",
+        "lastModified": 1728700462,
+        "narHash": "sha256-hzM/sW1NV+/YizK1RIFjrpQUmtlBbCMD5iUugrkw2a8=",
         "ref": "refs/heads/main",
-        "rev": "b1ff94962febf1645734667a8ce1dbadfc275168",
-        "revCount": 3,
+        "rev": "38a33446cbaed0be9aff47815c817b7df4b08399",
+        "revCount": 4,
         "type": "git",
         "url": "file:///stash/home/kal/cu/projs/destiny-config"
       },
@@ -902,11 +902,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1727917089,
-        "narHash": "sha256-XWNBGf8Z03sqA5/m99X6XTFbHGNuVx1gMaMQJbdDIrY=",
+        "lastModified": 1728700114,
+        "narHash": "sha256-bxeJ785jroRSmaJ6/OVYE8BM0UHq6AsPNHpOQ/aX7wI=",
         "owner": "nix-community",
         "repo": "plasma-manager",
-        "rev": "bc14b17bff1557de8f103172508f896a87bb9cdb",
+        "rev": "0b5b67518ef569f8f7de81533b2279bc63339c3c",
         "type": "github"
       },
       "original": {

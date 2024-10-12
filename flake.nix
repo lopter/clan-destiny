@@ -23,6 +23,7 @@
 
     nixpkgs.follows = "destiny-core/nixpkgs";
     nixpkgs-unfree.follows = "destiny-core/nixpkgs-unfree";
+    nixpkgs-unfree.inputs.nixpkgs.follows = "nixpkgs";
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
 

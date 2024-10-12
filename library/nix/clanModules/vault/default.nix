@@ -60,6 +60,7 @@ in
       };
     })
     (lib.mkIf clientCfg.enable {
+      clan-destiny.nixpkgs.unfreePredicates = [ "vault" ];
       environment.variables = {
         VAULT_ADDR = config.services.vault.address;
         VAULT_CACERT = commonVars.files.tlsCaCert.path;

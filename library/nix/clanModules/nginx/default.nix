@@ -55,6 +55,10 @@ in
         type = "hidden";
       };
     };
+
+    # TODO: do it on a per interface basis:
+    networking.firewall.allowedTCPPorts = [ 80 443 ];
+
     users.users."${nginxUser}" = {
       home = nginxHome;
       createHome = true;
