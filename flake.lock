@@ -74,10 +74,10 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "dirtyRev": "3a8bf4c3fa1c007b25c24e22f0ecb59928aeb56a-dirty",
-        "dirtyShortRev": "3a8bf4c3-dirty",
-        "lastModified": 1728409915,
-        "narHash": "sha256-Qo54BJeTs//PlU3vWPuycYUcGpfdd3pX+ovF9pexiN0=",
+        "dirtyRev": "567b1ef62c679e2ee9b58ece7fde7e51f644ad96-dirty",
+        "dirtyShortRev": "567b1ef6-dirty",
+        "lastModified": 1728757058,
+        "narHash": "sha256-ZpAT8xdGH47t+x1wGi8ec9PF/BRjMZ4cwqGba2PxmsM=",
         "type": "git",
         "url": "file:///stash/home/kal/cu/src/nix/clan-core"
       },
@@ -706,11 +706,11 @@
     },
     "nixos-hardware": {
       "locked": {
-        "lastModified": 1728269138,
-        "narHash": "sha256-oKxDImsOvgUZMY4NwXVyUc/c1HiU2qInX+b5BU0yXls=",
+        "lastModified": 1728729581,
+        "narHash": "sha256-oazkQ/z7r43YkDLLQdMg8oIB3CwWNb+2ZrYOxtLEWTQ=",
         "owner": "NixOS",
         "repo": "nixos-hardware",
-        "rev": "ecfcd787f373f43307d764762e139a7cdeb9c22b",
+        "rev": "a8dd1b21995964b115b1e3ec639dd6ce24ab9806",
         "type": "github"
       },
       "original": {
@@ -902,11 +902,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1728700114,
-        "narHash": "sha256-bxeJ785jroRSmaJ6/OVYE8BM0UHq6AsPNHpOQ/aX7wI=",
+        "lastModified": 1728750492,
+        "narHash": "sha256-9IHlIsH4gLqQjS2lFbEnsl/ItdqzBBLWLsyXS0k0jf8=",
         "owner": "nix-community",
         "repo": "plasma-manager",
-        "rev": "0b5b67518ef569f8f7de81533b2279bc63339c3c",
+        "rev": "c6d4b6f3e0138c08f37d66fcfbcbe37dab08f108",
         "type": "github"
       },
       "original": {
