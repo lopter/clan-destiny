@@ -77,7 +77,7 @@
         "dirtyRev": "567b1ef62c679e2ee9b58ece7fde7e51f644ad96-dirty",
         "dirtyShortRev": "567b1ef6-dirty",
         "lastModified": 1728757058,
-        "narHash": "sha256-ZpAT8xdGH47t+x1wGi8ec9PF/BRjMZ4cwqGba2PxmsM=",
+        "narHash": "sha256-IWt37iiAHd+EfWhTEFuCPSnrwBcYNaQZvfGPYJ7pjmU=",
         "type": "git",
         "url": "file:///stash/home/kal/cu/src/nix/clan-core"
       },
