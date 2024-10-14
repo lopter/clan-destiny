@@ -77,7 +77,7 @@
         "dirtyRev": "567b1ef62c679e2ee9b58ece7fde7e51f644ad96-dirty",
         "dirtyShortRev": "567b1ef6-dirty",
         "lastModified": 1728757058,
-        "narHash": "sha256-IWt37iiAHd+EfWhTEFuCPSnrwBcYNaQZvfGPYJ7pjmU=",
+        "narHash": "sha256-MaJ5Tb0oqZ18UfXoyJ3xOnD7so6sXEN8DI9n2qhMSLs=",
         "type": "git",
         "url": "file:///stash/home/kal/cu/src/nix/clan-core"
       },
@@ -148,11 +148,10 @@
         "rust-manifest-nightly": "rust-manifest-nightly"
       },
       "locked": {
+        "dirtyRev": "48a441a6d155deacb0a3ec80a76f3d8c7cf52a4e-dirty",
+        "dirtyShortRev": "48a441a-dirty",
         "lastModified": 1728515731,
-        "narHash": "sha256-7FCuAUADZD/Q/pzE3Ye7mQbgOnVJrpdFwV6IAshfmc8=",
-        "ref": "refs/heads/main",
-        "rev": "48a441a6d155deacb0a3ec80a76f3d8c7cf52a4e",
-        "revCount": 2,
+        "narHash": "sha256-Pdz1CaaLun45FxL5hu+40Cvy1CeTdou7aTVeEuyxBco=",
         "type": "git",
         "url": "file:///stash/home/kal/cu/projs/destiny-core"
       },
@@ -878,18 +877,16 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1726595257,
-        "narHash": "sha256-OTSSsRPbDfvqQF/hMeEj3FCMaAua9JzfPgg0GjlO5+Y=",
-        "owner": "lopter",
-        "repo": "nixpkgs",
-        "rev": "6570505eda1faa0ffe355f775b86954a8fb0b0ee",
-        "type": "github"
+        "dirtyRev": "73622f57f5b4e3123dc794ce9738fce0167ee114-dirty",
+        "dirtyShortRev": "73622f57f5b4-dirty",
+        "lastModified": 1727109555,
+        "narHash": "sha256-uMNfdq0FYGzqG81eabQSVYUC66aAi37SRBqOlxw4OHY=",
+        "type": "git",
+        "url": "file:///stash/home/kal/cu/src/nix/nixpkgs"
       },
       "original": {
-        "owner": "lopter",
-        "ref": "nixos-unstable-lo-patches",
-        "repo": "nixpkgs",
-        "type": "github"
+        "type": "git",
+        "url": "file:///stash/home/kal/cu/src/nix/nixpkgs"
       }
     },
     "plasma-manager": {
