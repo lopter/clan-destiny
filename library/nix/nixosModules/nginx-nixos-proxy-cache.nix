@@ -46,8 +46,9 @@ in
       '';
     }];
 
+    clan.clan-destiny.services.nginx.enable = true;
+
     services.nginx = {
-      enable = true;
       appendHttpConfig = ''
         proxy_cache_path ${cfg.storageDir} levels=1:2 keys_zone=${cacheName}:100m max_size=${cfg.maxSize} inactive=${cfg.inactive} use_temp_path=off;
         
