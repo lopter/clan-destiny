@@ -30,6 +30,7 @@ in
   };
 
   services = {
+    mpd.enable = true;
     gitolite.enable = true;
     tailscale.enable = true;
     unbound.enable = true;
