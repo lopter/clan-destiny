@@ -59,11 +59,6 @@ in
     # TODO: do it on a per interface basis:
     networking.firewall.allowedTCPPorts = [ 80 443 ];
 
-    users.users."${nginxUser}" = {
-      home = nginxHome;
-      createHome = true;
-    };
-
     systemd.tmpfiles.rules = [
       "d /run/nginx-vault-agent 0700 ${nginxUser} ${nginxGroup} - -"
       "d ${cfg.certsDirectory} 0700 ${nginxUser} ${nginxGroup} - -"
