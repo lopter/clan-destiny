@@ -80,7 +80,7 @@
               # because using the config (via `config.networking.hostName`)
               # while modules are being collected for evaluation will cause an
               # infinite recursion:
-              hostConfigModules = builtins.filter (path: builtins.pathExists path) [
+              hostConfigModules = builtins.filter builtins.pathExists [
                 (./machines + "/${hostname}/configuration.nix")
                 (./machines + "/${hostname}/disko.nix")
                 (./machines + "/${hostname}/hardware-configuration.nix")

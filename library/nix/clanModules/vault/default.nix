@@ -1,7 +1,8 @@
 { self, config, lib, pkgs, ... }:
 let
   inherit (config.networking) hostName;
-  nixpkgs-unfree' = self.inputs.nixpkgs-unfree.legacyPackages.${pkgs.system};
+  inherit (config.nixpkgs.hostPlatform) system;
+  nixpkgs-unfree' = self.inputs.nixpkgs-unfree.legacyPackages.${system};
   serverCfg = config.clan.clan-destiny.services.vault-server;
   clientCfg = config.clan.clan-destiny.services.vault-client;
   vars = config.clan.core.vars.generators.clan-destiny-vault;

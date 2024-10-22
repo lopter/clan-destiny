@@ -1,7 +1,8 @@
 { self, config, lib, pkgs, ... }:
 let
   inherit (config.networking) hostName;
-  destiny-core' = self.inputs.destiny-core.packages.${pkgs.system};
+  inherit (config.nixpkgs.hostPlatform) system;
+  destiny-core' = self.inputs.destiny-core.packages.${system};
 in
 {
   options.clan.clan-destiny.services.backups = with lib; with types; {
@@ -184,13 +185,13 @@ in
       serviceConfig = {
         Type = "oneshot";
         ExecStart = pkgs.writeShellScript "clan-destiny-backups-notify-fail" ''
-          mail -s 'clan-destiny-backups-dump failed to run on ${config.networking.hostName}' root <<EOF
+          mail -s 'clan-destiny-backups-dump failed to run on ${hostName}' root <<EOF
           systemctl status clan-destiny-backups.service:
 
           $(systemctl status clan-destiny-backups.service)
 
           -- 
-          clan-destiny-backups-notify-fail running on ${config.networking.hostName}
+            clan-destiny-backups-notify-fail running on ${hostName}
           EOF
         '';
       };

@@ -23,6 +23,7 @@
     netcat-openbsd
     openssh
     openssl
+    pciutils
     psmisc
     python3
     ripgrep

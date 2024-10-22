@@ -29,6 +29,9 @@ in
     vault-client.enable = true;
   };
 
+  # TODO: see why it does not work:
+  clan-destiny.acl-watcher.enable = true;
+
   services = {
     mpd.enable = true;
     gitolite.enable = true;

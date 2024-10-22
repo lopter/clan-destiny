@@ -19,6 +19,7 @@ in
     self.clanModules.nginx
     self.clanModules.postfix-relay
     self.clanModules.vault
+    self.nixosModules.acl-watcher
     self.nixosModules.base-pkgs
     self.nixosModules.linux
     self.nixosModules.nginx-nixos-proxy-cache
@@ -43,11 +44,14 @@ in
 
     i18n.defaultLocale = "en_US.UTF-8";
 
-    nixpkgs.config.allowUnfreePredicate =
-    let
-      cfg = config.clan-destiny.nixpkgs;
-    in
-      pkg: builtins.elem (lib.getName pkg) cfg.unfreePredicates;
+    # The nixos-facter module annoyingly does an mkIf on this:
+    nixpkgs.config = lib.mkForce {
+      allowUnfreePredicate =
+      let
+        unfreePredicates = config.clan-destiny.nixpkgs.unfreePredicates;
+      in
+        pkg: builtins.elem (lib.getName pkg) unfreePredicates;
+    };
 
     powerManagement.powertop.enable = true;
     powerManagement.cpuFreqGovernor = lib.mkDefault "ondemand";
