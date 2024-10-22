@@ -2,6 +2,12 @@
   "meta": {
     "name": "ClanDestiny"
   },
-  "machines": {},
+  "machines": {
+    "lady-3jane": {
+      "deploy": {},
+      "name": "lady-3jane",
+      "tags": []
+    }
+  },
   "services": {}
 }
