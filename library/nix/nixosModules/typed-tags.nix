@@ -1,4 +1,7 @@
-{ lib, ... }:
+{ config, lib, ... }:
+let
+  cfg = config.clan-destiny.typed-tags;
+in
 {
   options.clan-destiny.typed-tags.knownHosts = lib.mkOption {
     description = ''
@@ -34,6 +37,32 @@
     '';
     default = { };
   };
+  options.clan-destiny.typed-tags.interfaceRoles = lib.mkOption {
+    description = ''
+      A list of roles you can use to categorize your network interfaces.
+    '';
+    example = [ "lan" "wan" "tailnet-foo-bar" ];
+    type = lib.types.listOf lib.types.nonEmptyStr;
+    default = [ ];
+  };
+  options.clan-destiny.typed-tags.interfacesByRole =
+  let
+    option = role: lib.mkOption {
+      description = ''
+        The list of network interfaces attached to the role "${role}".
+      '';
+      type = lib.types.listOf lib.types.nonEmptyStr;
+      default = [ ];
+    };
+    mkPair = role: { name = role; value = option role; };
+  in
+    builtins.listToAttrs (builtins.map mkPair cfg.interfaceRoles);
+
+  config.lib.clan-destiny.typed-tags.repeatForInterfaces = interfaceCfg: interfacesLists:
+  let
+    mkPair = ifname: { name = ifname; value = interfaceCfg; };
+  in
+    builtins.listToAttrs (builtins.map mkPair (lib.flatten interfacesLists));
 }
 
 
