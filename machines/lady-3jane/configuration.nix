@@ -15,4 +15,8 @@ in
   boot.loader.efi.canTouchEfiVariables = true;
 
   clan-destiny.usergroups.createNormalUsers = true;
+
+  services = {
+    tailscale.enable = true;
+  };
 }

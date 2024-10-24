@@ -164,7 +164,7 @@
         "dirtyRev": "0c4fc00aed8a0e997ac1ac51ea24e6038cd4a962-dirty",
         "dirtyShortRev": "0c4fc00-dirty",
         "lastModified": 1729727706,
-        "narHash": "sha256-Cb98vC2a7hhVO8XXlDsihkvLXyKsS266mZqoFXecSrI=",
+        "narHash": "sha256-wncHEWpmfqV473n9Il1GP0eWGK0EauS4TANBzdvrg0I=",
         "type": "git",
         "url": "file:///stash/home/kal/cu/projs/destiny-config"
       },
