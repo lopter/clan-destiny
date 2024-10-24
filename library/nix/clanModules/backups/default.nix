@@ -11,6 +11,7 @@ in
         The list of backup jobs, the name of each backup job is used to look up
         public and private keys used with rsync jobs.
       '';
+      default = {};
       type = attrsOf (submodule {
         options = {
           type = mkOption {

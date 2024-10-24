@@ -73,6 +73,7 @@
           let
             names = [
               "nsrv-sfo-ashpool"
+              "lady-3jane"
             ];
             mkMachine = hostname:
             let
@@ -110,6 +111,7 @@
                 git-fetch-and-checkout
                 n
               ]) ++ (with pkgs; [
+                age
                 sops
                 python3Packages.ipython
 

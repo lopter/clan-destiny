@@ -1,6 +1,6 @@
 { self, lib, config, clan-core, ... }:
 let
-  inherit (self.inputs) destiny-config;
+  inherit (self.inputs) destiny-config home-manager;
   
   hostName = config.networking.hostName;
   hostDetails = config.clan-destiny.typed-tags.knownHosts.${hostName};
@@ -14,6 +14,8 @@ in
     clan-core.clanModules.root-password
     clan-core.clanModules.state-version
 
+    home-manager.nixosModules.home-manager
+
     self.clanModules.backups
     self.clanModules.certbot-vault
     self.clanModules.nginx
@@ -26,6 +28,7 @@ in
     self.nixosModules.nix-settings
     self.nixosModules.ssh
     self.nixosModules.typed-tags
+    self.nixosModules.usergroups
   ];
 
   options.clan-destiny.nixpkgs.unfreePredicates = lib.mkOption {

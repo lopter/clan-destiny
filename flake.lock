@@ -117,11 +117,10 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
+        "dirtyRev": "5d4d7dfa2bab6b528378cdcd1f5e789899421983-dirty",
+        "dirtyShortRev": "5d4d7dfa-dirty",
         "lastModified": 1729564168,
-        "narHash": "sha256-V38NWYIjhtNMIc+JBeJ3Au1oJlawh5w1R3UxyZuNNC4=",
-        "ref": "refs/heads/lo-sops-filter-env",
-        "rev": "5d4d7dfa2bab6b528378cdcd1f5e789899421983",
-        "revCount": 4463,
+        "narHash": "sha256-C0iIJr/Jk+JjnJzx5429XcWN/PUFYRWxIOWRKPArQX4=",
         "type": "git",
         "url": "file:///stash/home/kal/cu/src/nix/clan-core"
       },
@@ -162,11 +161,10 @@
         ]
       },
       "locked": {
-        "lastModified": 1729626452,
-        "narHash": "sha256-QmrZcPPScFt1vg29YSi7PwAiIaiSmzcCy4dA8yEzQW0=",
-        "ref": "refs/heads/main",
-        "rev": "8242938dd712af7dcbdaea9ca1221a34cac40e9f",
-        "revCount": 6,
+        "dirtyRev": "0c4fc00aed8a0e997ac1ac51ea24e6038cd4a962-dirty",
+        "dirtyShortRev": "0c4fc00-dirty",
+        "lastModified": 1729727706,
+        "narHash": "sha256-Cb98vC2a7hhVO8XXlDsihkvLXyKsS266mZqoFXecSrI=",
         "type": "git",
         "url": "file:///stash/home/kal/cu/projs/destiny-config"
       },
@@ -193,11 +191,11 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1729626432,
-        "narHash": "sha256-h8vDiMpLjSP865seBZvtgy3RyHq4xz6kMfivmta2vhE=",
+        "lastModified": 1729638729,
+        "narHash": "sha256-WODOD6ACkzVet1oRa50YtkFH/yv9mH11uLGq+cym4V0=",
         "ref": "refs/heads/main",
-        "rev": "edf9bb40f839a733afd10a2aee26367cdde52690",
-        "revCount": 6,
+        "rev": "0c2db13160c17cc971b8763a2a6b18fadad3a7cd",
+        "revCount": 7,
         "type": "git",
         "url": "file:///stash/home/kal/cu/projs/destiny-core"
       },
@@ -786,11 +784,11 @@
     },
     "nixos-hardware": {
       "locked": {
-        "lastModified": 1729624485,
-        "narHash": "sha256-iEffyT68tEU5kHQuyP05QRH+JhWNNLAwHfgZAzXFS7o=",
+        "lastModified": 1729690929,
+        "narHash": "sha256-cTSekmupaDfrhlpLhBUBrU9mUzBaD6mYsMveTX0bKDg=",
         "owner": "NixOS",
         "repo": "nixos-hardware",
-        "rev": "22e8de2729f40d29a445c8baeaf22740b8b25daf",
+        "rev": "64d900abe40057393148bc0283d35c2254dd4f57",
         "type": "github"
       },
       "original": {
@@ -982,11 +980,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1729372184,
-        "narHash": "sha256-Tb2/jJ74pt0nmfprkOW1g5zZphJTNbzLnyDENM+c5+I=",
+        "lastModified": 1729710171,
+        "narHash": "sha256-2sVt2hbL+G0FzEESm/EZBewPOmNtZ6MTnYhsvHJW6Rs=",
         "owner": "nix-community",
         "repo": "plasma-manager",
-        "rev": "9390dadadc58ffda8e494b31ef66a4ae041f6dd1",
+        "rev": "247a8e677b51f053ca89dcf67059e24f85e47391",
         "type": "github"
       },
       "original": {

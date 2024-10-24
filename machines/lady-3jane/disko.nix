@@ -1,15 +1,6 @@
 { lib, ... }:
 let
-  # Get the partition of the given number for the given storage device. Expand
-  # to the correct path whether devices are addressed using /dev/disk/by- or
-  # using something of the like of /dev/sda:
-  diskPart = number: diskName:
-    if builtins.isList (builtins.match ".+by-(id|uuid).+" diskName) then
-      "${diskName}-part${toString number}"
-    else 
-      "${diskName}${toString number}";
-
-  sataSSD = "/dev/disk/by-id/ata-Samsung_SSD_870_EVO_4TB_S6P3NS0W300955A";
+  nvmeSSD = "/dev/disk/by-id/nvme-WDC_PC_SN720_SDAQNTW-512G-1001_1850B7800641";
   # https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)
   # https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance
   #
@@ -18,13 +9,12 @@ let
   allowDiscards = true;
   bypassWorkqueues = true;
 
-  # cryptsetup open --key-file /dev/disk/by-id/usb-USB_SanDisk_3.2Gen1_*\:0 --keyfile-size 4096 /dev/vda3 ashpool-luks
   luksSettings = {
     inherit allowDiscards bypassWorkqueues;
     # Do that until we can manually add a passphrase or do secure boot with
     # a fingerprint:
     keyFileSize = 4096;
-    keyFile = "/dev/disk/by-id/usb-USB_SanDisk_3.2Gen1_03022020042524070315-0:0";
+    keyFile = "/dev/disk/by-id/usb-USB_SanDisk_3.2Gen1_03023411042524070542-0:0";
   };
 in
 {
@@ -39,7 +29,7 @@ in
     disk = {
       system = {
         type = "disk";
-        device = sataSSD;
+        device = nvmeSSD;
         content = {
           type = "gpt";
           partitions = {
@@ -66,12 +56,12 @@ in
               priority = 3;
               size = "100%";
               content = {
-                name = "ashpool-luks";
+                name = "lady3jane-luks";
                 type = "luks";
                 settings = luksSettings;
                 content = {
                   type = "lvm_pv";
-                  vg = "vgAshpoolSystem";
+                  vg = "vgLady3JaneSystem";
                 };
               };
             };
@@ -80,7 +70,7 @@ in
       };
     };
     lvm_vg = {
-      vgAshpoolSystem = {
+      vgLady3JaneSystem = {
         type = "lvm_vg";
         lvs = {
           lvRoot = {
@@ -103,7 +93,7 @@ in
             };
           };
           lvStash = {
-            size = "3T";
+            size = "300G";
             content = {
               type = "filesystem";
               format = "ext4";
@@ -134,8 +124,8 @@ in
     };
   };
 
-  boot.initrd.luks.devices."ashpool-system" = luksSettings // {
-    device = diskPart 3 sataSSD;
+  boot.initrd.luks.devices."lady-3jane-system" = luksSettings // {
+    device = "${nvmeSSD}-part3";
   };
 
   fileSystems = {
@@ -144,31 +134,31 @@ in
       maybeOptions = if allowDiscards then { options = [ "discard" ]; } else { };
     in
     {
-      device = "/dev/vgAshpoolSystem/lvRoot";
+      device = "/dev/vgLady3JaneSystem/lvRoot";
       fsType = "ext4";
     } // maybeOptions;
     "/boot" = {
-      device = diskPart 1 sataSSD;
+      device = "${nvmeSSD}-part1";
       fsType = "vfat";
       options = [ "umask=077" ] ++ lib.optionals allowDiscards [ "discard" ];
     };
     "/var" = {
-      device = "/dev/vgAshpoolSystem/lvVar";
+      device = "/dev/vgLady3JaneSystem/lvVar";
       fsType = "ext4";
       options = [ "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
     };
     "/stash" = {
-      device = "/dev/vgAshpoolSystem/lvStash";
+      device = "/dev/vgLady3JaneSystem/lvStash";
       fsType = "ext4";
       options = [ "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
     };
     "/nix" = {
-      device = "/dev/vgAshpoolSystem/lvNix";
+      device = "/dev/vgLady3JaneSystem/lvNix";
       fsType = "ext4";
       options = [ "noatime" "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
     };
     "/tmp" = {
-      device = "/dev/vgAshpoolSystem/lvTmp";
+      device = "/dev/vgLady3JaneSystem/lvTmp";
       fsType = "ext4";
       options = [ "noatime" "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
     };
@@ -180,7 +170,7 @@ in
 
   swapDevices = [
     {
-      device = diskPart 2 sataSSD;
+      device = "${nvmeSSD}-part2";
       randomEncryption = {
         inherit allowDiscards;
         enable = true;
