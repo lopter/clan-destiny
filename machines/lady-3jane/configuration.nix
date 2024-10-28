@@ -4,6 +4,8 @@ let
 in
 {
   imports = [
+    clan-core.clanModules.user-password
+
     nixos-hardware.nixosModules.lenovo-thinkpad-t480s
 
     self.nixosModules.home-kal
@@ -14,6 +16,7 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  clan.user-password.user = "kal";
   clan-destiny.usergroups.createNormalUsers = true;
 
   services = {
