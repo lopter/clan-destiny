@@ -4,8 +4,8 @@
   inputs = {
     catppuccin.url = "github:catppuccin/nix";
 
-    # clan-core.url = "git+https://git.clan.lol/clan/clan-core";
-    clan-core.url = "git+file:///stash/home/kal/cu/src/nix/clan-core?rev=86cb4035f4b834037a482b481f4d465032675ec2";
+    clan-core.url = "git+https://git.clan.lol/lopter/clan-core?ref=lo-sops-filter-env";
+    # clan-core.url = "git+file:///stash/home/kal/cu/src/nix/clan-core?rev=86cb4035f4b834037a482b481f4d465032675ec2";
     clan-core.inputs.nixpkgs.follows = "nixpkgs";
 
     flake-parts.url = "github:hercules-ci/flake-parts";

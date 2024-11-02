@@ -90,11 +90,11 @@
     },
     "catppuccin": {
       "locked": {
-        "lastModified": 1730036420,
-        "narHash": "sha256-rv2bz7J6Wo7AenPiu4+ptCB1AFyaMcS77y89zbRAtI8=",
+        "lastModified": 1730458408,
+        "narHash": "sha256-JQ+SphQn13bdibKUrBBBznYehXX4xJrxD1ifBp6vSWw=",
         "owner": "catppuccin",
         "repo": "nix",
-        "rev": "0b7bf04628414a402d255924f65e9a0d1a53d92b",
+        "rev": "191fbf2d81a63fad8f62f1233c0051f09b75d0ad",
         "type": "github"
       },
       "original": {
@@ -118,16 +118,16 @@
       "locked": {
         "lastModified": 1729734239,
         "narHash": "sha256-M8ULOyFQvE6VEE6unq3UJC6Z5V9w1DPH94DQIwtPqyI=",
-        "ref": "refs/heads/lo-sops-filter-env",
+        "ref": "lo-sops-filter-env",
         "rev": "1043940e40e25c17a68185b23e9c3add8706d23f",
         "revCount": 4509,
         "type": "git",
-        "url": "file:///stash/home/kal/cu/src/nix/clan-core"
+        "url": "https://git.clan.lol/lopter/clan-core"
       },
       "original": {
-        "rev": "86cb4035f4b834037a482b481f4d465032675ec2",
+        "ref": "lo-sops-filter-env",
         "type": "git",
-        "url": "file:///stash/home/kal/cu/src/nix/clan-core"
+        "url": "https://git.clan.lol/lopter/clan-core"
       }
     },
     "crane": {
@@ -163,11 +163,11 @@
       "locked": {
         "lastModified": 1730422600,
         "narHash": "sha256-DqICaYB3lb5MvRIIgv9PJlJpyY63xt1Z2nd3VDfpoyE=",
-        "ref": "refs/heads/main",
+        "ref": "main",
         "rev": "3dafe5171f1596493ee8b99088bbe5f7d4a3b879",
         "revCount": 19,
         "type": "git",
-        "url": "file:///stash/home/kal/cu/projs/destiny-config"
+        "url": "ssh://gitolite.kalessin.fr/louis/destiny-config"
       },
       "original": {
         "ref": "main",
@@ -194,11 +194,11 @@
       "locked": {
         "lastModified": 1730157820,
         "narHash": "sha256-HwZSf5G+bunTh28sboer/DyQOMvWVxQTKTCC4Y0pnTQ=",
-        "ref": "refs/heads/main",
+        "ref": "main",
         "rev": "260500d5ad3357e4c6deb01985448d5e0d58729f",
         "revCount": 13,
         "type": "git",
-        "url": "file:///stash/home/kal/cu/projs/destiny-core"
+        "url": "ssh://gitolite.kalessin.fr/louis/destiny-core"
       },
       "original": {
         "ref": "main",
@@ -489,11 +489,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1727826117,
-        "narHash": "sha256-K5ZLCyfO/Zj9mPFldf3iwS6oZStJcU4tSpiXTMYaaL0=",
+        "lastModified": 1730504689,
+        "narHash": "sha256-hgmguH29K2fvs9szpq2r3pz2/8cJd2LPS+b4tfNFCwE=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "3d04084d54bedc3d6b8b736c70ef449225c361b1",
+        "rev": "506278e768c2a08bec68eb62932193e341f55c90",
         "type": "github"
       },
       "original": {
@@ -732,11 +732,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1729339656,
-        "narHash": "sha256-smV7HQ/OqZeRguQxNjsb3uQDwm0p6zKDbSDbPCav/oY=",
+        "lastModified": 1730479402,
+        "narHash": "sha256-79NLeNjpCa4mSasmFsE3QA6obURezF0TUO5Pm+1daog=",
         "owner": "nlewo",
         "repo": "nix2container",
-        "rev": "cc96df7c3747c61c584d757cfc083922b4f4b33e",
+        "rev": "5fb215a1564baa74ce04ad7f903d94ad6617e17a",
         "type": "github"
       },
       "original": {
@@ -824,11 +824,11 @@
     },
     "nixos-hardware": {
       "locked": {
-        "lastModified": 1730368399,
-        "narHash": "sha256-F8vJtG389i9fp3k2/UDYHMed3PLCJYfxCqwiVP7b9ig=",
+        "lastModified": 1730537918,
+        "narHash": "sha256-GJB1/aaTnAtt9sso/EQ77TAGJ/rt6uvlP0RqZFnWue8=",
         "owner": "NixOS",
         "repo": "nixos-hardware",
-        "rev": "da14839ac5f38ee6adbdb4e6db09b5eef6d6ccdc",
+        "rev": "f6e0cd5c47d150c4718199084e5764f968f1b560",
         "type": "github"
       },
       "original": {
@@ -996,11 +996,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1730366788,
-        "narHash": "sha256-0Ezvv4KkyFdLAblPBFDgZbiMLlJZtpHruT2i4KC2wIY=",
+        "lastModified": 1730481339,
+        "narHash": "sha256-Y1yWhjt/38N5IMgWoGnUTzJ6F4kGnpti/l2AOJWPUOY=",
         "owner": "nix-community",
         "repo": "plasma-manager",
-        "rev": "f634d5f6ee9be365b2ca08b2d00e0e3b0c240b9e",
+        "rev": "6cb0aedf6160725eee50425b4e8d908c09dcb7a3",
         "type": "github"
       },
       "original": {
