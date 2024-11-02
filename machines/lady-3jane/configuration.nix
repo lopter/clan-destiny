@@ -1,4 +1,4 @@
-{ lib, self, ... }:
+{ lib, self, clan-core, ... }:
 let
   inherit (self.inputs) nixos-hardware;
 in
@@ -16,7 +16,11 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  clan.clan-destiny.services = {
+    vault-client.enable = true;
+  };
   clan.user-password.user = "kal";
+
   clan-destiny.usergroups.createNormalUsers = true;
 
   services = {

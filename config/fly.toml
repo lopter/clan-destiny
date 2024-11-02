@@ -1,0 +1,36 @@
+app = "clan-destiny-pop"
+primary_region = "ewr"
+console_command = "/bin/bash -l"
+
+[mounts]
+source = "pop_cache"
+destination = "/var"
+initial_size = "3gb"
+
+[[services]]
+internal_port = 1101
+protocol = "tcp"
+auto_stop_machines = "suspend"
+min_machines_running = 1
+  [[services.ports]]
+  port = 80
+
+[[services]]
+internal_port = 1102
+protocol = "tcp"
+auto_stop_machines = "suspend"
+min_machines_running = 1
+  [[services.ports]]
+  port = 443
+
+[[services]]
+internal_port = 41641
+protocol = "udp"
+auto_stop_machines = "suspend"
+min_machines_running = 1
+  [[services.ports]]
+  port = 41641
+
+[[vm]]
+size = "shared-cpu-1x"
+memory = "512m"

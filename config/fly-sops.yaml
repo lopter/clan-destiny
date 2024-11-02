@@ -1,0 +1,4 @@
+creation_rules:
+- age: age1zps7k9czhty4leyjfph8z3fd3lrl9j08aw0z7xctmp2jys2gdcesvnh7lx
+  path_regex: .*fly-io-pop.+\.yaml$
+  pgp: ADB6276965590A096004F6D1E114CBAE8FA29165

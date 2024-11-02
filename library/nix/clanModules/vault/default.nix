@@ -63,7 +63,7 @@ in
     (lib.mkIf clientCfg.enable {
       clan-destiny.nixpkgs.unfreePredicates = [ "vault" ];
       environment.variables = {
-        VAULT_ADDR = config.services.vault.address;
+        VAULT_ADDR = config.lib.clan-destiny.vault.addr;
         VAULT_CACERT = commonVars.files.tlsCaCert.path;
         VAULT_CLIENT_TIMEOUT = "3";
       };
@@ -71,6 +71,7 @@ in
         nixpkgs-unfree'.vault
       ];
       clan.core.vars.generators.clan-destiny-vault-common = {
+        files.tlsCaCert.secret = false;
         prompts.tlsCaCert = {
           createFile = true;
           description = "The TLS Certificate Authority certificate used by Vault";

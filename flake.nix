@@ -21,6 +21,9 @@
     destiny-config.inputs.nixpkgs.follows = "nixpkgs";
     destiny-config.inputs.destiny-core.follows = "destiny-core";
 
+    nix2container.url = "github:nlewo/nix2container";
+    nix2container.inputs.nixpkgs.follows = "nixpkgs";
+
     nixpkgs.follows = "destiny-core/nixpkgs";
     nixpkgs-unfree.follows = "destiny-core/nixpkgs-unfree";
     nixpkgs-unfree.inputs.nixpkgs.follows = "nixpkgs";
@@ -56,6 +59,7 @@
 
           ./library/nix/clanModules/flake-module.nix
           ./library/nix/nixosModules/flake-module.nix
+          ./library/nix/packages/fly-io-pop/flake-module.nix
         ];
         # https://docs.clan.lol/getting-started/flake-parts/
         clan = {
@@ -112,7 +116,9 @@
                 n
               ]) ++ (with pkgs; [
                 age
+                flyctl
                 sops
+                ssh-to-age
                 python3Packages.ipython
 
                 fd
@@ -130,6 +136,17 @@
                   '';
                   runtimeInputs = [ fd entr ];
                 })
+
+                (writeShellScriptBin "deploy-pop" ''
+                  set -ex
+                  nix run -L '.#fly-io-pop.copyToRegistry'
+                  [ -f config/fly.toml ] && {
+                    fly deploy -c config/fly.toml -i registry.fly.io/clan-destiny-pop:latest;
+                  } || {
+                    echo >&2 "config/fly.toml not found, make sure you are at the repo's root.";
+                    exit 1;
+                  }
+                '')
               ]);
 
               shellHook = ''
