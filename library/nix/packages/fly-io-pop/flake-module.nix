@@ -233,9 +233,7 @@ in
               include ${pkgs.nginx}/conf/fastcgi.conf;
               include ${pkgs.nginx}/conf/uwsgi_params;
               default_type application/octet-stream;
-              # setup unbound if necessary:
-              # resolver 127.0.0.1:62007   ;
-              # optimisation
+              log_subrequest on;
               sendfile on;
               tcp_nopush on;
               tcp_nodelay on;
@@ -283,15 +281,9 @@ in
               }
               client_max_body_size 10m;
               server_tokens off;
-
-              server {
-                listen 0.0.0.0:${ports.nginx};
-                listen [::0]:${ports.nginx};
-
-                return 204;
-              }
-            }
-          '';
+          ''
+          + (destiny-config.lib.popNginxConfig { inherit ports; })
+          + "}";
         };
         # Only one volume per machine:
         derivationArgs = { };
