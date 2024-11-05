@@ -21,8 +21,8 @@ in
   config = lib.mkMerge [
     (lib.mkIf serverCfg.enable {
       clan.core.vars.generators.clan-destiny-vault = {
-        files.tlsCertChain.owner = "vault";
-        files.tlsKey.owner = "vault";
+        files.tlsCertChain.sops.owner = "vault";
+        files.tlsKey.sops.owner = "vault";
         prompts.tlsCertChain = {
           createFile = true;
           description = ''
