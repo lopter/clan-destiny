@@ -17,6 +17,7 @@ in
           bashInteractive
           coreutils
           curl
+          ((bind.override (prev: { enableGSSAPI = false; })).dnsutils)
           fd
           file
           git
@@ -44,6 +45,7 @@ in
           tmux
           tree
           util-linux
+          unbound
           vis
 
           inputs'.nixpkgs-unfree.legacyPackages.vault
@@ -66,6 +68,7 @@ in
           nginx-https = "1102";
           ssh = "1103";
           tailscaled = "41641";
+          unbound = "1104";
         };
         processComposeConfig = pkgs.writeTextFile {
           name = "process-compose.yaml";
@@ -95,6 +98,7 @@ in
                 depends_on = {
                   postInit.condition = "process_completed_successfully";
                   tailscaled.condition = "process_healthy";
+                  unbound.condition = "process_healthy";
                 } // lib.optionalAttrs (builtins.length certbotDomains > 0) {
                   nginx-vault-agent.condition = "process_healthy";
                 };
@@ -104,6 +108,12 @@ in
                 command = "${pkgs.openssh}/bin/sshd -D -f ${sshdConfig}";
                 availability.restart = "always";
                 depends_on.tailscaled.condition = "process_healthy";
+              };
+              unbound = {
+                command = "runas unbound ${pkgs.unbound}/bin/unbound -d -p -c ${unboundConfig}";
+                depends_on.postInit.condition = "process_completed_successfully";
+                availability.restart = "always";
+                readiness_probe.exec.command = ''dig -p ${ports.unbound} nixos.org @127.0.0.1'';
               };
               tailscaled = {
                 command = "${pkgs.tailscale}/bin/tailscaled --state=/var/lib/tailscale/tailscaled.state --port=${ports.tailscaled} --socket=/var/run/tailscale/tailscaled.sock";
@@ -218,6 +228,34 @@ in
           in
             builtins.concatMap mkDomain certbotDomains;
         };
+        unboundConfig = pkgs.writeTextFile {
+          name = "unbound.conf";
+          text = ''
+            server:
+
+              access-control: 127.0.0.0/8 allow
+              access-control: ::1/128 allow
+              auto-trust-anchor-file: /var/lib/unbound/root.key
+              chroot: ""
+              directory: /var/lib/unbound
+              do-daemonize: no
+              interface: 127.0.0.1
+              interface: ::1
+              ip-freebind: yes
+              pidfile: ""
+              port: ${ports.unbound}
+              tls-cert-bundle: /etc/ssl/certs/ca-certificates.crt
+              username: ""
+            remote-control:
+              control-cert-file: /var/lib/unbound/unbound_control.pem
+              control-enable: no
+              control-interface: 127.0.0.1
+              control-interface: ::1
+              control-key-file: /var/lib/unbound/unbound_control.key
+              server-cert-file: /var/lib/unbound/unbound_server.pem
+              server-key-file: /var/lib/unbound/unbound_server.key
+          '';
+        };
         nginxConfig = pkgs.writeTextFile {
           name = "nginx.conf";
           text = ''
@@ -281,6 +319,7 @@ in
               }
               client_max_body_size 10m;
               server_tokens off;
+              resolver 127.0.0.1:${ports.unbound};
           ''
           + (destiny-config.lib.popNginxConfig { inherit ports; })
           + "}";
@@ -307,6 +346,8 @@ in
           let
             nginxUid = builtins.toString destiny-config.lib.usergroups.users.nginx.uid;
             nginxGid = builtins.toString destiny-config.lib.usergroups.users.nginx.gid;
+            unboundUid = builtins.toString destiny-config.lib.usergroups.users.unbound.uid;
+            unboundGid = builtins.toString destiny-config.lib.usergroups.users.unbound.gid;
           in
             ''
             install -d -o ${nginxUid} -g ${nginxGid} /run/nginx
@@ -321,6 +362,7 @@ in
             install -d /var/lib
             install -d -o ${nginxUid} -g ${nginxGid} -m 700 /var/lib/nginx
             install -d -o ${nginxUid} -g ${nginxGid} -m 700 /var/lib/nginx/certs
+            install -d -o ${unboundUid} -g ${unboundGid} -m 700 /var/lib/unbound
             install -d -m 700 /var/lib/tailscale
             install -d /var/lib/dhparams
 
