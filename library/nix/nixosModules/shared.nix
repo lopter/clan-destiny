@@ -46,6 +46,8 @@ in
 
     i18n.defaultLocale = "en_US.UTF-8";
 
+    lib.clan-destiny.zoneFromHostname = self.lib.zoneFromHostname;
+
     # The nixos-facter module annoyingly does an mkIf on this:
     nixpkgs.config = lib.mkForce {
       allowUnfreePredicate =
