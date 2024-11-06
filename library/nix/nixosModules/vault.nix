@@ -3,16 +3,16 @@ let
   inherit (config.networking) hostName;
   inherit (config.nixpkgs.hostPlatform) system;
   nixpkgs-unfree' = self.inputs.nixpkgs-unfree.legacyPackages.${system};
-  serverCfg = config.clan.clan-destiny.services.vault-server;
-  clientCfg = config.clan.clan-destiny.services.vault-client;
+  serverCfg = config.clan-destiny.vault-server;
+  clientCfg = config.clan-destiny.vault-client;
   vars = config.clan.core.vars.generators.clan-destiny-vault;
   commonVars = config.clan.core.vars.generators.clan-destiny-vault-common;
 in
 {
-  options.clan.clan-destiny.services.vault-server = {
+  options.clan-destiny.vault-server = {
     enable = lib.mkEnableOption "Configure and enable the vault-server";
   };
-  options.clan.clan-destiny.services.vault-client = {
+  options.clan-destiny.vault-client = {
     enable = lib.mkEnableOption ''
       Setup the TLS CA certificate used by Vault along with the right
       environment vars.

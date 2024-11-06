@@ -1,10 +1,10 @@
 { config, lib, pkgs, ... }:
 let
-  cfg = config.clan.services.postfix-relay;
+  cfg = config.clan-destiny.postfix-relay;
   vars = config.clan.core.vars.generators.postfix-relay;
 in
 {
-  options.clan.services.postfix-relay = {
+  options.clan-destiny.postfix-relay = {
     domain = lib.mkOption {
       description = ''
         The value for the `domain` Postfix module option, it will also be used

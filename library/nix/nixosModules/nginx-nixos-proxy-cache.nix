@@ -1,14 +1,14 @@
 { config, lib, ... }:
 let
   cfg = nginxCfg.nixos-proxy-cache;
-  nginxCfg = config.clan.clan-destiny.services.nginx;
+  nginxCfg = config.clan-destiny.nginx;
   nginxUser = config.services.nginx.user;
   nginxGroup = config.services.nginx.group;
 
   cacheName = "nixos-proxy-cache";
 in
 {
-  options.clan.clan-destiny.services.nginx.nixos-proxy-cache = {
+  options.clan-destiny.nginx.nixos-proxy-cache = {
     enable = lib.mkEnableOption "Setup a read-through cache for cache.nixos.org";
     storageDir = lib.mkOption {
       type = lib.types.path;
@@ -46,7 +46,7 @@ in
       '';
     }];
 
-    clan.clan-destiny.services.nginx.enable = true;
+    clan-destiny.nginx.enable = true;
 
     services.nginx = {
       appendHttpConfig = ''

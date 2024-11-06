@@ -22,15 +22,13 @@ in
   # the controller can be offline and routing still works.
   clan.core.networking.zerotier.controller.enable = false;
 
-  clan.clan-destiny.services = {
+  clan-destiny = {
+    acl-watcher.enable = true; # TODO: see why it does not work
     certbot-vault.enable = true;
     nginx.nixos-proxy-cache.enable = true;
     vault-server.enable = true;
     vault-client.enable = true;
   };
-
-  # TODO: see why it does not work:
-  clan-destiny.acl-watcher.enable = true;
 
   services = {
     mpd.enable = true;

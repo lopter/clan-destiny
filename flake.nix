@@ -57,7 +57,6 @@
         imports = [
           inputs.clan-core.flakeModules.default
 
-          ./library/nix/clanModules/flake-module.nix
           ./library/nix/nixosModules/flake-module.nix
           ./library/nix/packages/fly-io-pop/flake-module.nix
         ];
@@ -67,7 +66,7 @@
 
           # Make flake available in modules
           specialArgs.self = {
-            inherit (self) clanModules inputs nixosModules packages;
+            inherit (self) inputs lib nixosModules packages;
           };
           directory = self;
 
@@ -160,7 +159,7 @@
           zoneFromHostname = hostname:
           let
             knownZones = [ "sfo" ];
-            capturePattern = builtins.concatStringSep "|" knownZones;
+            capturePattern = builtins.concatStringsSep "|" knownZones;
             groups = builtins.match ".+(${capturePattern})(-.+)?$" hostname;
           in
             if groups == null then null else builtins.elemAt groups 0;

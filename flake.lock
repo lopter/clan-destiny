@@ -116,11 +116,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1730747825,
-        "narHash": "sha256-IOgdTnmO7I6LZ9ryNMJYp0q6OWcN7KzASd8Vm4pNdNU=",
+        "lastModified": 1730749674,
+        "narHash": "sha256-gz2+4ldrb8RrE5boV8UumzzGA/lg4ZyCFvjmM+s5a1M=",
         "ref": "refs/heads/lo-sops-filter-env",
-        "rev": "b7119054ea2f9b239caa1caeea9120ff75edc946",
-        "revCount": 4555,
+        "rev": "12bc9c6475b79296c04e34a1b55dd08994234ff5",
+        "revCount": 4556,
         "type": "git",
         "url": "file:///stash/home/kal/cu/src/nix/clan-core"
       },
@@ -161,11 +161,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1730422600,
-        "narHash": "sha256-DqICaYB3lb5MvRIIgv9PJlJpyY63xt1Z2nd3VDfpoyE=",
+        "lastModified": 1730857099,
+        "narHash": "sha256-7WcKqr9wdUxURCvsJ666ffp/Hh7OcsnSIqReN09dxSE=",
         "ref": "refs/heads/main",
-        "rev": "3dafe5171f1596493ee8b99088bbe5f7d4a3b879",
-        "revCount": 19,
+        "rev": "1362600cc155fc160420dd0c418f8d178552fabe",
+        "revCount": 21,
         "type": "git",
         "url": "file:///stash/home/kal/cu/projs/destiny-config"
       },
@@ -824,11 +824,11 @@
     },
     "nixos-hardware": {
       "locked": {
-        "lastModified": 1730537918,
-        "narHash": "sha256-GJB1/aaTnAtt9sso/EQ77TAGJ/rt6uvlP0RqZFnWue8=",
+        "lastModified": 1730828750,
+        "narHash": "sha256-XrnZLkLiBYNlwV5gus/8DT7nncF1TS5la6Be7rdVOpI=",
         "owner": "NixOS",
         "repo": "nixos-hardware",
-        "rev": "f6e0cd5c47d150c4718199084e5764f968f1b560",
+        "rev": "2e78b1af8025108ecd6edaa3ab09695b8a4d3d55",
         "type": "github"
       },
       "original": {

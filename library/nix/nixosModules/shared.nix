@@ -15,19 +15,19 @@ in
 
     home-manager.nixosModules.home-manager
 
-    self.clanModules.backups
-    self.clanModules.certbot-vault
-    self.clanModules.nginx
-    self.clanModules.postfix-relay
-    self.clanModules.vault
     self.nixosModules.acl-watcher
+    self.nixosModules.backups
     self.nixosModules.base-pkgs
+    self.nixosModules.certbot-vault
     self.nixosModules.linux
+    self.nixosModules.nginx
     self.nixosModules.nginx-nixos-proxy-cache
     self.nixosModules.nix-settings
+    self.nixosModules.postfix-relay
     self.nixosModules.ssh
     self.nixosModules.typed-tags
     self.nixosModules.usergroups
+    self.nixosModules.vault
   ];
 
   options.clan-destiny.nixpkgs.unfreePredicates = lib.mkOption {

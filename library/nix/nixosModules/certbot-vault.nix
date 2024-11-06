@@ -14,10 +14,10 @@
 { config, lib, pkgs, self, ... }:
 let
   inherit (self.inputs) destiny-core;
-  cfg = config.clan.clan-destiny.services.certbot-vault;
+  cfg = config.clan-destiny.certbot-vault;
 in
 {
-  options.clan.clan-destiny.services.certbot-vault = {
+  options.clan-destiny.certbot-vault = {
     enable = lib.mkEnableOption "Enable domain renewal with certbot";
     configDir = lib.mkOption {
       description = "`--config-dir` option for certbot.";

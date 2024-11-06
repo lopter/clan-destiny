@@ -16,12 +16,11 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  clan.clan-destiny.services = {
+  clan-destiny = {
+    usergroups.createNormalUsers = true;
     vault-client.enable = true;
   };
   clan.user-password.user = "kal";
-
-  clan-destiny.usergroups.createNormalUsers = true;
 
   services = {
     tailscale.enable = true;

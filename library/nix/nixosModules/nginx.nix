@@ -2,7 +2,7 @@
 # module by adding a vault-agent sidecar to pull TLS certificates from Vault.
 { config, lib, ... }:
 let
-  cfg = config.clan.clan-destiny.services.nginx;
+  cfg = config.clan-destiny.nginx;
   vars = config.clan.core.vars.generators.clan-destiny-nginx;
   certbotCfg = config.clan.clan-destiny.services.certbot-vault;
 
@@ -15,7 +15,7 @@ let
   proxyTimeout = "3s";
 in
 {
-  options.clan.clan-destiny.services.nginx = {
+  options.clan-destiny.nginx = {
     enable = lib.mkEnableOption "Configure and enable nginx";
     certsDirectory = lib.mkOption {
       type = lib.types.path;

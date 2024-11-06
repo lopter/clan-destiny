@@ -5,7 +5,7 @@ let
   destiny-core' = self.inputs.destiny-core.packages.${system};
 in
 {
-  options.clan.clan-destiny.services.backups = with lib; with types; {
+  options.clan-destiny.backups = with lib; with types; {
     jobsByName = mkOption {
       description = mdDoc ''
         The list of backup jobs, the name of each backup job is used to look up
@@ -93,7 +93,7 @@ in
 
   config =
   let
-    cfg = config.clan.clan-destiny.services.backups;
+    cfg = config.clan-destiny.backups;
     vars = config.clan.core.vars.generators.clan-destiny-backups;
     fqdn = with config.networking; "${hostName}.${domain}";
     allJobs = builtins.attrValues cfg.jobsByName;
