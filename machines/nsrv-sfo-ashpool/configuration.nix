@@ -1,31 +1,20 @@
 { self, config, ... }:
 let
+  inherit (config.lib.clan-destiny) ports;
 in
 {
-  # users.users.user = {
-  #   name = "kal";
-  #   isNormalUser = true;
-  #   extraGroups = [
-  #     "wheel"
-  #     "networkmanager"
-  #     "video"
-  #     "input"
-  #   ];
-  #   uid = 1000;
-  #   openssh.authorizedKeys.keys = config.users.users.root.openssh.authorizedKeys.keys;
-  # };
-
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Zerotier needs one controller to accept new nodes. Once accepted
-  # the controller can be offline and routing still works.
   clan.core.networking.zerotier.controller.enable = false;
 
   clan-destiny = {
     acl-watcher.enable = true; # TODO: see why it does not work
     certbot-vault.enable = true;
-    nginx.nixos-proxy-cache.enable = true;
+    nginx.nixos-proxy-cache = {
+      enable = true;
+      resolver.addresses = [ "127.0.0.1:${toString ports.unbound}" ];
+    };
     vault-server.enable = true;
     vault-client.enable = true;
   };

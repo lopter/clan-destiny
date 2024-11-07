@@ -35,20 +35,25 @@ in
       type = lib.types.nonEmptyStr;
       description = "Name of the http virtual host for the cache.";
     };
+    resolver.addresses = lib.mkOption {
+      type = lib.types.listOf lib.types.nonEmptyStr;
+      description = "The DNS server to use to resolve cache.nixos.org";
+    };
   };
 
   config = lib.mkIf cfg.enable {
     assertions = [{
-      assertion = builtins.length config.services.nginx.resolver.addresses > 0;
+      assertion = builtins.length cfg.resolver.addresses > 0;
       message = ''
         `clan-destiny.nginx.nixos-proxy-cache` requires
-        `services.nginx.resolvers` to be set.
+        at least one resolver to be set.
       '';
     }];
 
     clan-destiny.nginx.enable = true;
 
     services.nginx = {
+      resolver.addresses = cfg.resolver.addresses;
       appendHttpConfig = ''
         proxy_cache_path ${cfg.storageDir} levels=1:2 keys_zone=${cacheName}:100m max_size=${cfg.maxSize} inactive=${cfg.inactive} use_temp_path=off;
         
@@ -82,7 +87,8 @@ in
             proxy_cache_valid  200 302  60d;
             proxy_set_header Host "cache.nixos.org";
             expires max;
-            add_header Cache-Control $nixos_proxy_cache_control always;
+            add_header Cache-Control  $nixos_proxy_cache_control always;
+            add_header X-Cache-Status $upstream_cache_status;
           '';
         };
       };
