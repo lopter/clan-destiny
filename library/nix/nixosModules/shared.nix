@@ -48,14 +48,11 @@ in
 
     lib.clan-destiny.zoneFromHostname = self.lib.zoneFromHostname;
 
-    # The nixos-facter module annoyingly does an mkIf on this:
-    nixpkgs.config = lib.mkForce {
-      allowUnfreePredicate =
+    nixpkgs.config.allowUnfreePredicate =
       let
         unfreePredicates = config.clan-destiny.nixpkgs.unfreePredicates;
       in
         pkg: builtins.elem (lib.getName pkg) unfreePredicates;
-    };
 
     powerManagement.powertop.enable = true;
     powerManagement.cpuFreqGovernor = lib.mkDefault "ondemand";
