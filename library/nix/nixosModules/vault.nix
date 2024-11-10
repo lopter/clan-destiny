@@ -5,6 +5,7 @@ let
   inherit (config.lib.clan-destiny) ports;
   vaultFQDN = self.inputs.destiny-config.lib.vault.fqdn;
   nixpkgs-unfree' = self.inputs.nixpkgs-unfree.legacyPackages.${system};
+  destiny-core' = self.inputs.destiny-core.packages.${system};
   serverCfg = config.clan-destiny.vault-server;
   clientCfg = config.clan-destiny.vault-client;
   vars = config.clan.core.vars.generators.clan-destiny-vault;
@@ -86,7 +87,11 @@ in
         VAULT_CLIENT_TIMEOUT = "3";
       };
       environment.systemPackages = [
+        destiny-core'.vault-shell
         nixpkgs-unfree'.vault
+      ];
+      systemd.tmpfiles.rules = [
+        "r! %h/.vault-token - - - - -"
       ];
       clan.core.vars.generators.clan-destiny-vault-common = {
         files.tlsCaCert.secret = false;
