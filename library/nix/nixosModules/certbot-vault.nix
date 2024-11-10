@@ -106,8 +106,8 @@ in
     vars = config.clan.core.vars.generators.clan-destiny-certbot-vault;
   in lib.mkIf cfg.enable {
     clan.core.vars.generators.clan-destiny-certbot-vault = {
-      files.vaultCredentials = { };
-      files.gandiCredentials = { };
+      files.vaultCredentials.owner = "certbot";
+      files.gandiCredentials.owner = "certbot";
       prompts.VaultRoleID = {
         createFile = false;
         description = "The Vault Role ID for certbot-vault";
