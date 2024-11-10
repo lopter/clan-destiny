@@ -2,6 +2,8 @@
 let
   inherit (config.networking) hostName;
   inherit (config.nixpkgs.hostPlatform) system;
+  inherit (config.lib.clan-destiny) ports;
+  vaultFQDN = self.inputs.destiny-config.lib.vault.fqdn;
   nixpkgs-unfree' = self.inputs.nixpkgs-unfree.legacyPackages.${system};
   serverCfg = config.clan-destiny.vault-server;
   clientCfg = config.clan-destiny.vault-client;
@@ -63,7 +65,23 @@ in
     (lib.mkIf clientCfg.enable {
       clan-destiny.nixpkgs.unfreePredicates = [ "vault" ];
       environment.variables = {
-        VAULT_ADDR = config.lib.clan-destiny.vault.addr;
+        VAULT_ADDR =
+          if serverCfg.enable then
+            # If you are using Tailscale and try to connect to the local vault
+            # through its (local) Tailscale IP, the iptables rules set in
+            # `ts-input` by Tailscale will prevent you to do that, since the
+            # traffic will arrive on the loopback interface instead of the
+            # tailscale interface. We avoid getting blocked by this firewall
+            # rule by trying to connect on the loopback address instead:
+            lib.info
+              (
+                "Using 127.0.0.1 instead of ${vaultFQDN} in VAULT_ADDR "
+                + "since we seem to be on the vault server"
+              )
+              "https://127.0.0.1:${toString ports.vault}/"
+          else
+              config.lib.clan-destiny.vault.addr;
+        VAULT_TLS_SERVER_NAME = vaultFQDN;
         VAULT_CACERT = commonVars.files.tlsCaCert.path;
         VAULT_CLIENT_TIMEOUT = "3";
       };
