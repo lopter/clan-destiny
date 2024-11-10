@@ -10,24 +10,37 @@ in
       let
         inherit (inputs'.nix2container.packages) nix2container;
         sops-install-secrets = clan-core.inputs.sops-nix.packages.${system}.sops-install-secrets;
-        basePkgs = with pkgs; [
+        util-linux = pkgs.util-linux.override (prev: {
+          systemdSupport = false;
+          pamSupport = false;
+          nlsSupport = false;
+        });
+        procps = pkgs.procps.override (prev: { withSystemd = false; });
+        tailscale = pkgs.tailscale.override (prev: { inherit procps; });
+        vault = inputs'.nixpkgs-unfree.legacyPackages.vault;
+        basePkgs = [
+          procps
+          tailscale
+          util-linux
+          vault
+        ] ++ (with pkgs; [
           acl
           alacritty.terminfo
           attr
           bashInteractive
+          ((bind.override (prev: { enableGSSAPI = false; })).dnsutils)
           coreutils
           curl
-          ((bind.override (prev: { enableGSSAPI = false; })).dnsutils)
           fd
           file
-          git
-          htop
+          (htop.override (prev: { sensorsSupport = false; systemdSupport = false; }))
           iftop
           inetutils
           iproute2
           iptables
           jq
           libcap_ng
+          less
           lsof
           mosh
           mtr
@@ -35,24 +48,20 @@ in
           openssh
           openssl
           process-compose
-          ps
           psmisc
           ripgrep
           rsync
           strace
           sysstat
           tcpdump
-          tmux
+          (tmux.override (prev: { withSystemd = false; withSixel = false; }))
           tree
-          util-linux
           unbound
           vis
 
-          inputs'.nixpkgs-unfree.legacyPackages.vault
           nginx
           sops-install-secrets
-          tailscale
-        ];
+        ]);
         shellLayer = nix2container.buildLayer {
           copyToRoot = [
             (pkgs.buildEnv {
@@ -111,12 +120,14 @@ in
               };
               unbound = {
                 command = "runas unbound ${pkgs.unbound}/bin/unbound -d -p -c ${unboundConfig}";
+                namespace = "nginx";
                 depends_on.postInit.condition = "process_completed_successfully";
                 availability.restart = "always";
                 readiness_probe.exec.command = ''dig -p ${ports.unbound} nixos.org @127.0.0.1'';
               };
               tailscaled = {
-                command = "${pkgs.tailscale}/bin/tailscaled --state=/var/lib/tailscale/tailscaled.state --port=${ports.tailscaled} --socket=/var/run/tailscale/tailscaled.sock";
+                command = "${tailscale}/bin/tailscaled --state=/var/lib/tailscale/tailscaled.state --port=${ports.tailscaled} --socket=/var/run/tailscale/tailscaled.sock";
+                namespace = "tailscale";
                 availability.restart = "always";
                 depends_on = {
                   postInit.condition = "process_completed_successfully";
@@ -124,7 +135,8 @@ in
                 readiness_probe.exec.command = ''[ "$(ip -oneline address show tailscale0 2>&- | rg --count inet)" -gt 0 ]'';
               };
               tailscaled-autoconnect = {
-                command = "${pkgs.tailscale}/bin/tailscale up --auth-key=file:/run/secrets/tailscaleAuthKey --hostname=fly-io-pop";
+                command = "${tailscale}/bin/tailscale up --auth-key=file:/run/secrets/tailscaleAuthKey --hostname=fly-io-pop";
+                namespace = "tailscale";
                 depends_on = {
                   postInit.condition = "process_completed_successfully";
                   tailscaled.condition = "process_started";
@@ -132,7 +144,7 @@ in
               };
             } // lib.optionalAttrs (builtins.length certbotDomains > 0) {
               nginx-vault-agent = {
-                command = "runas nginx ${inputs'.nixpkgs-unfree.legacyPackages.vault}/bin/vault agent -config ${nginxVaultAgentConfig}";
+                command = "runas nginx ${vault}/bin/vault agent -config ${nginxVaultAgentConfig}";
                 namespace = "nginx";
                 depends_on = {
                   tailscaled.condition = "process_healthy";
@@ -391,13 +403,13 @@ in
             uid = 1;
             gid = 1;
             home = "/var/empty";
-            shell = "${pkgs.util-linux}/bin/nologin";
+            shell = "${util-linux}/bin/nologin";
           };
           nobody = {
             uid = 65534;
             gid = 65534;
             home = "/var/empty";
-            shell = "${pkgs.util-linux}/bin/nologin";
+            shell = "${util-linux}/bin/nologin";
           };
         };
         withGroupBase = attrs: attrs // {
