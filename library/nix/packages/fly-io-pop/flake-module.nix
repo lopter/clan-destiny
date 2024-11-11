@@ -523,6 +523,26 @@ in
                     cp runas $out/bin
                   '';
                 })
+
+                (pkgs.writeShellApplication {
+                  name = "show-config";
+                  runtimeInputs = with pkgs; [ jq less ];
+                  text = ''
+                    if [ -t 1 ]; then
+                      jq -C <"${processComposeConfig}" | less -FRX
+                    else
+                      jq <"${processComposeConfig}"
+                    fi
+                  '';
+                })
+
+                (pkgs.writeShellScriptBin "pc" ''
+                  exec ${pkgs.process-compose}/bin/process-compose attach -u /run/process-compose.sock
+                '')
+
+                (pkgs.writeShellScriptBin "test-nginx-config" ''
+                  exec ${pkgs.nginx}/bin/nginx -t -c ${nginxConfig}
+                '')
               ];
               pathsToLink = [ "/bin" "/etc" ];
             })
