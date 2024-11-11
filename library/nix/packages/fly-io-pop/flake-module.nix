@@ -29,6 +29,7 @@ in
           attr
           bashInteractive
           ((bind.override (prev: { enableGSSAPI = false; })).dnsutils)
+          cacert
           coreutils
           curl
           fd
@@ -67,7 +68,7 @@ in
             (pkgs.buildEnv {
               name = "root";
               paths = basePkgs;
-              pathsToLink = [ "/bin" ];
+              pathsToLink = [ "/bin" "/etc" ];
             })
           ];
         };
@@ -92,6 +93,7 @@ in
             mkProcess = name: { ... }@processCfg: processCfg // {
               log_location = "/var/log/process-compose/${name}.log";
               log_configuration.rotation = log_rotate_cfg;
+              availability.backoff_seconds = 10;
             };
           in
           builtins.toJSON {
@@ -250,13 +252,14 @@ in
               auto-trust-anchor-file: /var/lib/unbound/root.key
               chroot: ""
               directory: /var/lib/unbound
+              use-syslog: no
               do-daemonize: no
               interface: 127.0.0.1
               interface: ::1
               ip-freebind: yes
               pidfile: ""
               port: ${ports.unbound}
-              tls-cert-bundle: /etc/ssl/certs/ca-certificates.crt
+              tls-cert-bundle: /etc/ssl/certs/ca-bundle.crt
               username: ""
             remote-control:
               control-cert-file: /var/lib/unbound/unbound_control.pem
@@ -382,6 +385,10 @@ in
             [ -f /var/lib/dhparams/nginx.pem ] || {
               echo "Generating /var/lib/dhparams/nginx.pem, this may take hours on a slow machine or VPS"
               openssl dhparam -out /var/lib/dhparams/nginx.pem 2048;
+            }
+
+            ${pkgs.unbound}/bin/unbound-anchor -a /var/lib/unbound/root.key || {
+              echo "Updated unbound's root anchor";
             }
 
             install -d /var/run/tailscale
