@@ -154,6 +154,9 @@ in
                   tailscaled-autoconnect.condition = "process_completed_successfully";
                 };
                 availability.restart = "always";
+                # This is obviously not a good check, since it will return true
+                # even if vault-agent is not properly initialized yet.
+                readiness_probe.exec.command = ''[ "$(pgrep -c vault)" -gt 0 ]'';
               };
             });
           };
@@ -467,6 +470,8 @@ in
                     #include <stdio.h>
                     #include <unistd.h>
 
+                    extern char **environ;
+
                     int main(int argc, char *argv[]) {
                       if (argc < 3) {
                         fprintf(stderr, "Usage: %s user cmd ...\n", argv[0]);
@@ -489,13 +494,20 @@ in
                         exit(1);
                       }
 
-                      execvp(argv[2], &argv[2]);
-                      perror("execvp failed");
+                      char home_env[256];
+                      snprintf(home_env, sizeof(home_env), "HOME=%s", entry->pw_dir);
+                      if (putenv(home_env) != 0) {
+                        perror("putenv failed");
+                        exit(1);
+                      }
+
+                      execvpe(argv[2], &argv[2], environ);
+                      perror("execvpe failed");
                       exit(1);
                     }
                   '';
                   buildPhase = ''
-                    gcc -Wall -Wextra -O2 -o runas src/runas.c
+                    gcc -Wall -Wextra -O2 -D _GNU_SOURCE=1 -o runas src/runas.c
                   '';
                   installPhase = ''
                     mkdir -p $out/bin
@@ -514,7 +526,7 @@ in
         config = {
           env = [
             "PATH=/bin"
-            "VAULT_CA_CERT=/run/secrets/vaultTLSCACert"
+            "VAULT_CACERT=/run/secrets/vaultTLSCACert"
           ];
           cmd = [
             "${pkgs.process-compose}/bin/process-compose"
