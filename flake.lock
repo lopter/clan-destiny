@@ -90,11 +90,11 @@
     },
     "catppuccin": {
       "locked": {
-        "lastModified": 1730458408,
-        "narHash": "sha256-JQ+SphQn13bdibKUrBBBznYehXX4xJrxD1ifBp6vSWw=",
+        "lastModified": 1731232837,
+        "narHash": "sha256-0aIwr/RC/oe7rYkfJb47xjdEQDSNcqpFGsEa+EPlDEs=",
         "owner": "catppuccin",
         "repo": "nix",
-        "rev": "191fbf2d81a63fad8f62f1233c0051f09b75d0ad",
+        "rev": "32359bf226fe874d3b7a0a5753d291a4da9616fe",
         "type": "github"
       },
       "original": {
@@ -118,11 +118,11 @@
       "locked": {
         "lastModified": 1730749674,
         "narHash": "sha256-gz2+4ldrb8RrE5boV8UumzzGA/lg4ZyCFvjmM+s5a1M=",
-        "ref": "refs/heads/lo-sops-filter-env",
+        "ref": "lo-sops-filter-env",
         "rev": "12bc9c6475b79296c04e34a1b55dd08994234ff5",
         "revCount": 4556,
         "type": "git",
-        "url": "file:///stash/home/kal/cu/src/nix/clan-core"
+        "url": "https://git.clan.lol/lopter/clan-core"
       },
       "original": {
         "ref": "lo-sops-filter-env",
@@ -161,11 +161,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1730857099,
-        "narHash": "sha256-7WcKqr9wdUxURCvsJ666ffp/Hh7OcsnSIqReN09dxSE=",
+        "lastModified": 1731354329,
+        "narHash": "sha256-wSeToImOUojrKYZ1pB83Jjxscu0bl1WF91gdJ07mJ7w=",
         "ref": "refs/heads/main",
-        "rev": "1362600cc155fc160420dd0c418f8d178552fabe",
-        "revCount": 21,
+        "rev": "52ef8fbe1e564ff305f5714809abdd5ef9613957",
+        "revCount": 30,
         "type": "git",
         "url": "file:///stash/home/kal/cu/projs/destiny-config"
       },
@@ -192,11 +192,11 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1730157820,
-        "narHash": "sha256-HwZSf5G+bunTh28sboer/DyQOMvWVxQTKTCC4Y0pnTQ=",
+        "lastModified": 1731179028,
+        "narHash": "sha256-JeZG2dznVO9aC2GxpsWa2gRj/qaDVz91jHh4jK4s7PY=",
         "ref": "refs/heads/main",
-        "rev": "260500d5ad3357e4c6deb01985448d5e0d58729f",
-        "revCount": 13,
+        "rev": "d350a6daee15df904363dd6631e93678cfbdc425",
+        "revCount": 15,
         "type": "git",
         "url": "file:///stash/home/kal/cu/projs/destiny-core"
       },
@@ -824,11 +824,11 @@
     },
     "nixos-hardware": {
       "locked": {
-        "lastModified": 1730828750,
-        "narHash": "sha256-XrnZLkLiBYNlwV5gus/8DT7nncF1TS5la6Be7rdVOpI=",
+        "lastModified": 1731332224,
+        "narHash": "sha256-0ctfVp27ingWtY7dbP5+QpSQ98HaOZleU0teyHQUAw0=",
         "owner": "NixOS",
         "repo": "nixos-hardware",
-        "rev": "2e78b1af8025108ecd6edaa3ab09695b8a4d3d55",
+        "rev": "184687ae1a3139faa4746168baf071f60d0310c8",
         "type": "github"
       },
       "original": {
@@ -996,11 +996,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1730635861,
-        "narHash": "sha256-Npp3pl9aeAiq+wZPDbw2ZxybNuZWyuN7AY6fik56DCo=",
+        "lastModified": 1731193165,
+        "narHash": "sha256-pGF8L5g9QpkQtJP9JmNIRNZfcyhJHf7uT+d8tqI1h6Y=",
         "owner": "nix-community",
         "repo": "plasma-manager",
-        "rev": "293668587937daae1df085ee36d2b2d0792b7a0f",
+        "rev": "f33173b9d22e554a6f869626bc01808d35995257",
         "type": "github"
       },
       "original": {
