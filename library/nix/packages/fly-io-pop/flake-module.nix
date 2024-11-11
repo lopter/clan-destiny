@@ -104,7 +104,7 @@ in
             processes = builtins.mapAttrs mkProcess ({
               postInit.command = "postInit";
               nginx = {
-                command = "nginx -c ${nginxConfig}";
+                command = "runas nginx ${pkgs.nginx}/bin/nginx -c ${nginxConfig}";
                 namespace = "nginx";
                 depends_on = {
                   postInit.condition = "process_completed_successfully";
@@ -336,6 +336,11 @@ in
                       '''      close;
               }
               client_max_body_size 10m;
+              client_body_temp_path /run/nginx/client_body;
+              proxy_temp_path /run/nginx/proxy;
+              fastcgi_temp_path /run/nginx/fastcgi;
+              uwsgi_temp_path /run/nginx/uwsgi;
+              scgi_temp_path /run/nginx/scgi;
               server_tokens off;
               resolver 127.0.0.1:${ports.unbound};
           ''
@@ -369,6 +374,7 @@ in
           in
             ''
             install -d -o ${nginxUid} -g ${nginxGid} /run/nginx
+            install -d -o ${nginxUid} -g ${nginxGid} /run/nginx/{client_body,proxy,fastcgi,uwsgi,scgi}
             install -d -o ${nginxUid} -g ${nginxGid} -m 700 /run/nginx-vault-agent
             install -d /run/tailscale
 
