@@ -193,7 +193,10 @@ in
             HostKey /var/ssh/ssh_host_ed25519_key
           '';
         };
-        certbotDomains = [ ];
+        certbotDomains = [
+          "www.lightsd.io"
+          "www.kalessin.fr"
+        ];
         nginxVaultAgentConfig = (pkgs.formats.json {}).generate "nginx-vault-agent.json" {
           auto_auth = [{
             method = [{
