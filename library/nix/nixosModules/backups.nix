@@ -107,13 +107,14 @@ in
             createFile = true;
             description = "Key ID to access the B2 api";
           };
-          prompts."restic-b2-application-key-path" = {
+          prompts."restic-b2-application-key" = {
             createFile = true;
             description = "Application key to access the B2 api";
           };
         };
+        op = acc: secrets: lib.recursiveUpdate acc secrets;
       in
-        (lib.mergeAttrsList jobSecrets) // resticDetails;
+        builtins.foldl' op { } (jobSecrets ++ [ resticDetails ]);
     mkJobSecrets = jobName: details:
       if details.type == "restic-b2" then
         lib.optionalAttrs (fqdn == details.localHost) {
@@ -126,11 +127,13 @@ in
     let
       jobSecrets = builtins.mapAttrs hydrateWithVarsPaths jobsByName; 
       resticDetails = lib.optionalAttrs hasB2Jobs {
+        restic.cacheDir = cfg.restic.cacheDir;
+        restic.b2.bucket = cfg.restic.b2.bucket;
         restic.b2.keyIdPath = vars.files."restic-b2-key-id".path;
-        restic.b2.applicationKeyPath = vars.files."restic-b2-application-key-path".path;
+        restic.b2.applicationKeyPath = vars.files."restic-b2-application-key".path;
       };
     in
-      jobSecrets // resticDetails;
+      { jobsByName = jobSecrets; } // resticDetails;
     hydrateWithVarsPaths = jobName: details:
       if details.type == "restic-b2" then
           details // (lib.optionalAttrs (fqdn == details.localHost) {

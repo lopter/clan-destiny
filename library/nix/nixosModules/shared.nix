@@ -60,7 +60,7 @@ in
     # Locale service discovery and mDNS
     services.avahi.enable = true;
 
-    networking.domain = "clandestiny.org";
+    networking.domain = "kalessin.fr";
     networking.firewall.enable = true;
 
     time.timeZone = "UTC";
