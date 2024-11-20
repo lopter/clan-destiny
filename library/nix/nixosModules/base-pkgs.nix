@@ -5,6 +5,7 @@
     alacritty.terminfo
     attr
     bcc
+    bridge-utils
     curl
     fd
     file

@@ -5,7 +5,7 @@
   boot.kernel.sysctl = {
     "fs.inotify.max_user_instances" = 256;
     "fs.inotify.max_user_watches" = 100000;
-    "net.ipv4.conf.all.rp_filter" = 1;
+    "net.ipv4.conf.all.rp_filter" = 2;
     "net.ipv4.conf.all.accept_redirects" = 0;
     "net.ipv6.conf.all.accept_redirects" = 0;
   };

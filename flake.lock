@@ -3,11 +3,11 @@
     "advisory-db": {
       "flake": false,
       "locked": {
-        "lastModified": 1731271136,
-        "narHash": "sha256-VsrCHM1gP8YqBTQWBQ0TmFNAFv3lBA0PvtWh8/sA9n4=",
+        "lastModified": 1731808107,
+        "narHash": "sha256-HSx5EDsO07KULW4bNPVeGVAfpQqzwwS005vqISdOzNg=",
         "owner": "rustsec",
         "repo": "advisory-db",
-        "rev": "509528f6775ad69ab114f1e4b37b4359cae5cef4",
+        "rev": "8e353a172f1baf11c0c917cfc9ae3c5eff8b9d06",
         "type": "github"
       },
       "original": {
@@ -116,11 +116,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1730749674,
-        "narHash": "sha256-gz2+4ldrb8RrE5boV8UumzzGA/lg4ZyCFvjmM+s5a1M=",
+        "lastModified": 1732084422,
+        "narHash": "sha256-j+ojnyNfIkDMjigONgFcPgc1ruW0Ml2o2Q/OMQHzCVw=",
         "ref": "refs/heads/lo-sops-filter-env",
-        "rev": "12bc9c6475b79296c04e34a1b55dd08994234ff5",
-        "revCount": 4556,
+        "rev": "36d797ff5a1f346fe3fc235880e803519cb55d28",
+        "revCount": 4785,
         "type": "git",
         "url": "file:///stash/home/kal/cu/src/nix/clan-core"
       },
@@ -161,11 +161,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1731354329,
-        "narHash": "sha256-wSeToImOUojrKYZ1pB83Jjxscu0bl1WF91gdJ07mJ7w=",
+        "lastModified": 1731816768,
+        "narHash": "sha256-+oCZcAag7iT8OJZSk4iIlm7x4sPtVQQ3nUL8B1dRZ6Y=",
         "ref": "refs/heads/main",
-        "rev": "52ef8fbe1e564ff305f5714809abdd5ef9613957",
-        "revCount": 30,
+        "rev": "b3a5ef8dd8bb0187fc2d7f0ea02e0f69c3b1ce89",
+        "revCount": 32,
         "type": "git",
         "url": "file:///stash/home/kal/cu/projs/destiny-config"
       },
@@ -192,11 +192,11 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1731718123,
-        "narHash": "sha256-OpOFM1zujrOl1mJnTWZE9cdL59Qi2TWZEiMAMxOKVHs=",
+        "lastModified": 1731811269,
+        "narHash": "sha256-RNp7gL2rt7TchIi5fCamU3jTLExuvTI4bCUQju0u7lI=",
         "ref": "refs/heads/main",
-        "rev": "b10bc9184ced24b24d62967032a38b1bcafb92bd",
-        "revCount": 18,
+        "rev": "fc4d796b1c43a1a2a809ba60b741c4731658b372",
+        "revCount": 20,
         "type": "git",
         "url": "file:///stash/home/kal/cu/projs/destiny-core"
       },
@@ -326,11 +326,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1730675461,
-        "narHash": "sha256-Mhqz3p/HEiI/zxBJWO57LYQf6gGlJB0tci6fiVXLjd8=",
+        "lastModified": 1731746438,
+        "narHash": "sha256-f3SSp1axoOk0NAI7oFdRzbxG2XPBSIXC+/DaAXnvS1A=",
         "owner": "nix-community",
         "repo": "disko",
-        "rev": "380847d94ff0fedee8b50ee4baddb162c06678df",
+        "rev": "cb64993826fa7a477490be6ccb38ba1fa1e18fa8",
         "type": "github"
       },
       "original": {
@@ -350,11 +350,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1731652660,
-        "narHash": "sha256-vau17dcGvfEWX9DLWuSPC0dfE0XcDe9ZNlsqXy46P88=",
+        "lastModified": 1731738660,
+        "narHash": "sha256-tIXhc9lX1b030v812yVJanSR37OnpTb/OY5rU3TbShA=",
         "owner": "nix-community",
         "repo": "fenix",
-        "rev": "664e2f335aa5ae28c8759ff206444edb198dc1c9",
+        "rev": "e10ba121773f754a30d31b6163919a3e404a434f",
         "type": "github"
       },
       "original": {
@@ -809,11 +809,11 @@
     },
     "nixos-facter-modules": {
       "locked": {
-        "lastModified": 1730026316,
-        "narHash": "sha256-AzP+trH/ykBJGTx3twkpuwbkhFSmsY1PJDQtRmK4k4c=",
+        "lastModified": 1731843871,
+        "narHash": "sha256-aIy8m4jjr/BFXzniNzoH16sF7HEFV/01/5b3FhtUHrw=",
         "owner": "numtide",
         "repo": "nixos-facter-modules",
-        "rev": "15b6531d44aa6f0bbd2fd8309cd2a6d7f183ba32",
+        "rev": "5a1c2a28589e34f8a44d46dd1909cfacf928cb1a",
         "type": "github"
       },
       "original": {
@@ -824,11 +824,11 @@
     },
     "nixos-hardware": {
       "locked": {
-        "lastModified": 1731403644,
-        "narHash": "sha256-T9V7CTucjRZ4Qc6pUEV/kpgNGzQbHWfGcfK6JJLfUeI=",
+        "lastModified": 1731797098,
+        "narHash": "sha256-UhWmEZhwJZmVZ1jfHZFzCg+ZLO9Tb/v3Y6LC0UNyeTo=",
         "owner": "NixOS",
         "repo": "nixos-hardware",
-        "rev": "f6581f1c3b137086e42a08a906bdada63045f991",
+        "rev": "672ac2ac86f7dff2f6f3406405bddecf960e0db6",
         "type": "github"
       },
       "original": {
@@ -972,18 +972,17 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1731717995,
-        "narHash": "sha256-5WpbJehPhfXTWHimAqlAH3HWaZabTq11LvL2aiw2k6s=",
-        "owner": "lopter",
-        "repo": "nixpkgs",
-        "rev": "02ab61d5f78810d10d5f4bcf4be7edea1c21dfd6",
-        "type": "github"
+        "lastModified": 1731811166,
+        "narHash": "sha256-JWIaWS3qVFj2GF5eVjFNzNLkzIqf1c+o2fvJRBGiy+M=",
+        "ref": "refs/heads/nixos-unstable-lo-patches",
+        "rev": "b1fa495d0d7138ac0f5de3ba122610bfa9e5a3f7",
+        "revCount": 706483,
+        "type": "git",
+        "url": "file:///stash/home/kal/cu/src/nix/nixpkgs"
       },
       "original": {
-        "owner": "lopter",
-        "ref": "nixos-unstable-lo-patches",
-        "repo": "nixpkgs",
-        "type": "github"
+        "type": "git",
+        "url": "file:///stash/home/kal/cu/src/nix/nixpkgs"
       }
     },
     "plasma-manager": {
@@ -1156,17 +1155,14 @@
         "nixpkgs": [
           "clan-core",
           "nixpkgs"
-        ],
-        "nixpkgs-stable": [
-          "clan-core"
         ]
       },
       "locked": {
-        "lastModified": 1730605784,
-        "narHash": "sha256-1NveNAMLHbxOg0BpBMSVuZ2yW2PpDnZLbZ25wV50PMc=",
+        "lastModified": 1731862312,
+        "narHash": "sha256-NVUTFxKrJp/hjehlF1IvkPnlRYg/O9HFVutbxOM8zNM=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "e9b5eef9b51cdf966c76143e13a9476725b2f760",
+        "rev": "472741cf3fee089241ac9ea705bb2b9e0bfa2978",
         "type": "github"
       },
       "original": {
