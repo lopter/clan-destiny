@@ -73,7 +73,7 @@ in
       tidal-hifi
       tig
       universal-ctags
-      vault
+      (vault.overrideAttrs (prev: { doCheck = false; }))
       wl-clipboard
       yt-dlp
       zotero

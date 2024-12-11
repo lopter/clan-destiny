@@ -17,7 +17,7 @@ in
         });
         procps = pkgs.procps.override (prev: { withSystemd = false; });
         tailscale = pkgs.tailscale.override (prev: { inherit procps; });
-        vault = inputs'.nixpkgs-unfree.legacyPackages.vault;
+        vault = inputs'.nixpkgs-unfree.legacyPackages.vault.overrideAttrs (prev: { doCheck = false; });
         basePkgs = [
           procps
           tailscale

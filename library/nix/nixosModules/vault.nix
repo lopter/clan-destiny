@@ -5,6 +5,7 @@ let
   inherit (config.lib.clan-destiny) ports;
   vaultFQDN = self.inputs.destiny-config.lib.vault.fqdn;
   nixpkgs-unfree' = self.inputs.nixpkgs-unfree.legacyPackages.${system};
+  vault = nixpkgs-unfree'.vault.overrideAttrs (prev: { doCheck = false; });
   destiny-core' = self.inputs.destiny-core.packages.${system};
   serverCfg = config.clan-destiny.vault-server;
   clientCfg = config.clan-destiny.vault-client;
@@ -42,6 +43,7 @@ in
       };
       services.vault = {
         enable = true;
+        package = vault;
         tlsCertFile = vars.files.tlsCertChain.path;
         tlsKeyFile = vars.files.tlsKey.path;
         storageBackend = "file";
@@ -88,7 +90,7 @@ in
       };
       environment.systemPackages = [
         destiny-core'.vault-shell
-        nixpkgs-unfree'.vault
+        vault
       ];
       systemd.tmpfiles.rules = [
         "r! %h/.vault-token - - - - -"
