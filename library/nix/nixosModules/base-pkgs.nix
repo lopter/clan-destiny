@@ -6,6 +6,7 @@
     attr
     bcc
     bridge-utils
+    btop
     curl
     fd
     file
