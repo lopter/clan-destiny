@@ -29,61 +29,8 @@ in
     unbound.enable = true;
   };
 
-  services.getty.autologinUser = "root";
-
-  systemd.network = {
-    netdevs."20-br-lan".netdevConfig = {
-      Kind = "bridge";
-      Name = "br-lan";
-    };
-    networks."30-enp3s0f0" = {
-      matchConfig.Name = "enp3s0f0";
-      networkConfig.Bridge = "br-lan";
-      linkConfig.RequiredForOnline = "enslaved";
-    };
-    networks."40-br-lan" = {
-      matchConfig.Name = "br-lan";
-      linkConfig.RequiredForOnline = "carrier";
-      # linkConfig.RequiredForOnline = "routable";
-      # DHCP not practical without a static MAC on the bridge.
-      # networkConfig.DHCP = "yes";
-      networkConfig = {
-        Address = "172.28.53.6/24";
-        Gateway = "172.28.53.1";
-        DNS = [ "1.1.1.1" "8.8.8.8" ];
-        IPv4Forwarding = true;
-        IPv6Forwarding = true;
-      };
-    };
-  };
-
-  networking.useDHCP = lib.mkForce false;
+  networking.useDHCP = true;
   networking.networkmanager.unmanaged = [ "interface-name:ve-*" ];
-  networking.firewall.checkReversePath = "loose";
-
-  containers.test-pop = {
-    enableTun = true;
-    ephemeral = true;
-    privateNetwork = true;
-    hostBridge = "br-lan";
-    localAddress = "172.28.53.20/24";
-    config =
-    { pkgs, ... }:
-    {
-      environment.systemPackages = with pkgs; [
-        tcpdump
-        mtr
-      ];
-      services.tailscale.enable = true;
-      services.tailscale.extraUpFlags = [
-        "--exit-node=100.97.86.75" "--exit-node-allow-lan-access=true"
-      ];
-      environment.etc."resolv.conf".text = ''
-        nameserver 1.1.1.1
-      '';
-      networking.firewall.checkReversePath = "loose";
-    };
-  };
 
   users = with usergroups.users.hass; {
     groups.hass.gid = lib.mkForce gid;
@@ -96,12 +43,14 @@ in
     };
   };
 
-  containers.home-assistant = {
-    enableTun = true;
+  containers.home-assistant =
+  let
+    macvlans = config.clan-destiny.typed-tags.interfacesByRole.lan;
+  in
+  {
+    inherit macvlans;
     ephemeral = true;
-    privateNetwork = true;
-    hostBridge = "br-lan";
-    localAddress = "172.28.53.21/24";
+    autoStart = true;
     bindMounts = {
       ${hassDir} = {
         hostPath = hassDir;
@@ -145,7 +94,27 @@ in
         };
       };
 
-      networking.firewall.enable = false;
+      networking = {
+        firewall.enable = false;
+        useNetworkd = true;
+        useHostResolvConf = false;
+      };
+
+      systemd.network =
+      let
+        mkNetwork = ifname: {
+          name = "40-mv-${ifname}";
+          value = {
+            matchConfig.Name = "mv-${ifname}";
+            networkConfig.DHCP = "yes";
+            dhcpV4Config.ClientIdentifier = "mac";
+          };
+        };
+      in
+      {
+        enable = true;
+        networks = builtins.listToAttrs (map mkNetwork macvlans);
+      };
 
       users = with usergroups.users.hass; {
         groups.hass.gid = lib.mkForce gid;
