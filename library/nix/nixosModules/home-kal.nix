@@ -413,12 +413,10 @@ in
         settings = {
           "diagnostic.virtualText" = false;
           "inlayHint.position" = "eol";
-          /*
           languageserver.nix = {
             command = "nixd";
             filetypes = [ "nix" ];
           };
-          */
         };
       };
       defaultEditor = true;
