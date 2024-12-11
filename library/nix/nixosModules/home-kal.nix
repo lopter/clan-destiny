@@ -12,7 +12,10 @@ in
 {
   fonts.packages = with pkgs; [
     inconsolata
-    (nerdfonts.override { fonts = [ "BitstreamVeraSansMono" "FiraMono" "Inconsolata" "Monofur" ]; })
+    nerd-fonts.bitstream-vera-sans-mono
+    nerd-fonts.fira-mono
+    nerd-fonts.inconsolata
+    nerd-fonts.monofur
   ];
 
   imports = [
@@ -38,6 +41,16 @@ in
         hash = "sha256-QDen762FPk+ODrzpLZbGBFZoolk7UFSPxkjzy0EvrcU=";
       };
     };
+    vim-lucius = pkgs.vimUtils.buildVimPlugin {
+      pname = "vim-lucius";
+      version = "2020-06-18";
+      src = pkgs.fetchFromGitHub {
+        owner = "jonathanfilip";
+        repo = "vim-lucius";
+        rev = "b5dea9864ae64714da4635993ad2fc2703e7c832";
+        hash = "sha256-FlSqTEQyYm17vR7sNw5hlq2Hpz1cWYr23ARsVNibUBM=";
+      };
+    };
   in
   {
     # nix.extraConfig = ''
@@ -53,38 +66,55 @@ in
     home.homeDirectory = "/stash/home/${user}/cu";
 
     home.packages = with pkgs; [
-      easytag
+      aspell
+      aspellDicts.en
+      aspellDicts.fr
+      btop
       direnv
+      easytag
       # discord
       # fzf
+      grim
       gv  # replace with nix-visualize
+      hunspell
+      hunspellDicts.en-us
+      hunspellDicts.fr-any
       qalculate-qt
+      kcolorchooser
+      lazygit
+      libreoffice-qt
       # Until @teto merges the correct stuff:
       # See https://discourse.nixos.org/t/plugins-for-neovim-are-not-installed-for-neovim-qt/29712/10
       (neovim-qt.override { neovim = config.programs.neovim.finalPackage; })
       mindforger
-      # nixd
-      nix-prefetch-docker
+      ncmpcpp
+      nixd
+      nix-prefetch-github
+      nix-tree
       (pass.override { waylandSupport = true; })
       picard
+      (python3.withPackages (ps: with ps; [ ipython requests pyyaml ]))
       shellcheck
       signal-desktop
+      slurp
       telegram-desktop
       tidal-hifi
       tig
+      tldr
+      ungoogled-chromium
       universal-ctags
       (vault.overrideAttrs (prev: { doCheck = false; }))
       wl-clipboard
       yt-dlp
       zotero
     ] ++ (with plasma-manager.packages.${system}; [
-        rc2nix
+      rc2nix
     ]);
 
     nixpkgs.config = nixpkgsCfg;
 
     programs.alacritty = {
-      enable = true;
+      enable = false;
       settings = {
         mouse.hide_when_typing = true;
         font = {
@@ -98,7 +128,7 @@ in
             style = "Bold";
           };
         };
-        colors = lib.mkIf false {
+        colors = lib.mkIf false {  # let catppuccin control it
           draw_bold_text_with_bright_colors = true;
           primary = {
             background = "#000000";
@@ -142,6 +172,51 @@ in
       };
     };
 
+    programs.kitty = {
+      enable = false;
+      font.name = "Inconsolata";
+      font.size = 12;
+      settings = {
+#       color0  = "#000000"; # black
+#       color1  = "#9f4343"; # red
+#       color2  = "#00aa00"; # green
+#       color3  = "#aa5500"; # yellow
+#       color4  = "#2828e5"; # blue
+#       color5  = "#a742a7"; # magenta
+#       color6  = "#60aaaa"; # cyan
+#       color7  = "#ffffff"; # white
+#       color8  = "#555555"; # bright black
+#       color9  = "#ff5555"; # bright red
+#       color10 = "#55ff55"; # bright green
+#       color11 = "#ffff55"; # bright yellow
+#       color12 = "#6464e5"; # bright blue
+#       color13 = "#a768a7"; # bright magenta
+#       color14 = "#55ffff"; # bright cyan
+#       color15 = "#a7a7a7"; # bright white
+#       foreground = "#000000";
+#       background = "#ffffff";
+        scrollback_lines = 10000;
+        wheel_scroll_min_lines = 1;
+        window_padding_width = 4;
+        confirm_os_window_close = 0;
+        show_hyperlink_targets = true;
+        enable_audio_bell = false;
+        copy_on_select = true;
+        cursor_shape = "block";
+        cursor_blink_interval = 0;
+      };
+    };
+
+    programs.konsole = {
+      enable = true;
+      defaultProfile = "Catppuccin";
+      profiles.Catppuccin = {
+        font.name = "Inconsolata";
+        font.size = 12;
+        colorScheme = "Catppuccin-Late";
+      };
+    };
+
     programs.direnv = {
       enable = true;
     };
@@ -150,6 +225,8 @@ in
     programs.bash = {
       enable = false;
     };
+
+    programs.btop.enable = true;
 
     programs.fzf = {
       enable = true;
@@ -167,8 +244,8 @@ in
         } // attrs;
       in
       {
-        "${user}" = {
-          id = usergroups.users."${user}".uid;
+        "s2nt6rj0.main" = {
+          id = 0;
           isDefault = true;
           containers.banking = mkContainer {
             id = 1;
@@ -180,6 +257,11 @@ in
             icon = "circle";
             color = "blue";
           };
+          containers.social = mkContainer {
+            id = 3;
+            icon = "briefcase";
+            color = "pink";
+          };
           containersForce = true;
           search.default = "Kagi";
           search.engines = {
@@ -187,9 +269,30 @@ in
               urls = [{template = "https://www.amazon.com/s?k={searchTerms}"; }];
               definedAliases = [ "az" ];
             };
+            "Arch Linux" = {
+              urls = [{template = "https://wiki.archlinux.org/index.php?search={searchTerms}"; }];
+              definedAliases = [ "aw" ];
+            };
+            "Wiktionary EN" = {
+              urls = [{template = "https://en.wiktionary.org/w/index.php?search={searchTerms}"; }];
+              definedAliases = [ "d" ];
+            };
+            "Wiktionary FR" = {
+              urls = [{template = "https://fr.wiktionary.org/w/index.php?search={searchTerms}"; }];
+              definedAliases = [ "df" ];
+            };
             Discogs = {
               urls = [{template = "https://www.discogs.com/search?q={searchTerms}&type=all"; }];
               definedAliases = [ "discogs" ];
+            };
+            GitHub = {
+              urls = [{ template = "https://github.com/search?q={searchTerms}&type=repositories"; }];
+              definedAliases = [ "gh" ];
+            };
+            "Google Maps" = {
+              urls = [{ template = "https://maps.google.com/?q={searchTerms}"; }];
+              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "maps" ];
             };
             "Kagi" = {
               urls = [{template = "https://kagi.com/search?q={searchTerms}"; }];
@@ -206,10 +309,55 @@ in
               icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
               definedAliases = [ "np" ];
             };
+            "Home-Manager options" = {
+              urls = [{ template = "https://home-manager-options.extranix.com/?query={searchTerms}"; }];
+              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "nh" ];
+            };
+            "MDN" = {
+              urls = [{ template = "https://developer.mozilla.org/en-US/search?q={searchTerms}"; }];
+              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "mdn" ];
+            };
+            "NixOS options" = {
+              urls = [{ template = "https://search.nixos.org/options?query={searchTerms}"; }];
+              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "no" ];
+            };
+            "PyPI" = {
+              urls = [{ template = "https://pypi.org/search/?q={searchTerms}"; }];
+              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "pp" "pypi" ];
+            };
+            "Rust docs" = {
+              urls = [{ template = "https://docs.rs/releases/search?query={searchTerms}"; }];
+              iconUpdateURL = "https://www.rust-lang.org/static/images/favicon.svg";
+              definedAliases = [ "rd" ];
+            };
+            "Rust packages" = {
+              urls = [{ template = "https://crates.io/search?q={searchTerms}"; }];
+              iconUpdateURL = "https://www.rust-lang.org/static/images/favicon.svg";
+              definedAliases = [ "rp" ];
+            };
+            "Rust stdlib" = {
+              urls = [{ template = "https://doc.rust-lang.org/std/index.html?search={searchTerms}"; }];
+              iconUpdateURL = "https://www.rust-lang.org/static/images/favicon.svg";
+              definedAliases = [ "rs" ];
+            };
             "NixOS Wiki" = {
               urls = [{ template = "https://nixos.wiki/index.php?title=Special:Search&search={searchTerms}"; }];
               iconUpdateURL = "https://nixos.wiki/favicon.png";
               definedAliases = [ "nw" ];
+            };
+            "Wikipedia FR" = {
+              urls = [{ template = "https://fr.wikipedia.org/w/index.php?search={searchTerms}"; }];
+              iconUpdateURL = "https://fr.wikipedia.org/static/favicon/wikipedia.png";
+              definedAliases = [ "wf" ];
+            };
+            "Wikipedia EN" = {
+              urls = [{ template = "https://en.wikipedia.org/w/index.php?search={searchTerms}"; }];
+              iconUpdateURL = "https://en.wikipedia.org/static/favicon/wikipedia.png";
+              definedAliases = [ "w" ];
             };
           };
           search.force = true;
@@ -262,20 +410,16 @@ in
       enable = true;
       coc = {
         enable = true;
-        # goes into settings:
-        #
-        #   "languageserver": {
-        #     "nix": {
-        #       "command": "nixd",
-        #       "filetypes": ["nix"]
-        #     }
-        #   }
-        settings = ''
-          {
-            "diagnostic.virtualText": false,
-            "inlayHint.position": "eol"
-          }
-        '';
+        settings = {
+          "diagnostic.virtualText" = false;
+          "inlayHint.position" = "eol";
+          /*
+          languageserver.nix = {
+            command = "nixd";
+            filetypes = [ "nix" ];
+          };
+          */
+        };
       };
       defaultEditor = true;
       vimAlias = true;
@@ -332,12 +476,41 @@ in
         }
         vim-graphql
         vim-jinja
+        vim-desert256
         # {
         #   plugin = vim-desert256;
         #   config = ''
         #     colorscheme desert256
         #   '';
         # }
+        {
+          plugin = vim-lucius;
+          config = ''
+            set background=light
+            colorscheme lucius
+            LuciusWhite
+
+            hi link CocHintFloat DiagnosticHint
+            hi link CocInfoFloat DiagnosticInfo
+            hi link CocWarningFloat DiagnosticWarning
+            hi link CocErrorFloat DiagnosticError
+
+            let g:fzf_colors =
+              \ { 'fg':         ['fg', 'Normal'],
+                \ 'bg':         ['bg', 'Normal'],
+                \ 'hl':         ['fg', 'Comment'],
+                \ 'fg+':        ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+                \ 'bg+':        ['bg', 'CursorLine', 'CursorColumn'],
+                \ 'hl+':        ['fg', 'Statement'],
+                \ 'info':       ['fg', 'PreProc'],
+                \ 'border':     ['fg', 'Ignore'],
+                \ 'prompt':     ['fg', 'Conditional'],
+                \ 'pointer':    ['fg', 'Exception'],
+                \ 'marker':     ['fg', 'Keyword'],
+                \ 'spinner':    ['fg', 'Label'],
+                \ 'header':     ['fg', 'Comment'] }
+          '';
+        }
         vim-signature
         {
           plugin = vim-sneak;
@@ -430,7 +603,7 @@ in
 
         function CopyGithubPermalink()
           let github_permalink = GithubPermalink()
-          call system('printf "' . github_permalink . '" | xclip -selection clipboard')
+          call system('printf "' . github_permalink . '" | wl-copy')
         endfunction
 
         """ Mappings
@@ -470,12 +643,13 @@ in
           size = 32;
         };
         iconTheme = "Papirus";
-        wallpaper = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Patak/contents/images/1080x1920.png";
+        # wallpaperPlainColor = "0,0,0,0";
+        wallpaper = "/stash/home/kal/cu/wp/netrunner.jpg";
       };
 
       hotkeys.commands."launch-konsole" = {
         name = "Launch Konsole";
-        key = "Meta+Alt+K";
+        key = "Meta+Space";
         command = "konsole";
       };
 
@@ -519,29 +693,40 @@ in
                 icon = "nix-snowflake-white";
               };
             }
+
+            /*
+            {
+              pager = {
+                general = {
+                  selectingCurrentVirtualDesktop = "showDesktop";
+                  displayedText = "none";
+                };
+              };
+            }
+            */
+
             # Adding configuration to the widgets can also for example be used to
             # pin apps to the task-manager, which this example illustrates by
             # pinning dolphin and konsole to the task-manager by default with widget-specific options.
             {
               iconTasks = {
                 launchers = [
-                  "applications:org.kde.dolphin.desktop"
+            /*
                   "applications:org.kde.konsole.desktop"
+                  "applications:mindforger.desktop"
+                  "applications:org.kde.dolphin.desktop"
+                  "applications:io.github.Qalculate.qalculate-qt.desktop"
+                  "applications:org.kde.gwenview.desktop"
+                  "applications:org.kde.okular.desktop"
+                  "applications:tidal-hifi.desktop"
+                  "applications:firefox.desktop"
+                  "applications:signal-desktop.desktop"
+                  "applications:org.telegram.desktop.desktop"
+            */
                 ];
               };
             }
-            # Or you can do it manually, for example:
-            {
-              name = "org.kde.plasma.icontasks";
-              config = {
-                General = {
-                  launchers = [
-                    "applications:org.kde.dolphin.desktop"
-                    "applications:org.kde.konsole.desktop"
-                  ];
-                };
-              };
-            }
+
             # If no configuration is needed, specifying only the name of the
             # widget will add them with the default configuration.
             "org.kde.plasma.marginsseparator"
@@ -554,9 +739,35 @@ in
             # first day of the week to Sunday and another adding a systray with
             # some modifications in which entries to show.
             {
+              systemMonitor = {
+                displayStyle = "org.kde.ksysguard.barchart";
+                sensors = [
+                  {
+                    name = "cpu/all/usage";
+                    color = "233,196,61";
+                    label = "CPU %";
+                  }
+                  {
+                    name = "memory/physical/usedPercent";
+                    color = "233,61,187";
+                    label = "MEM %";
+                  }
+                ];
+              };
+            }
+            {
               digitalClock = {
                 calendar.firstDayOfWeek = "sunday";
                 time.format = "24h";
+                timeZone = {
+                  format = "offset";
+                  selected = [
+                    "America/Los_Angeles"
+                    "America/New_York"
+                    "Europe/Paris"
+                    "UTC"
+                  ];
+                };
               };
             }
             {
@@ -703,9 +914,17 @@ in
 
       kwin = {
         edgeBarrier = 0; # Disables the edge-barriers introduced in plasma 6.1
+        effects.desktopSwitching.animation = "off";
         cornerBarrier = false;
 
-        scripts.polonium.enable = true;
+        # The way tilling works with Polonium is so
+        # far off i3 that I am better without it.
+        scripts.polonium.enable = false;
+
+        virtualDesktops = {
+          rows = 1;
+          number = 10;
+        };
       };
 
       kscreenlocker = {
@@ -716,28 +935,66 @@ in
       #
       # Some mid-level settings:
       #
-      shortcuts = {
-        ksmserver = {
-          "Lock Session" = [ "Screensaver" "Meta+Ctrl+Alt+L" ];
+      shortcuts =
+      let
+        repeat = action: shortcut: count:
+        let
+          mkEntry = i:
+          let
+            n = i + 1;
+          in
+          {
+            name = "${action} ${toString n}";
+            value = "${shortcut}+${if n == 10 then "0" else toString n}";
+          };
+          items = lib.genList mkEntry count;
+        in
+          lib.listToAttrs items;
+      in
+      {
+        # Those seem to go under "system settings" as opposed to Applications
+        # or Common Actions.
+        krunner = {
+          "Launch" = "Meta+R";
         };
-
+        ksmserver = {
+          "Lock Session" = [ "ScreenMaver" "Favorites" ];
+        };
         kwin = {
           "Expose" = "Meta+,";
+          "Make Window Fullscreen" = "Meta+F";
+          "Maximize Window" = "Meta+M";
           "Switch Window Down" = "Meta+J";
           "Switch Window Left" = "Meta+H";
           "Switch Window Right" = "Meta+L";
           "Switch Window Up" = "Meta+K";
-        };
+          "Window to Desktop 1" = "Meta+!";
+          "Window to Desktop 2" = "Meta+@";
+          "Window to Desktop 3" = "Meta+#";
+          "Window to Desktop 4" = "Meta+$";
+          "Window to Desktop 5" = "Meta+%";
+          "Window to Desktop 6" = "Meta+^";
+          "Window to Desktop 7" = "Meta+&";
+          "Window to Desktop 8" = "Meta+*";
+          "Window to Desktop 9" = "Meta+(";
+          "Window to Desktop 10" = "Meta+)";
+        } // (
+          repeat "Switch to Desktop" "Meta" 10
+        );
 
-        "services/Alacritty.desktop".New = "Meta+Space";
+        plasmashell = {
+          "Activate Application Launcher" = "Meta+O";
+        } // (
+          repeat "Activate Task Manager Entry" "Ctrl" 9
+        );
       };
-
 
       #
       # Some low-level settings:
       #
       configFile = {
         baloofilerc."Basic Settings"."Indexing-Enabled" = false;
+        kglobalshortcutsrc = { };
         kwinrc."org.kde.kdecoration2".ButtonsOnLeft = "SF";
         kwinrc.Desktops.Number = {
           value = 10;
@@ -765,6 +1022,15 @@ in
         VisualHostKey yes
       '';
       matchBlocks = destiny-config.lib.sshMatchBlocks;
+    };
+
+    programs.tmux = {
+      enable = true;
+      extraConfig = ''
+        set-window-option -g mode-keys emacs
+        set-option -g history-limit 10000
+        set -g escape-time 10
+      '';
     };
 
     programs.zsh =
@@ -862,10 +1128,15 @@ in
               return;
           }
 
+          { [ $# -eq 1 ] && [ "$1" = "branch" ]; } && {
+              command git branch -vv;
+              return;
+          }
+
           { [ "$1" = "diff" ] || [ "$1" = "show" ] ; } && {
               local files="$(command git "$@" --name-only --format=)"
               local total=$(echo "$files" | wc -l)
-              local lock_files=$(echo "$files" | awk '/.*\.lock/ { } END { print NR }')
+              local lock_files=$(echo "$files" | awk '/.*\.lock/ { matches++ } END { print matches }')
 
               # Avoid empty output when only lock files changed
               [ $lock_files -eq $total ] && {
@@ -885,10 +1156,6 @@ in
               return 1;
           }
           ffmpeg -i "$1" -i "$2" -c:a copy -c:v copy "$3"
-        }
-
-        firefox() {
-          command firefox --profile ~/.mozilla/firefox/${user} "$@"
         }
 
         tree() {
