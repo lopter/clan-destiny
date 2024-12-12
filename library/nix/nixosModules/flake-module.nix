@@ -7,6 +7,7 @@
     certbot-vault = ./certbot-vault.nix;
     home-kal = ./home-kal.nix;
     kde = ./kde.nix;
+    lanzaboote = ./lanzaboote.nix;
     linux = ./linux.nix;
     nginx = ./nginx.nix;
     nginx-nixos-proxy-cache = ./nginx-nixos-proxy-cache.nix;

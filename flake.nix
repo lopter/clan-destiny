@@ -8,6 +8,12 @@
     # clan-core.url = "git+file:///stash/home/kal/cu/src/nix/clan-core";
     clan-core.inputs.nixpkgs.follows = "nixpkgs";
 
+    destiny-core.url = "git+ssh://gitolite.kalessin.fr/louis/destiny-core?ref=main";
+
+    destiny-config.url = "git+ssh://gitolite.kalessin.fr/louis/destiny-config?ref=main";
+    destiny-config.inputs.nixpkgs.follows = "nixpkgs";
+    destiny-config.inputs.destiny-core.follows = "destiny-core";
+
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
 
@@ -15,11 +21,8 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    destiny-core.url = "git+ssh://gitolite.kalessin.fr/louis/destiny-core?ref=main";
-
-    destiny-config.url = "git+ssh://gitolite.kalessin.fr/louis/destiny-config?ref=main";
-    destiny-config.inputs.nixpkgs.follows = "nixpkgs";
-    destiny-config.inputs.destiny-core.follows = "destiny-core";
+    lanzaboote.url = "github:nix-community/lanzaboote";
+    lanzaboote.inputs.nixpkgs.follows = "nixpkgs";
 
     nix2container.url = "github:nlewo/nix2container";
     nix2container.inputs.nixpkgs.follows = "nixpkgs";

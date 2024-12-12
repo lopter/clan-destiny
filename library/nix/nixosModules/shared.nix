@@ -19,6 +19,7 @@ in
     self.nixosModules.backups
     self.nixosModules.base-pkgs
     self.nixosModules.certbot-vault
+    self.nixosModules.lanzaboote
     self.nixosModules.linux
     self.nixosModules.nginx
     self.nixosModules.nginx-nixos-proxy-cache

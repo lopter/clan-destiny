@@ -13,8 +13,9 @@ in
 
   nixpkgs.hostPlatform = lib.mkForce "x86_64-linux";
 
-  boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  # Secure boot using lanzaboote (replaces `boot.loader.systemd-boot`):
+  boot.lanzaboote.enable = true;
 
   clan-destiny = {
     usergroups.createNormalUsers = true;
