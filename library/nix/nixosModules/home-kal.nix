@@ -1134,7 +1134,7 @@ in
           { [ "$1" = "diff" ] || [ "$1" = "show" ] ; } && {
               local files="$(command git "$@" --name-only --format=)"
               local total=$(echo "$files" | wc -l)
-              local lock_files=$(echo "$files" | awk '/.*\.lock/ { matches++ } END { print matches }')
+              local lock_files=$(echo "$files" | awk '/.*\.lock/ { matched++ } BEGIN { matched = 0 } END { print matched }')
 
               # Avoid empty output when only lock files changed
               [ $lock_files -eq $total ] && {
