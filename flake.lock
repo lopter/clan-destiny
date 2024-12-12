@@ -75,11 +75,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1733939049,
-        "narHash": "sha256-SzLb20diic0p4aQSIEu/kb789DwDY2GRmHIfuE70UwE=",
+        "lastModified": 1734014643,
+        "narHash": "sha256-xDTGtOKH7OQ+WHe8hOrz9kc0VyEoW6Yq2HGB6bK+Z/I=",
         "ref": "refs/heads/main",
-        "rev": "3295b9fc92f092f84742659e10429616d2f3994f",
-        "revCount": 5174,
+        "rev": "74ef0150020473cd830a631cf9c1756f8c29a42f",
+        "revCount": 5176,
         "type": "git",
         "url": "https://git.clan.lol/clan/clan-core"
       },
@@ -134,11 +134,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1733883267,
-        "narHash": "sha256-x/HcPoTq2nKl6Ogfcd5VC+RScCqG4ghY4zod71jMW3Y=",
+        "lastModified": 1734028975,
+        "narHash": "sha256-GbxTDjfbXjlsA6TudccTcFq3t1H4fDpScKD0OuSunmM=",
         "ref": "main",
-        "rev": "95709877d20861a4c6e86dc111e643e52e1fa82d",
-        "revCount": 40,
+        "rev": "640efbedd5284a3dcfc898e546def8121c8ed358",
+        "revCount": 41,
         "type": "git",
         "url": "ssh://gitolite.kalessin.fr/louis/destiny-config"
       },
@@ -540,11 +540,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1733951607,
-        "narHash": "sha256-CN6q6iCzxI1gkNyk4xLdwaMKi10r7n+aJkRzWj8PXwQ=",
+        "lastModified": 1734031102,
+        "narHash": "sha256-6RDywJJ1AuG2NflpXaWgNDYOOLGCqgTezUuc0RiEYzA=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "6e5b2d9e8014b5572e3367937a329e7053458d34",
+        "rev": "15151bb5e7d6e352247ecaeeeefc34d0f306b287",
         "type": "github"
       },
       "original": {

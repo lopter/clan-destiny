@@ -152,7 +152,7 @@
               ]);
 
               shellHook = ''
-                export SOPS_PGP_FP=ADB6276965590A096004F6D1E114CBAE8FA29165
+                export SOPS_PGP_FP=587982779FC79ED146018F8C4E65D33603D146A6
               '';
             };
           };
