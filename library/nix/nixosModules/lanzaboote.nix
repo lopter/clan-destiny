@@ -1,4 +1,4 @@
-{ config, lib, self, ... }:
+{ config, lib, pkgs, self, ... }:
 let
   inherit (self.inputs) lanzaboote;
 
@@ -29,5 +29,7 @@ in
       lanzaboote.pkiBundle = "/etc/secureboot";
       loader.systemd-boot.enable = lib.mkForce false; # lanzaboote replaces it.
     };
+
+    environment.systemPackages = [ pkgs.sbctl ];
   };
 }
