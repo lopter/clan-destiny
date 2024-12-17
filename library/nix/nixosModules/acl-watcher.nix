@@ -1,6 +1,11 @@
-{ config, lib, pkgs, self, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  self,
+  ...
+}:
 let
-  inherit (config.networking) hostName;
   inherit (config.nixpkgs.hostPlatform) system;
   destiny-core' = self.inputs.destiny-core.packages.${system};
   description = "Use watchman to enforce permissions, and ACLs, when files are copied to certain folders";
@@ -11,7 +16,10 @@ in
   config.systemd.services."clan-destiny-acl-watcher-goinfre" = lib.mkIf cfg.enable {
     inherit description;
     wantedBy = [ "multi-user.target" ];
-    path = [ destiny-core'.acl-watcher pkgs.watchman ];
+    path = [
+      destiny-core'.acl-watcher
+      pkgs.watchman
+    ];
     serviceConfig = {
       ExecStart = "${destiny-core'.acl-watcher}/bin/acl-watcher --debug true goinfre";
       Restart = "always";

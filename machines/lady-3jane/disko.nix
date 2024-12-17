@@ -79,7 +79,10 @@ in
               type = "filesystem";
               format = "ext4";
               mountpoint = "/";
-              mountOptions = [ "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+              mountOptions = [
+                "nodev"
+                "nosuid"
+              ] ++ lib.optionals allowDiscards [ "discard" ];
             };
           };
           # Having different volumes imposes some hard quotas:
@@ -89,7 +92,10 @@ in
               type = "filesystem";
               format = "ext4";
               mountpoint = "/var";
-              mountOptions = [ "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+              mountOptions = [
+                "nodev"
+                "nosuid"
+              ] ++ lib.optionals allowDiscards [ "discard" ];
             };
           };
           lvStash = {
@@ -98,7 +104,10 @@ in
               type = "filesystem";
               format = "ext4";
               mountpoint = "/stash";
-              mountOptions = [ "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+              mountOptions = [
+                "nodev"
+                "nosuid"
+              ] ++ lib.optionals allowDiscards [ "discard" ];
             };
           };
           lvNix = {
@@ -107,7 +116,11 @@ in
               type = "filesystem";
               format = "ext4";
               mountpoint = "/nix";
-              mountOptions = [ "noatime" "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+              mountOptions = [
+                "noatime"
+                "nodev"
+                "nosuid"
+              ] ++ lib.optionals allowDiscards [ "discard" ];
             };
           };
           lvTmp = {
@@ -116,7 +129,11 @@ in
               type = "filesystem";
               format = "ext4";
               mountpoint = "/tmp";
-              mountOptions = [ "noatime" "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+              mountOptions = [
+                "noatime"
+                "nodev"
+                "nosuid"
+              ] ++ lib.optionals allowDiscards [ "discard" ];
             };
           };
         };
@@ -130,13 +147,14 @@ in
 
   fileSystems = {
     "/" =
-    let
-      maybeOptions = if allowDiscards then { options = [ "discard" ]; } else { };
-    in
-    {
-      device = "/dev/vgLady3JaneSystem/lvRoot";
-      fsType = "ext4";
-    } // maybeOptions;
+      let
+        maybeOptions = if allowDiscards then { options = [ "discard" ]; } else { };
+      in
+      {
+        device = "/dev/vgLady3JaneSystem/lvRoot";
+        fsType = "ext4";
+      }
+      // maybeOptions;
     "/boot" = {
       device = "${nvmeSSD}-part1";
       fsType = "vfat";
@@ -145,22 +163,36 @@ in
     "/var" = {
       device = "/dev/vgLady3JaneSystem/lvVar";
       fsType = "ext4";
-      options = [ "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+      options = [
+        "nodev"
+        "nosuid"
+      ] ++ lib.optionals allowDiscards [ "discard" ];
     };
     "/stash" = {
       device = "/dev/vgLady3JaneSystem/lvStash";
       fsType = "ext4";
-      options = [ "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+      options = [
+        "nodev"
+        "nosuid"
+      ] ++ lib.optionals allowDiscards [ "discard" ];
     };
     "/nix" = {
       device = "/dev/vgLady3JaneSystem/lvNix";
       fsType = "ext4";
-      options = [ "noatime" "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+      options = [
+        "noatime"
+        "nodev"
+        "nosuid"
+      ] ++ lib.optionals allowDiscards [ "discard" ];
     };
     "/tmp" = {
       device = "/dev/vgLady3JaneSystem/lvTmp";
       fsType = "ext4";
-      options = [ "noatime" "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+      options = [
+        "noatime"
+        "nodev"
+        "nosuid"
+      ] ++ lib.optionals allowDiscards [ "discard" ];
     };
   };
 

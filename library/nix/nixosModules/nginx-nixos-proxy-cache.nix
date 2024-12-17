@@ -42,13 +42,15 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    assertions = [{
-      assertion = builtins.length cfg.resolver.addresses > 0;
-      message = ''
-        `clan-destiny.nginx.nixos-proxy-cache` requires
-        at least one resolver to be set.
-      '';
-    }];
+    assertions = [
+      {
+        assertion = builtins.length cfg.resolver.addresses > 0;
+        message = ''
+          `clan-destiny.nginx.nixos-proxy-cache` requires
+          at least one resolver to be set.
+        '';
+      }
+    ];
 
     clan-destiny.nginx.enable = true;
 
@@ -56,7 +58,7 @@ in
       resolver.addresses = cfg.resolver.addresses;
       appendHttpConfig = ''
         proxy_cache_path ${cfg.storageDir} levels=1:2 keys_zone=${cacheName}:100m max_size=${cfg.maxSize} inactive=${cfg.inactive} use_temp_path=off;
-        
+
         # Cache only success status codes; in particular we don't want to cache 404s.
         # See https://serverfault.com/a/690258/128321
         map $status $nixos_proxy_cache_control {
@@ -65,7 +67,7 @@ in
           default "no-store";
         }
       '';
-      
+
       virtualHosts."${cfg.serverName}" = {
         extraConfig = ''
           # Using a variable for the upstream endpoint to ensure that it is

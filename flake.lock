@@ -49,11 +49,11 @@
     },
     "catppuccin": {
       "locked": {
-        "lastModified": 1733908662,
-        "narHash": "sha256-vuyqYX91/kEs+oYAw0az5A/JHeIX8hrv06WtLmhfZ5A=",
+        "lastModified": 1734057772,
+        "narHash": "sha256-waF/2Y39JXJ4kG3zawmw1J1GxPHopyoOkJKJhfJ7RBs=",
         "owner": "catppuccin",
         "repo": "nix",
-        "rev": "5dfc780ad24353d01161c3c5784200ef042019af",
+        "rev": "20b6328df20ae45752c81311d225fd47cba32483",
         "type": "github"
       },
       "original": {
@@ -75,11 +75,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1734014643,
-        "narHash": "sha256-xDTGtOKH7OQ+WHe8hOrz9kc0VyEoW6Yq2HGB6bK+Z/I=",
+        "lastModified": 1734192746,
+        "narHash": "sha256-yoZHt4BAW0RZ9VvSUO57/wbp9bNk+UTNsXZpAyx9TEY=",
         "ref": "refs/heads/main",
-        "rev": "74ef0150020473cd830a631cf9c1756f8c29a42f",
-        "revCount": 5176,
+        "rev": "fab96ab7e8cf89f397ca5f716d247012dd6fee93",
+        "revCount": 5185,
         "type": "git",
         "url": "https://git.clan.lol/clan/clan-core"
       },
@@ -134,11 +134,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1734028975,
-        "narHash": "sha256-GbxTDjfbXjlsA6TudccTcFq3t1H4fDpScKD0OuSunmM=",
+        "lastModified": 1734055594,
+        "narHash": "sha256-+zPFTXka/66Eyt6Skt2hx/DRPSKfFcs24DfKBduMNiQ=",
         "ref": "main",
-        "rev": "640efbedd5284a3dcfc898e546def8121c8ed358",
-        "revCount": 41,
+        "rev": "d4a4e45f36c6ae5750c4700f2dc065fd5b3c3283",
+        "revCount": 42,
         "type": "git",
         "url": "ssh://gitolite.kalessin.fr/louis/destiny-config"
       },
@@ -165,11 +165,11 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1733785301,
-        "narHash": "sha256-zpPw+irmM8NHc/mMyd8t8R3zGo0vI7KZCRwOSTUutQA=",
+        "lastModified": 1734256909,
+        "narHash": "sha256-NjBbgqN4BBOAECmD14CNvuDy9zLHGg7cAZVvP1vNvqs=",
         "ref": "main",
-        "rev": "ee9384ba9dbe04c5983c0852e1a94f38aed883da",
-        "revCount": 22,
+        "rev": "979e878867931173905a48d4c8d473299b573bed",
+        "revCount": 23,
         "type": "git",
         "url": "ssh://gitolite.kalessin.fr/louis/destiny-core"
       },
@@ -540,11 +540,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1734031102,
-        "narHash": "sha256-6RDywJJ1AuG2NflpXaWgNDYOOLGCqgTezUuc0RiEYzA=",
+        "lastModified": 1734093295,
+        "narHash": "sha256-hSwgGpcZtdDsk1dnzA0xj5cNaHgN9A99hRF/mxMtwS4=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "15151bb5e7d6e352247ecaeeeefc34d0f306b287",
+        "rev": "66c5d8b62818ec4c1edb3e941f55ef78df8141a8",
         "type": "github"
       },
       "original": {

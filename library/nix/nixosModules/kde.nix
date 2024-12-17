@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ ... }:
 {
   hardware.bluetooth.enable = true; # pull bluedevil & bluez-qt
   networking.networkmanager.enable = true; # pull plasma-pm

@@ -1,11 +1,17 @@
-{ self, config, lib, pkgs, ... }:
+{
+  self,
+  config,
+  lib,
+  ...
+}:
 let
-  inherit (config.networking) hostName;
   inherit (config.nixpkgs.hostPlatform) system;
   inherit (config.lib.clan-destiny) ports;
   vaultFQDN = self.inputs.destiny-config.lib.vault.fqdn;
   nixpkgs-unfree' = self.inputs.nixpkgs-unfree.legacyPackages.${system};
-  vault = nixpkgs-unfree'.vault.overrideAttrs (prev: { doCheck = false; });
+  vault = nixpkgs-unfree'.vault.overrideAttrs (_prev: {
+    doCheck = false;
+  });
   destiny-core' = self.inputs.destiny-core.packages.${system};
   serverCfg = config.clan-destiny.vault-server;
   clientCfg = config.clan-destiny.vault-client;
@@ -48,21 +54,21 @@ in
         tlsKeyFile = vars.files.tlsKey.path;
         storageBackend = "file";
         storagePath = config.users.users.vault.home;
-#   Note: the binaries built par Nix do not support the UI:
-#
-#   <h1>Vault UI is not available in this binary.</h1>
-#   </div>
-#   <p>To get Vault UI do one of the following:</p>
-#   <ul>
-#   <li><a href="https://www.vaultproject.io/downloads.html">Download an official release</a></li>
-#   <li>Run <code>make bin</code> to create your own release binaries.
-#   <li>Run <code>make dev-ui</code> to create a development binary with the UI.
-#   </ul>
-#
-#   extraConfig = ''
-#     ui = true
-#     api_addr = "https://${vaultFQDN}"
-#   '';
+        #   Note: the binaries built par Nix do not support the UI:
+        #
+        #   <h1>Vault UI is not available in this binary.</h1>
+        #   </div>
+        #   <p>To get Vault UI do one of the following:</p>
+        #   <ul>
+        #   <li><a href="https://www.vaultproject.io/downloads.html">Download an official release</a></li>
+        #   <li>Run <code>make bin</code> to create your own release binaries.
+        #   <li>Run <code>make dev-ui</code> to create a development binary with the UI.
+        #   </ul>
+        #
+        #   extraConfig = ''
+        #     ui = true
+        #     api_addr = "https://${vaultFQDN}"
+        #   '';
       };
     })
     (lib.mkIf clientCfg.enable {
@@ -76,14 +82,11 @@ in
             # traffic will arrive on the loopback interface instead of the
             # tailscale interface. We avoid getting blocked by this firewall
             # rule by trying to connect on the loopback address instead:
-            lib.info
-              (
-                "Using 127.0.0.1 instead of ${vaultFQDN} in VAULT_ADDR "
-                + "since we seem to be on the vault server"
-              )
-              "https://127.0.0.1:${toString ports.vault}/"
+            lib.info (
+              "Using 127.0.0.1 instead of ${vaultFQDN} in VAULT_ADDR " + "since we seem to be on the vault server"
+            ) "https://127.0.0.1:${toString ports.vault}/"
           else
-              config.lib.clan-destiny.vault.addr;
+            config.lib.clan-destiny.vault.addr;
         VAULT_TLS_SERVER_NAME = vaultFQDN;
         VAULT_CACERT = commonVars.files.tlsCaCert.path;
         VAULT_CLIENT_TIMEOUT = "3";

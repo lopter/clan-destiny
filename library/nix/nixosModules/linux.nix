@@ -1,6 +1,9 @@
 {
   # Make USB thumb drives available during stage 1:
-  boot.initrd.availableKernelModules = [ "uas" "usb_storage" ];
+  boot.initrd.availableKernelModules = [
+    "uas"
+    "usb_storage"
+  ];
 
   boot.kernel.sysctl = {
     "fs.inotify.max_user_instances" = 256;

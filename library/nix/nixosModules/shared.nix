@@ -1,7 +1,13 @@
-{ self, lib, config, clan-core, ... }:
+{
+  self,
+  lib,
+  config,
+  clan-core,
+  ...
+}:
 let
-  inherit (self.inputs) destiny-config home-manager;
-  
+  inherit (self.inputs) home-manager;
+
   hostName = config.networking.hostName;
   hostDetails = config.clan-destiny.typed-tags.knownHosts.${hostName};
 in
@@ -53,7 +59,7 @@ in
       let
         unfreePredicates = config.clan-destiny.nixpkgs.unfreePredicates;
       in
-        pkg: builtins.elem (lib.getName pkg) unfreePredicates;
+      pkg: builtins.elem (lib.getName pkg) unfreePredicates;
 
     powerManagement.powertop.enable = true;
     powerManagement.cpuFreqGovernor = lib.mkDefault "ondemand";

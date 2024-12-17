@@ -11,7 +11,13 @@
 #
 # DOMAIN=example.com
 # sudo -u certbot -- certbot-vault -d $DOMAIN
-{ config, lib, pkgs, self, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  self,
+  ...
+}:
 let
   inherit (self.inputs) destiny-core;
   cfg = config.clan-destiny.certbot-vault;
@@ -74,17 +80,18 @@ in
     };
   };
 
-  config = 
-  let
-    certbotPlugins = certbotPythonPkgs: with pkgs.python3Packages; [
-      (callPackage (destiny-core + "/third_party/pypi/certbot-plugin-gandi.nix") { })
-      (callPackage (destiny-core + "/third_party/pypi/certbot-vault.nix") { })
-    ];
-    # TODO: wrap the original certbot binary with our arguments too.
-    certbot = pkgs.python3Packages.certbot.withPlugins certbotPlugins;
-    certbotConfigINI = pkgs.writeText "cli.ini" cfg.configINI;
-    logDir = if cfg.logDir == null then "/var/log/certbot" else cfg.logDir;
-    certbotVaultScript = pkgs.writeShellScriptBin "certbot-vault" ''
+  config =
+    let
+      certbotPlugins =
+        _certbotPythonPkgs: with pkgs.python3Packages; [
+          (callPackage (destiny-core + "/third_party/pypi/certbot-plugin-gandi.nix") { })
+          (callPackage (destiny-core + "/third_party/pypi/certbot-vault.nix") { })
+        ];
+      # TODO: wrap the original certbot binary with our arguments too.
+      certbot = pkgs.python3Packages.certbot.withPlugins certbotPlugins;
+      certbotConfigINI = pkgs.writeText "cli.ini" cfg.configINI;
+      logDir = if cfg.logDir == null then "/var/log/certbot" else cfg.logDir;
+      certbotVaultScript = pkgs.writeShellScriptBin "certbot-vault" ''
         . ${vars.files.vaultCredentials.path}
 
         exec certbot \
@@ -102,82 +109,86 @@ in
             --vault-path ${cfg.vaultPath} \
             "$@"
       '';
-    certbotPkgs = [ certbot certbotVaultScript ];
-    vars = config.clan.core.vars.generators.clan-destiny-certbot-vault;
-  in lib.mkIf cfg.enable {
-    clan.core.vars.generators.clan-destiny-certbot-vault = {
-      files.vaultCredentials.owner = "certbot";
-      files.gandiCredentials.owner = "certbot";
-      prompts.VaultRoleID = {
-        createFile = false;
-        description = "The Vault Role ID for certbot-vault";
-        type = "hidden";
-      };
-      prompts.VaultSecretId = {
-        createFile = false;
-        description = "The Vault Secret ID for certbot-vault";
-        type = "hidden";
-      };
-      prompts.gandiToken = {
-        createFile = false;
-        description = "Your Gandi API token";
-        type = "hidden";
-      };
-      script = ''
-        printf "export VAULT_ROLE_ID=$(cat "$prompts/VaultRoleID")\n" >> $out/vaultCredentials
-        printf "export VAULT_SECRET_ID=$(cat "$prompts/VaultSecretId")\n" >> $out/vaultCredentials
+      certbotPkgs = [
+        certbot
+        certbotVaultScript
+      ];
+      vars = config.clan.core.vars.generators.clan-destiny-certbot-vault;
+    in
+    lib.mkIf cfg.enable {
+      clan.core.vars.generators.clan-destiny-certbot-vault = {
+        files.vaultCredentials.owner = "certbot";
+        files.gandiCredentials.owner = "certbot";
+        prompts.VaultRoleID = {
+          createFile = false;
+          description = "The Vault Role ID for certbot-vault";
+          type = "hidden";
+        };
+        prompts.VaultSecretId = {
+          createFile = false;
+          description = "The Vault Secret ID for certbot-vault";
+          type = "hidden";
+        };
+        prompts.gandiToken = {
+          createFile = false;
+          description = "Your Gandi API token";
+          type = "hidden";
+        };
+        script = ''
+          printf "export VAULT_ROLE_ID=$(cat "$prompts/VaultRoleID")\n" >> $out/vaultCredentials
+          printf "export VAULT_SECRET_ID=$(cat "$prompts/VaultSecretId")\n" >> $out/vaultCredentials
 
-        printf "dns_gandi_token=$(cat "$prompts/gandiToken")\n" >> $out/gandiCredentials
-      '';
-    };
-    systemd.timers."clan-destiny-certbot-renew" = {
-      description = "Run `certbot-vault renew` regularly";
-      wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnCalendar = "*-*-1,18"; # twice a month
-        RandomizedDelaySec = 60 * 60 * 24; # anytime during our OnCalendar days
-        Unit = "clan-destiny-certbot-renew.service";
-      };
-    };
-    systemd.services."clan-destiny-certbot-renew" = {
-      description = "Renew certificates issued with Let's Encrypt using certbot";
-      path = certbotPkgs;
-      onFailure = [ "clan-destiny-certbot-notify-fail.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${certbotVaultScript}/bin/certbot-vault renew";
-        User = "certbot";
-        Group = "certbot";
-      };
-    };
-    systemd.services."clan-destiny-certbot-notify-fail" = {
-      description = "Send an email to root when certbot-vault fails to run";
-      path = with pkgs; [ mailutils ];
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = pkgs.writeShellScript "clan-destiny-certbot-notify-fail" ''
-          mail -s 'certbot-vault failed to run on ${config.networking.hostName}' root <<EOF
-          systemctl status clan-destiny-certbot-renew.service:
-
-          $(systemctl status clan-destiny-certbot-renew.service)
-
-          -- 
-          clan-destiny-certbot-notify-fail running on ${config.networking.hostName}
-          EOF
+          printf "dns_gandi_token=$(cat "$prompts/gandiToken")\n" >> $out/gandiCredentials
         '';
       };
+      systemd.timers."clan-destiny-certbot-renew" = {
+        description = "Run `certbot-vault renew` regularly";
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnCalendar = "*-*-1,18"; # twice a month
+          RandomizedDelaySec = 60 * 60 * 24; # anytime during our OnCalendar days
+          Unit = "clan-destiny-certbot-renew.service";
+        };
+      };
+      systemd.services."clan-destiny-certbot-renew" = {
+        description = "Renew certificates issued with Let's Encrypt using certbot";
+        path = certbotPkgs;
+        onFailure = [ "clan-destiny-certbot-notify-fail.service" ];
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = "${certbotVaultScript}/bin/certbot-vault renew";
+          User = "certbot";
+          Group = "certbot";
+        };
+      };
+      systemd.services."clan-destiny-certbot-notify-fail" = {
+        description = "Send an email to root when certbot-vault fails to run";
+        path = with pkgs; [ mailutils ];
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = pkgs.writeShellScript "clan-destiny-certbot-notify-fail" ''
+            mail -s 'certbot-vault failed to run on ${config.networking.hostName}' root <<EOF
+            systemctl status clan-destiny-certbot-renew.service:
+
+            $(systemctl status clan-destiny-certbot-renew.service)
+
+            -- 
+            clan-destiny-certbot-notify-fail running on ${config.networking.hostName}
+            EOF
+          '';
+        };
+      };
+      systemd.tmpfiles.rules = lib.mkIf (cfg.logDir == null) [
+        "d ${logDir} 0750 certbot certbot 180d -"
+      ];
+      users.groups.certbot = lib.mkDefault { };
+      users.users.certbot = lib.mkDefault {
+        home = "/var/lib/certbot";
+        createHome = true;
+        isSystemUser = true;
+        description = "Certbot ACME agent";
+        group = "certbot";
+      };
+      environment.systemPackages = certbotPkgs;
     };
-    systemd.tmpfiles.rules = lib.mkIf (cfg.logDir == null) [
-      "d ${logDir} 0750 certbot certbot 180d -"
-    ];
-    users.groups.certbot = lib.mkDefault { };
-    users.users.certbot = lib.mkDefault {
-      home = "/var/lib/certbot";
-      createHome = true;
-      isSystemUser = true;
-      description = "Certbot ACME agent";
-      group = "certbot";
-    };
-    environment.systemPackages = certbotPkgs;
-  };
 }

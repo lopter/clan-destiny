@@ -1,4 +1,12 @@
-{ self, config, options, lib, pkgs, system, ... }:
+{
+  self,
+  config,
+  options,
+  lib,
+  pkgs,
+  system,
+  ...
+}:
 
 let
   inherit (self.inputs.clan-core.inputs) sops-nix;
@@ -9,7 +17,7 @@ let
     inherit (pkgs) writeTextFile;
   };
   suffix = "";
-  extraJson = {};
+  extraJson = { };
   manifest = sopsManifestFor suffix regularSecrets extraJson;
 
   pathNotInStore = lib.mkOptionType {
@@ -22,111 +30,127 @@ let
 
   regularSecrets = lib.filterAttrs (_: v: !v.neededForUsers) cfg.secrets;
 
-  secretType = lib.types.submodule ({ config, ... }: {
-    config = {
-      sopsFile = lib.mkOptionDefault cfg.defaultSopsFile;
-      sopsFileHash = lib.mkOptionDefault (lib.optionalString cfg.validateSopsFiles "${builtins.hashFile "sha256" config.sopsFile}");
-    };
-    options = {
-      name = lib.mkOption {
-        type = lib.types.str;
-        default = config._module.args.name;
-        description = ''
-          Name of the file used in /run/secrets
-        '';
+  secretType = lib.types.submodule (
+    { config, ... }:
+    {
+      config = {
+        sopsFile = lib.mkOptionDefault cfg.defaultSopsFile;
+        sopsFileHash = lib.mkOptionDefault (
+          lib.optionalString cfg.validateSopsFiles "${builtins.hashFile "sha256" config.sopsFile}"
+        );
       };
-      key = lib.mkOption {
-        type = lib.types.str;
-        default = config._module.args.name;
-        description = ''
-          Key used to lookup in the sops file.
-          No tested data structures are supported right now.
-          This option is ignored if format is binary.
-        '';
+      options = {
+        name = lib.mkOption {
+          type = lib.types.str;
+          default = config._module.args.name;
+          description = ''
+            Name of the file used in /run/secrets
+          '';
+        };
+        key = lib.mkOption {
+          type = lib.types.str;
+          default = config._module.args.name;
+          description = ''
+            Key used to lookup in the sops file.
+            No tested data structures are supported right now.
+            This option is ignored if format is binary.
+          '';
+        };
+        path = lib.mkOption {
+          type = lib.types.str;
+          default =
+            if config.neededForUsers then
+              "/run/secrets-for-users/${config.name}"
+            else
+              "/run/secrets/${config.name}";
+          defaultText = "/run/secrets-for-users/$name when neededForUsers is set, /run/secrets/$name when otherwise.";
+          description = ''
+            Path where secrets are symlinked to.
+            If the default is kept no symlink is created.
+          '';
+        };
+        format = lib.mkOption {
+          type = lib.types.enum [
+            "yaml"
+            "json"
+            "binary"
+            "dotenv"
+            "ini"
+          ];
+          default = cfg.defaultSopsFormat;
+          description = ''
+            File format used to decrypt the sops secret.
+            Binary files are written to the target file as is.
+          '';
+        };
+        mode = lib.mkOption {
+          type = lib.types.str;
+          default = "0400";
+          description = ''
+            Permissions mode of the in octal.
+          '';
+        };
+        owner = lib.mkOption {
+          type = lib.types.str;
+          default = "root";
+          description = ''
+            User of the file.
+          '';
+        };
+        group = lib.mkOption {
+          type = lib.types.str;
+          default = "root";
+          defaultText = lib.literalMD "{option}`config.users.users.\${owner}.group`";
+          description = ''
+            Group of the file.
+          '';
+        };
+        sopsFile = lib.mkOption {
+          type = lib.types.path;
+          defaultText = "\${config.sops.defaultSopsFile}";
+          description = ''
+            Sops file the secret is loaded from.
+          '';
+        };
+        sopsFileHash = lib.mkOption {
+          type = lib.types.str;
+          readOnly = true;
+          description = ''
+            Hash of the sops file, useful in <xref linkend="opt-systemd.services._name_.restartTriggers" />.
+          '';
+        };
+        restartUnits = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+          example = [ "sshd.service" ];
+          description = ''
+            Names of units that should be restarted when this secret changes.
+            This works the same way as <xref linkend="opt-systemd.services._name_.restartTriggers" />.
+          '';
+        };
+        reloadUnits = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+          example = [ "sshd.service" ];
+          description = ''
+            Names of units that should be reloaded when this secret changes.
+            This works the same way as <xref linkend="opt-systemd.services._name_.reloadTriggers" />.
+          '';
+        };
+        neededForUsers = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = ''
+            Enabling this option causes the secret to be decrypted before users and groups are created.
+            This can be used to retrieve user's passwords from sops-nix.
+            Setting this option moves the secret to /run/secrets-for-users and disallows setting owner and group to anything else than root.
+          '';
+        };
       };
-      path = lib.mkOption {
-        type = lib.types.str;
-        default = if config.neededForUsers then "/run/secrets-for-users/${config.name}" else "/run/secrets/${config.name}";
-        defaultText = "/run/secrets-for-users/$name when neededForUsers is set, /run/secrets/$name when otherwise.";
-        description = ''
-          Path where secrets are symlinked to.
-          If the default is kept no symlink is created.
-        '';
-      };
-      format = lib.mkOption {
-        type = lib.types.enum ["yaml" "json" "binary" "dotenv" "ini"];
-        default = cfg.defaultSopsFormat;
-        description = ''
-          File format used to decrypt the sops secret.
-          Binary files are written to the target file as is.
-        '';
-      };
-      mode = lib.mkOption {
-        type = lib.types.str;
-        default = "0400";
-        description = ''
-          Permissions mode of the in octal.
-        '';
-      };
-      owner = lib.mkOption {
-        type = lib.types.str;
-        default = "root";
-        description = ''
-          User of the file.
-        '';
-      };
-      group = lib.mkOption {
-        type = lib.types.str;
-        default = "root";
-        defaultText = lib.literalMD "{option}`config.users.users.\${owner}.group`";
-        description = ''
-          Group of the file.
-        '';
-      };
-      sopsFile = lib.mkOption {
-        type = lib.types.path;
-        defaultText = "\${config.sops.defaultSopsFile}";
-        description = ''
-          Sops file the secret is loaded from.
-        '';
-      };
-      sopsFileHash = lib.mkOption {
-        type = lib.types.str;
-        readOnly = true;
-        description = ''
-          Hash of the sops file, useful in <xref linkend="opt-systemd.services._name_.restartTriggers" />.
-        '';
-      };
-      restartUnits = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [ ];
-        example = [ "sshd.service" ];
-        description = ''
-          Names of units that should be restarted when this secret changes.
-          This works the same way as <xref linkend="opt-systemd.services._name_.restartTriggers" />.
-        '';
-      };
-      reloadUnits = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [ ];
-        example = [ "sshd.service" ];
-        description = ''
-          Names of units that should be reloaded when this secret changes.
-          This works the same way as <xref linkend="opt-systemd.services._name_.reloadTriggers" />.
-        '';
-      };
-      neededForUsers = lib.mkOption {
-        type = lib.types.bool;
-        default = false;
-        description = ''
-          Enabling this option causes the secret to be decrypted before users and groups are created.
-          This can be used to retrieve user's passwords from sops-nix.
-          Setting this option moves the secret to /run/secrets-for-users and disallows setting owner and group to anything else than root.
-        '';
-      };
-    };
-  });
-in {
+    }
+  );
+in
+{
   config.clan-destiny.fly-io-pop.secretsManifest = manifest;
 
   options.clan-destiny.fly-io-pop.secretsManifest = lib.mkOption {
@@ -136,7 +160,7 @@ in {
   options.sops = {
     secrets = lib.mkOption {
       type = lib.types.attrsOf secretType;
-      default = {};
+      default = { };
       description = ''
         Path where the latest secrets are mounted to.
       '';
@@ -175,14 +199,22 @@ in {
     };
 
     log = lib.mkOption {
-      type = lib.types.listOf (lib.types.enum [ "keyImport" "secretChanges" ]);
-      default = [ "keyImport" "secretChanges" ];
+      type = lib.types.listOf (
+        lib.types.enum [
+          "keyImport"
+          "secretChanges"
+        ]
+      );
+      default = [
+        "keyImport"
+        "secretChanges"
+      ];
       description = "What to log";
     };
 
     environment = lib.mkOption {
       type = lib.types.attrsOf (lib.types.either lib.types.str lib.types.path);
-      default = {};
+      default = { };
       description = ''
         Environment variables to set before calling sops-install-secrets.
 
@@ -206,9 +238,10 @@ in {
     validationPackage = lib.mkOption {
       type = lib.types.package;
       default =
-        if pkgs.stdenv.buildPlatform == pkgs.stdenv.hostPlatform
-          then cfg.package
-          else sops-nix.packages.${pkgs.stdenv.hostPlatform.system}.sops-install-secrets;
+        if pkgs.stdenv.buildPlatform == pkgs.stdenv.hostPlatform then
+          cfg.package
+        else
+          sops-nix.packages.${pkgs.stdenv.hostPlatform.system}.sops-install-secrets;
       defaultText = lib.literalExpression "config.sops.package";
 
       description = ''

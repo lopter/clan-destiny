@@ -68,41 +68,50 @@
 
           # Make flake available in modules
           specialArgs.self = {
-            inherit (self) inputs lib nixosModules packages;
+            inherit (self)
+              inputs
+              lib
+              nixosModules
+              packages
+              ;
           };
           directory = self;
 
           # inventory.services = { };
 
           machines =
-          let
-            names = [
-              "nsrv-sfo-ashpool"
-              "lady-3jane"
-            ];
-            mkMachine = hostname:
             let
-              # We need to resolve those imports ahead of module evaluation,
-              # because using the config (via `config.networking.hostName`)
-              # while modules are being collected for evaluation will cause an
-              # infinite recursion:
-              hostConfigModules = builtins.filter builtins.pathExists [
-                (./machines + "/${hostname}/configuration.nix")
-                (./machines + "/${hostname}/disko.nix")
-                (./machines + "/${hostname}/hardware-configuration.nix")
-                ((builtins.toPath destiny-config) + "/machines/${hostname}/configuration.nix")
+              names = [
+                "nsrv-sfo-ashpool"
+                "lady-3jane"
               ];
-              privateConfigModules = lib.optionals
-                (builtins.hasAttr "nixosModules" destiny-config)
-                (builtins.attrValues destiny-config.nixosModules);
+              mkMachine =
+                hostname:
+                let
+                  # We need to resolve those imports ahead of module evaluation,
+                  # because using the config (via `config.networking.hostName`)
+                  # while modules are being collected for evaluation will cause an
+                  # infinite recursion:
+                  hostConfigModules = builtins.filter builtins.pathExists [
+                    (./machines + "/${hostname}/configuration.nix")
+                    (./machines + "/${hostname}/disko.nix")
+                    (./machines + "/${hostname}/hardware-configuration.nix")
+                    ((builtins.toPath destiny-config) + "/machines/${hostname}/configuration.nix")
+                  ];
+                  privateConfigModules = lib.optionals (builtins.hasAttr "nixosModules" destiny-config) (
+                    builtins.attrValues destiny-config.nixosModules
+                  );
+                in
+                {
+                  imports =
+                    hostConfigModules
+                    ++ privateConfigModules
+                    ++ [
+                      self.nixosModules.shared
+                    ];
+                  networking.hostName = hostname;
+                };
             in
-            {
-              imports = hostConfigModules ++ privateConfigModules ++ [
-                self.nixosModules.shared
-              ];
-              networking.hostName = hostname;
-            };
-          in
             lib.genAttrs names mkMachine;
         };
 
@@ -112,10 +121,18 @@
           { inputs', ... }:
           let
             emptyModule = { };
-            attrPath = [ "nixosModules" "knownSshKeys" ];
+            attrPath = [
+              "nixosModules"
+              "knownSshKeys"
+            ];
             maybeKnownSshKeysModule = lib.attrByPath attrPath emptyModule destiny-config;
             installerModule =
-              { config, lib, pkgs, ...}:
+              {
+                config,
+                lib,
+                pkgs,
+                ...
+              }:
               let
                 destiny-core' = inputs'.destiny-core.packages;
                 rootSshAuthorizedKeys = config.users.users.root.openssh.authorizedKeys.keys;
@@ -140,7 +157,14 @@
           in
           lib.nixosSystem {
             system = "x86_64-linux";
-            specialArgs = { inherit inputs inputs' self lib; };
+            specialArgs = {
+              inherit
+                inputs
+                inputs'
+                self
+                lib
+                ;
+            };
             modules = [
               "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
 
@@ -160,50 +184,55 @@
           { pkgs, inputs', ... }:
           {
             devShells.default = pkgs.mkShell {
-              packages = (with inputs'.clan-core.packages; [
-                clan-cli
-              ]) ++ (with inputs'.destiny-core.packages; [
-                git-fetch-and-checkout
-                n
-              ]) ++ (with pkgs; [
-                age
-                flyctl
-                sops
-                ssh-to-age
-                python3Packages.ipython
+              packages =
+                (with inputs'.clan-core.packages; [
+                  clan-cli
+                ])
+                ++ (with inputs'.destiny-core.packages; [
+                  git-fetch-and-checkout
+                  n
+                ])
+                ++ (with pkgs; [
+                  age
+                  flyctl
+                  sops
+                  ssh-to-age
+                  python3Packages.ipython
 
-                fd
-                entr
+                  fd
+                  entr
 
-                (writeShellApplication {
-                  name = "watchloop-build-host";
-                  text = ''
-                    [ -n "$1" ] || {
-                      printf "Usage: %s hostname\n" "$0"
+                  (writeShellApplication {
+                    name = "watchloop-build-host";
+                    text = ''
+                      [ -n "$1" ] || {
+                        printf "Usage: %s hostname\n" "$0"
+                        exit 1;
+                      }
+                      printf "→ Press space to start a build manually and q to exit\n"
+                      fd '.+\.(nix|py)$' | entr -p nix build --show-trace ".#nixosConfigurations.$1.config.system.build.toplevel" "$@"
+                    '';
+                    runtimeInputs = [
+                      fd
+                      entr
+                    ];
+                  })
+
+                  (writeShellScriptBin "build-live-cd" ''
+                    ${lib.getExe nix} build .#nixosConfigurations.nixos-installer-x86_64-linux.config.system.build.isoImage "$@"
+                  '')
+
+                  (writeShellScriptBin "deploy-pop" ''
+                    set -ex
+                    nix run -L '.#fly-io-pop.copyToRegistry'
+                    [ -f config/fly.toml ] && {
+                      fly deploy -c config/fly.toml -i registry.fly.io/clan-destiny-pop:latest;
+                    } || {
+                      echo >&2 "config/fly.toml not found, make sure you are at the repo's root.";
                       exit 1;
                     }
-                    printf "→ Press space to start a build manually and q to exit\n"
-                    fd '.+\.(nix|py)$' | entr -p nix build --show-trace ".#nixosConfigurations.$1.config.system.build.toplevel" "$@"
-                  '';
-                  runtimeInputs = [ fd entr ];
-                })
-
-
-                (writeShellScriptBin "build-live-cd" ''
-                    ${lib.getExe nix} build .#nixosConfigurations.nixos-installer-x86_64-linux.config.system.build.isoImage "$@"
-                '')
-
-                (writeShellScriptBin "deploy-pop" ''
-                  set -ex
-                  nix run -L '.#fly-io-pop.copyToRegistry'
-                  [ -f config/fly.toml ] && {
-                    fly deploy -c config/fly.toml -i registry.fly.io/clan-destiny-pop:latest;
-                  } || {
-                    echo >&2 "config/fly.toml not found, make sure you are at the repo's root.";
-                    exit 1;
-                  }
-                '')
-              ]);
+                  '')
+                ]);
 
               shellHook = ''
                 export SOPS_PGP_FP=587982779FC79ED146018F8C4E65D33603D146A6
@@ -213,12 +242,13 @@
 
         flake.lib = {
           # How could you actually make this a vars?
-          zoneFromHostname = hostname:
-          let
-            knownZones = [ "sfo" ];
-            capturePattern = builtins.concatStringsSep "|" knownZones;
-            groups = builtins.match ".+(${capturePattern})(-.+)?$" hostname;
-          in
+          zoneFromHostname =
+            hostname:
+            let
+              knownZones = [ "sfo" ];
+              capturePattern = builtins.concatStringsSep "|" knownZones;
+              groups = builtins.match ".+(${capturePattern})(-.+)?$" hostname;
+            in
             if groups == null then null else builtins.elemAt groups 0;
         };
       }

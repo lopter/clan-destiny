@@ -1,4 +1,4 @@
-{ self, config, lib, ... }:
+{ config, lib, ... }:
 let
   inherit (config.lib.clan-destiny) ports usergroups;
 
@@ -44,87 +44,87 @@ in
   };
 
   containers.home-assistant =
-  let
-    macvlans = config.clan-destiny.typed-tags.interfacesByRole.lan;
-  in
-  {
-    inherit macvlans;
-    ephemeral = true;
-    autoStart = true;
-    bindMounts = {
-      ${hassDir} = {
-        hostPath = hassDir;
-        isReadOnly = false;
-      };
-      "/dev/ttyUSB0" = {
-        hostPath = "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_b6a3139cc145ed118f1bcf8f0a86e0b4-if00-port0";
-        isReadOnly = false;
-      };
-    };
-    allowedDevices = [
-      {
-        node = "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_b6a3139cc145ed118f1bcf8f0a86e0b4-if00-port0";
-        modifier = "rw";
-      }
-    ];
-    config =
-    { config, pkgs, ... }:
+    let
+      macvlans = config.clan-destiny.typed-tags.interfacesByRole.lan;
+    in
     {
-      services.home-assistant = {
-        enable = true;
-        extraComponents = [
-          "default_config"
-          "lifx"
-          "zha"
-        ];
-        configDir = hassDir;
-        config = {
-          default_config = { };
-          frontend = { };
-          homeassistant = {
-            unit_system = "metric";
-            time_zone = "America/Los_Angeles";
-            name = "SFO";
-            longitude = -122.323219;
-            latitude = 37.766574;
+      inherit macvlans;
+      ephemeral = true;
+      autoStart = true;
+      bindMounts = {
+        ${hassDir} = {
+          hostPath = hassDir;
+          isReadOnly = false;
+        };
+        "/dev/ttyUSB0" = {
+          hostPath = "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_b6a3139cc145ed118f1bcf8f0a86e0b4-if00-port0";
+          isReadOnly = false;
+        };
+      };
+      allowedDevices = [
+        {
+          node = "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_b6a3139cc145ed118f1bcf8f0a86e0b4-if00-port0";
+          modifier = "rw";
+        }
+      ];
+      config =
+        { config, ... }:
+        {
+          services.home-assistant = {
+            enable = true;
+            extraComponents = [
+              "default_config"
+              "lifx"
+              "zha"
+            ];
+            configDir = hassDir;
+            config = {
+              default_config = { };
+              frontend = { };
+              homeassistant = {
+                unit_system = "metric";
+                time_zone = "America/Los_Angeles";
+                name = "SFO";
+                longitude = -122.323219;
+                latitude = 37.766574;
+              };
+              logger.default = "info";
+              http.server_port = ports.homeAssistant;
+              zha = { };
+            };
           };
-          logger.default = "info";
-          http.server_port = ports.homeAssistant;
-          zha = { };
-        };
-      };
 
-      networking = {
-        firewall.enable = false;
-        useNetworkd = true;
-        useHostResolvConf = false;
-      };
+          networking = {
+            firewall.enable = false;
+            useNetworkd = true;
+            useHostResolvConf = false;
+          };
 
-      systemd.network =
-      let
-        mkNetwork = ifname: {
-          name = "40-mv-${ifname}";
-          value = {
-            matchConfig.Name = "mv-${ifname}";
-            networkConfig.DHCP = "yes";
-            dhcpV4Config.ClientIdentifier = "mac";
+          systemd.network =
+            let
+              mkNetwork = ifname: {
+                name = "40-mv-${ifname}";
+                value = {
+                  matchConfig.Name = "mv-${ifname}";
+                  networkConfig.DHCP = "yes";
+                  dhcpV4Config.ClientIdentifier = "mac";
+                };
+              };
+            in
+            {
+              enable = true;
+              networks = builtins.listToAttrs (map mkNetwork macvlans);
+            };
+
+          users = with usergroups.users.hass; {
+            groups.hass.gid = lib.mkForce gid;
+            users.hass = {
+              uid = lib.mkForce uid;
+              group = "hass";
+              home = lib.mkForce hassDir;
+              isSystemUser = true;
+            };
           };
         };
-      in
-      {
-        enable = true;
-        networks = builtins.listToAttrs (map mkNetwork macvlans);
-      };
-
-      users = with usergroups.users.hass; {
-        groups.hass.gid = lib.mkForce gid;
-        users.hass = {
-          uid = lib.mkForce uid;
-          group = "hass";
-          home = lib.mkForce hassDir;
-          isSystemUser = true;
-        };
-      };
     };
-  };
 }

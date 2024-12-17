@@ -3,10 +3,11 @@ let
   # Get the partition of the given number for the given storage device. Expand
   # to the correct path whether devices are addressed using /dev/disk/by- or
   # using something of the like of /dev/sda:
-  diskPart = number: diskName:
+  diskPart =
+    number: diskName:
     if builtins.isList (builtins.match ".+by-(id|uuid).+" diskName) then
       "${diskName}-part${toString number}"
-    else 
+    else
       "${diskName}${toString number}";
 
   sataSSD = "/dev/disk/by-id/ata-Samsung_SSD_870_EVO_4TB_S6P3NS0W300955A";
@@ -89,7 +90,10 @@ in
               type = "filesystem";
               format = "ext4";
               mountpoint = "/";
-              mountOptions = [ "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+              mountOptions = [
+                "nodev"
+                "nosuid"
+              ] ++ lib.optionals allowDiscards [ "discard" ];
             };
           };
           # Having different volumes imposes some hard quotas:
@@ -99,7 +103,10 @@ in
               type = "filesystem";
               format = "ext4";
               mountpoint = "/var";
-              mountOptions = [ "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+              mountOptions = [
+                "nodev"
+                "nosuid"
+              ] ++ lib.optionals allowDiscards [ "discard" ];
             };
           };
           lvStash = {
@@ -108,7 +115,10 @@ in
               type = "filesystem";
               format = "ext4";
               mountpoint = "/stash";
-              mountOptions = [ "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+              mountOptions = [
+                "nodev"
+                "nosuid"
+              ] ++ lib.optionals allowDiscards [ "discard" ];
             };
           };
           lvNix = {
@@ -117,7 +127,11 @@ in
               type = "filesystem";
               format = "ext4";
               mountpoint = "/nix";
-              mountOptions = [ "noatime" "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+              mountOptions = [
+                "noatime"
+                "nodev"
+                "nosuid"
+              ] ++ lib.optionals allowDiscards [ "discard" ];
             };
           };
           lvTmp = {
@@ -126,7 +140,11 @@ in
               type = "filesystem";
               format = "ext4";
               mountpoint = "/tmp";
-              mountOptions = [ "noatime" "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+              mountOptions = [
+                "noatime"
+                "nodev"
+                "nosuid"
+              ] ++ lib.optionals allowDiscards [ "discard" ];
             };
           };
         };
@@ -140,13 +158,14 @@ in
 
   fileSystems = {
     "/" =
-    let
-      maybeOptions = if allowDiscards then { options = [ "discard" ]; } else { };
-    in
-    {
-      device = "/dev/vgAshpoolSystem/lvRoot";
-      fsType = "ext4";
-    } // maybeOptions;
+      let
+        maybeOptions = if allowDiscards then { options = [ "discard" ]; } else { };
+      in
+      {
+        device = "/dev/vgAshpoolSystem/lvRoot";
+        fsType = "ext4";
+      }
+      // maybeOptions;
     "/boot" = {
       device = diskPart 1 sataSSD;
       fsType = "vfat";
@@ -155,22 +174,36 @@ in
     "/var" = {
       device = "/dev/vgAshpoolSystem/lvVar";
       fsType = "ext4";
-      options = [ "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+      options = [
+        "nodev"
+        "nosuid"
+      ] ++ lib.optionals allowDiscards [ "discard" ];
     };
     "/stash" = {
       device = "/dev/vgAshpoolSystem/lvStash";
       fsType = "ext4";
-      options = [ "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+      options = [
+        "nodev"
+        "nosuid"
+      ] ++ lib.optionals allowDiscards [ "discard" ];
     };
     "/nix" = {
       device = "/dev/vgAshpoolSystem/lvNix";
       fsType = "ext4";
-      options = [ "noatime" "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+      options = [
+        "noatime"
+        "nodev"
+        "nosuid"
+      ] ++ lib.optionals allowDiscards [ "discard" ];
     };
     "/tmp" = {
       device = "/dev/vgAshpoolSystem/lvTmp";
       fsType = "ext4";
-      options = [ "noatime" "nodev" "nosuid" ] ++ lib.optionals allowDiscards [ "discard" ];
+      options = [
+        "noatime"
+        "nodev"
+        "nosuid"
+      ] ++ lib.optionals allowDiscards [ "discard" ];
     };
   };
 

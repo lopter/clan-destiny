@@ -1,4 +1,10 @@
-{ config, lib, pkgs, self, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  self,
+  ...
+}:
 let
   inherit (self.inputs) lanzaboote;
 
@@ -10,12 +16,14 @@ in
   ];
 
   config = lib.mkIf enabled {
-    assertions = [{
-      assertion = config.boot.swraid.enable == false;
-      message = ''
-        lanzaboote (secure boot) cannot be used on an MD array.
-      '';
-    }];
+    assertions = [
+      {
+        assertion = config.boot.swraid.enable == false;
+        message = ''
+          lanzaboote (secure boot) cannot be used on an MD array.
+        '';
+      }
+    ];
 
     boot = {
       bootspec.enable = true; # Enabled by default since RFC 125 was merged.

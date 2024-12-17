@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.clan-destiny.postfix-relay;
   vars = config.clan.core.vars.generators.postfix-relay;
@@ -62,44 +67,44 @@ in
   };
 
   config.services.postfix =
-  let
-    relayCredentialsFilename = "relayCredentials";
-  in
-  {
-    inherit (cfg) domain;
-    hostname = "${config.networking.hostName}.${cfg.domain}";
-    enable = true;
-    mapFiles = {
-      ${relayCredentialsFilename} = vars.files.credentials.path;
+    let
+      relayCredentialsFilename = "relayCredentials";
+    in
+    {
+      inherit (cfg) domain;
+      hostname = "${config.networking.hostName}.${cfg.domain}";
+      enable = true;
+      mapFiles = {
+        ${relayCredentialsFilename} = vars.files.credentials.path;
+      };
+      relayHost = cfg.relayHost;
+      relayPort = cfg.relayPort;
+      config = {
+        smtpd_banner = "\$myhostname ESMTP \$mail_name";
+        biff = false;
+
+        # appending .domain is the MUA's job.
+        append_dot_mydomain = false;
+
+        readme_directory = false;
+
+        # TLS parameters;
+        smtpd_use_tls = false;
+        smtp_tls_security_level = "secure";
+        smtp_tls_verify_cert_match = "nexthop";
+        smtp_tls_session_cache_database = "btree:\${data_directory}/smtp_scache";
+        smtp_tls_mandatory_protocols = "!SSLv2, !SSLv3, !TLSv1, !TLSv1.1";
+        smtp_sasl_auth_enable = true;
+        smtp_sasl_password_maps = "hash:/var/lib/postfix/conf/${relayCredentialsFilename}";
+        smtp_sasl_security_options = "noanonymous";
+
+        mydestination = "\$myhostname, localhost, localhost.\$mydomain";
+        myorigin = "\$mydomain";
+        relay_domains = "\$mydomain";
+        mynetworks = "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128";
+        mailbox_size_limit = "0";
+        recipient_delimiter = "+";
+        inet_interfaces = "loopback-only";
+      };
     };
-    relayHost = cfg.relayHost;
-    relayPort = cfg.relayPort;
-    config = {
-      smtpd_banner = "\$myhostname ESMTP \$mail_name";
-      biff = false;
-
-      # appending .domain is the MUA's job.
-      append_dot_mydomain = false;
-
-      readme_directory = false;
-
-      # TLS parameters;
-      smtpd_use_tls = false;
-      smtp_tls_security_level = "secure";
-      smtp_tls_verify_cert_match = "nexthop";
-      smtp_tls_session_cache_database = "btree:\${data_directory}/smtp_scache";
-      smtp_tls_mandatory_protocols = "!SSLv2, !SSLv3, !TLSv1, !TLSv1.1";
-      smtp_sasl_auth_enable = true;
-      smtp_sasl_password_maps = "hash:/var/lib/postfix/conf/${relayCredentialsFilename}";
-      smtp_sasl_security_options = "noanonymous";
-
-      mydestination = "\$myhostname, localhost, localhost.\$mydomain";
-      myorigin = "\$mydomain";
-      relay_domains = "\$mydomain";
-      mynetworks = "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128";
-      mailbox_size_limit = "0";
-      recipient_delimiter = "+";
-      inet_interfaces = "loopback-only";
-    };
-  };
 }

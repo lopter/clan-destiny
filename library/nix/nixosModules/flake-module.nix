@@ -1,4 +1,4 @@
-{ self, ... }:
+{ ... }:
 {
   flake.nixosModules = {
     acl-watcher = ./acl-watcher.nix;

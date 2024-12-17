@@ -1,4 +1,9 @@
-{ lib, self, clan-core, ... }:
+{
+  lib,
+  self,
+  clan-core,
+  ...
+}:
 let
   inherit (self.inputs) nixos-hardware;
 in

@@ -73,12 +73,20 @@ in
     # `struct Path` and use the event loop to delay activation.
     systemd.paths.nginx-reload-certs = lib.mkIf hasCertbotDomains {
       pathConfig.PathChanged =
-      let
-        mkPair = domain: [
-          (lib.concatStringsSep "/" [ cfg.certsDirectory domain "chain.pem" ])
-          (lib.concatStringsSep "/" [ cfg.certsDirectory domain "key.pem" ])
-        ];
-      in
+        let
+          mkPair = domain: [
+            (lib.concatStringsSep "/" [
+              cfg.certsDirectory
+              domain
+              "chain.pem"
+            ])
+            (lib.concatStringsSep "/" [
+              cfg.certsDirectory
+              domain
+              "key.pem"
+            ])
+          ];
+        in
         lib.lists.flatten (map mkPair cfg.vaultAgent.certbotDomains);
       wantedBy = [ "nginx.service" ];
     };
@@ -112,54 +120,66 @@ in
       user = nginxUser;
       group = nginxGroup;
       settings = {
-        auto_auth = [{
-          method = [{
-            type = "approle";
-            config = [{
-              role_id_file_path = vars.files.roleIdPath;
-              secret_id_file_path = vars.files.secretIdPath;
-            }];
-          }];
-          sink = {
-            file = {
-              config = [{
-                path = "/run/nginx-vault-agent/token";
-              }];
+        auto_auth = [
+          {
+            method = [
+              {
+                type = "approle";
+                config = [
+                  {
+                    role_id_file_path = vars.files.roleIdPath;
+                    secret_id_file_path = vars.files.secretIdPath;
+                  }
+                ];
+              }
+            ];
+            sink = {
+              file = {
+                config = [
+                  {
+                    path = "/run/nginx-vault-agent/token";
+                  }
+                ];
+              };
             };
-          };
-        }];
-        cache = [{
-          use_auto_auth_token = true;
-        }];
+          }
+        ];
+        cache = [
+          {
+            use_auto_auth_token = true;
+          }
+        ];
         listener = {
           unix = {
             address = "/run/nginx-vault-agent/socket";
             tls_disable = true;
           };
         };
-        vault = [{
-          address = certbotCfg.vaultAddr;
-        }];
+        vault = [
+          {
+            address = certbotCfg.vaultAddr;
+          }
+        ];
         template =
-        let
-          mkTemplate = domain: field: {
-            contents = ''
-              {{ with secret "${certbotCfg.vaultMount}/${certbotCfg.vaultPath}/${domain}" }}
-              {{ .Data.data.${field} }}
-              {{ end }}
-            '';
-            perms = "0400";
-            error_on_missing_key = true;
-            backup = false;
-            destination = "${cfg.certsDirectory}/${domain}/${field}.pem";
-          };
-          mkDomain = domain: [
-            (mkTemplate domain "key")
-            (mkTemplate domain "chain")
-          ];
-        in
+          let
+            mkTemplate = domain: field: {
+              contents = ''
+                {{ with secret "${certbotCfg.vaultMount}/${certbotCfg.vaultPath}/${domain}" }}
+                {{ .Data.data.${field} }}
+                {{ end }}
+              '';
+              perms = "0400";
+              error_on_missing_key = true;
+              backup = false;
+              destination = "${cfg.certsDirectory}/${domain}/${field}.pem";
+            };
+            mkDomain = domain: [
+              (mkTemplate domain "key")
+              (mkTemplate domain "chain")
+            ];
+          in
           builtins.concatMap mkDomain cfg.vaultAgent.certbotDomains;
-     };
+      };
     };
   };
 }
