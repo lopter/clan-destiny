@@ -43,13 +43,12 @@
   outputs =
     inputs@{
       self,
-      clan-core,
       flake-parts,
       destiny-config,
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } (
-      { lib, ... }:
+      { lib, withSystem, ... }:
       {
         systems = [
           "x86_64-linux"
@@ -97,18 +96,68 @@
                 (builtins.hasAttr "nixosModules" destiny-config)
                 (builtins.attrValues destiny-config.nixosModules);
             in
-              { lib, ... }:
-              {
-                imports = hostConfigModules ++ privateConfigModules ++ [
-                  self.nixosModules.shared
-                ];
-                networking.hostName = hostname;
-              };
+            {
+              imports = hostConfigModules ++ privateConfigModules ++ [
+                self.nixosModules.shared
+              ];
+              networking.hostName = hostname;
+            };
           in
             lib.genAttrs names mkMachine;
         };
+
+        # Generate some custom installer for us outside of the clan logic,
+        # this is useful for rescue, and disaster recovery operations:
+        flake.nixosConfigurations.nixos-installer-x86_64-linux = withSystem "x86_64-linux" (
+          { inputs', ... }:
+          let
+            emptyModule = { };
+            attrPath = [ "nixosModules" "knownSshKeys" ];
+            maybeKnownSshKeysModule = lib.attrByPath attrPath emptyModule destiny-config;
+            installerModule =
+              { config, lib, pkgs, ...}:
+              let
+                destiny-core' = inputs'.destiny-core.packages;
+                rootSshAuthorizedKeys = config.users.users.root.openssh.authorizedKeys.keys;
+              in
+              {
+                environment.systemPackages = with pkgs; [
+                  gnupg
+                  pinentry-curses
+                  pass
+
+                  destiny-core'.chroot-enter
+                  destiny-core'.mount-mnt
+                ];
+                networking.hostName = "clan-destiny-rescue";
+                systemd.services.sshd.wantedBy = pkgs.lib.mkForce [ "multi-user.target" ];
+                time.timeZone = "UTC";
+                warnings = lib.optional (builtins.length rootSshAuthorizedKeys == 0) (
+                  "No SSH key was configured for `root`, please set one "
+                  + "if you want to remotely access the installer."
+                );
+              };
+          in
+          lib.nixosSystem {
+            system = "x86_64-linux";
+            specialArgs = { inherit inputs inputs' self lib; };
+            modules = [
+              "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+
+              installerModule
+              maybeKnownSshKeysModule
+
+              self.nixosModules.base-pkgs
+              self.nixosModules.linux
+              self.nixosModules.nix-settings
+              self.nixosModules.ssh
+              self.nixosModules.typed-tags
+            ];
+          }
+        );
+
         perSystem =
-          { lib, pkgs, inputs', ... }:
+          { pkgs, inputs', ... }:
           {
             devShells.default = pkgs.mkShell {
               packages = (with inputs'.clan-core.packages; [
@@ -138,6 +187,11 @@
                   '';
                   runtimeInputs = [ fd entr ];
                 })
+
+
+                (writeShellScriptBin "build-live-cd" ''
+                    ${lib.getExe nix} build .#nixosConfigurations.nixos-installer-x86_64-linux.config.system.build.isoImage "$@"
+                '')
 
                 (writeShellScriptBin "deploy-pop" ''
                   set -ex
