@@ -108,6 +108,7 @@ in
       (vault.overrideAttrs (prev: { doCheck = false; }))
       wl-clipboard
       yt-dlp
+      zeal
       zotero
     ] ++ (with plasma-manager.packages.${system}; [
       rc2nix
@@ -321,6 +322,11 @@ in
               icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
               definedAliases = [ "mdn" ];
             };
+            "NixOS Discourse" = {
+              urls = [{ template = "https://discourse.nixos.org/search?q={searchTerms}"; }];
+              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "nd" ];
+            };
             "NixOS options" = {
               urls = [{ template = "https://search.nixos.org/options?query={searchTerms}"; }];
               icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
@@ -360,6 +366,11 @@ in
               urls = [{ template = "https://en.wikipedia.org/w/index.php?search={searchTerms}"; }];
               iconUpdateURL = "https://en.wikipedia.org/static/favicon/wikipedia.png";
               definedAliases = [ "w" ];
+            };
+            "YouTube" = {
+              urls = [{ template = "https://www.youtube.com/results?search_query={searchTerms}"; }];
+              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "yt" ];
             };
           };
           search.force = true;
@@ -644,7 +655,7 @@ in
         };
         iconTheme = "Papirus";
         # wallpaperPlainColor = "0,0,0,0";
-        wallpaper = "/stash/home/kal/cu/wp/netrunner.jpg";
+        wallpaper = "/stash/home/kal/cu/wp/banksy-tv-heads.jpg";
       };
 
       hotkeys.commands."launch-konsole" = {
@@ -994,7 +1005,6 @@ in
       #
       configFile = {
         baloofilerc."Basic Settings"."Indexing-Enabled" = false;
-        kglobalshortcutsrc = { };
         kwinrc."org.kde.kdecoration2".ButtonsOnLeft = "SF";
         kwinrc.Desktops.Number = {
           value = 10;
