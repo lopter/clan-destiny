@@ -222,15 +222,27 @@
                     ${lib.getExe nix} build .#nixosConfigurations.nixos-installer-x86_64-linux.config.system.build.isoImage "$@"
                   '')
 
-                  (writeShellScriptBin "deploy-pop" ''
-                    set -ex
+                  (writeShellScriptBin "fly-pop" ''
+                    if [ ! -f config/fly.toml ]; then
+                      echo >&2 "config/fly.toml not found, make sure you are at the repo's root."
+                      exit 1
+                    fi
+                    exec fly -c config/fly.toml -a clan-destiny-pop "$@"
+                  '')
+
+                  (writeShellScriptBin "pop-deploy" ''
+                    set -e
                     nix run -L '.#fly-io-pop.copyToRegistry'
-                    [ -f config/fly.toml ] && {
-                      fly deploy -c config/fly.toml -i registry.fly.io/clan-destiny-pop:latest;
-                    } || {
-                      echo >&2 "config/fly.toml not found, make sure you are at the repo's root.";
-                      exit 1;
-                    }
+                    exec fly-pop deploy -i registry.fly.io/clan-destiny-pop:latest
+                  '')
+
+                  (writeShellScriptBin "pop-console" ''
+                    set -e
+                    machines="$(fly-pop machines list -j | jq -r '.[]["id"]')"
+                    printf -- "--> Found %d machines:\n%s\n" "$(echo "$machines" | wc -l)" "$machines"
+                    target="$(echo "$machines" | shuf -n 1)"
+                    printf -- "--> Connecting to %s…\n" "$target"
+                    exec fly-pop console --machine "$target"
                   '')
                 ]);
 
