@@ -88,7 +88,6 @@ in
           aspell
           aspellDicts.en
           aspellDicts.fr
-          btop
           direnv
           easytag
           # discord
@@ -100,7 +99,6 @@ in
           hunspellDicts.en-us
           hunspellDicts.fr-any
           qalculate-qt
-          kcolorchooser
           lazygit
           libreoffice-qt
           # Until @teto merges the correct stuff:
@@ -307,6 +305,11 @@ in
                 "Arch Linux" = {
                   urls = [ { template = "https://wiki.archlinux.org/index.php?search={searchTerms}"; } ];
                   definedAliases = [ "aw" ];
+                };
+                "Bandcamp" = {
+                  urls = [ { template = "https://bandcamp.com/search?q={searchTerms}"; } ];
+                  definedAliases = [ "bc" ];
+                  iconUpdateURL = "https://s4.bcbits.com/img/favicon/favicon-32x32.png";
                 };
                 "Wiktionary EN" = {
                   urls = [ { template = "https://en.wiktionary.org/w/index.php?search={searchTerms}"; } ];

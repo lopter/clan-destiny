@@ -1,5 +1,10 @@
-{ ... }:
+{ pkgs, ... }:
 {
+  environment.systemPackages = with pkgs; [
+    kcolorchooser
+    kmag
+    kdePackages.kruler
+  ];
   hardware.bluetooth.enable = true; # pull bluedevil & bluez-qt
   networking.networkmanager.enable = true; # pull plasma-pm
   services.pipewire.pulse.enable = true; # pull plasma-pa
