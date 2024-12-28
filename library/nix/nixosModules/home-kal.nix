@@ -311,6 +311,11 @@ in
                   definedAliases = [ "bc" ];
                   iconUpdateURL = "https://s4.bcbits.com/img/favicon/favicon-32x32.png";
                 };
+                "DuckDuckGo" = {
+                  urls = [ { template = "https://duckduckgo.com/?q={searchTerms}"; } ];
+                  definedAliases = [ "ddg" ];
+                  iconUpdateURL = "https://duckduckgo.com/favicon.ico";
+                };
                 "Wiktionary EN" = {
                   urls = [ { template = "https://en.wiktionary.org/w/index.php?search={searchTerms}"; } ];
                   definedAliases = [ "d" ];
@@ -907,7 +912,7 @@ in
                   playbackSource = "auto";
                   musicControls.showPlaybackControls = true;
                   songText = {
-                    displayInSeparateLines = true;
+                    displayInSeparateLines = false;
                     maximumWidth = 640;
                     scrolling = {
                       behavior = "alwaysScroll";
