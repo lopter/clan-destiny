@@ -98,7 +98,7 @@ in
           };
           # Having different volumes imposes some hard quotas:
           lvVar = {
-            size = "20G";
+            size = "80G";
             content = {
               type = "filesystem";
               format = "ext4";
