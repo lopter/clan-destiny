@@ -23,6 +23,7 @@ With Clan, a single or small group of operators can provide durable infrastructu
 This depends on two other repositories I own:
 
 - [destiny-core]: contains potentially reusable code that I authored and anyone could depend on;
-- `destiny-config`: contains private configuration files.
+- [destiny-config]: contains private configuration files, let's talk if you wish to get access.
 
 [destiny-core]: https://github.com/lopter/destiny-core
+[destiny-config]: https://github.com/lopter/destiny-config
