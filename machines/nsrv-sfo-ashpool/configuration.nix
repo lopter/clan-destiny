@@ -1,8 +1,20 @@
-{ config, lib, ... }:
+{ config, lib, self, ... }:
 let
   inherit (config.lib.clan-destiny) ports usergroups;
+  inherit (config.clan-destiny) typed-tags;
 
   hassDir = "/stash/volumes/hass";
+  hassUser = with usergroups.users.hass; {
+    groups.hass.gid = lib.mkForce gid;
+    users.hass = {
+      uid = lib.mkForce uid;
+      group = "hass";
+      home = lib.mkForce hassDir;
+      createHome = true;
+      isSystemUser = true;
+    };
+  };
+
 in
 {
   boot.loader.systemd-boot.enable = true;
@@ -17,6 +29,7 @@ in
       enable = true;
       resolver.addresses = [ "127.0.0.1:${toString ports.unbound}" ];
     };
+    starrs-gate.enable = true;
     usergroups.createNormalUsers = true;
     vault-server.enable = true;
     vault-client.enable = true;
@@ -30,22 +43,12 @@ in
   };
 
   networking.useDHCP = true;
-  networking.networkmanager.unmanaged = [ "interface-name:ve-*" ];
 
-  users = with usergroups.users.hass; {
-    groups.hass.gid = lib.mkForce gid;
-    users.hass = {
-      uid = lib.mkForce uid;
-      group = "hass";
-      home = lib.mkForce hassDir;
-      createHome = true;
-      isSystemUser = true;
-    };
-  };
+  users = hassUser;
 
   containers.home-assistant =
     let
-      macvlans = config.clan-destiny.typed-tags.interfacesByRole.lan;
+      macvlans = typed-tags.interfacesByRole.lan;
     in
     {
       inherit macvlans;
@@ -68,8 +71,14 @@ in
         }
       ];
       config =
-        { config, ... }:
+        { ... }:
         {
+          imports = [
+            self.nixosModules.containers
+          ];
+
+          clan-destiny.containers = { inherit macvlans; };
+
           services.home-assistant = {
             enable = true;
             extraComponents = [
@@ -94,37 +103,9 @@ in
             };
           };
 
-          networking = {
-            firewall.enable = false;
-            useNetworkd = true;
-            useHostResolvConf = false;
-          };
+          networking.firewall.enable = false;
 
-          systemd.network =
-            let
-              mkNetwork = ifname: {
-                name = "40-mv-${ifname}";
-                value = {
-                  matchConfig.Name = "mv-${ifname}";
-                  networkConfig.DHCP = "yes";
-                  dhcpV4Config.ClientIdentifier = "mac";
-                };
-              };
-            in
-            {
-              enable = true;
-              networks = builtins.listToAttrs (map mkNetwork macvlans);
-            };
-
-          users = with usergroups.users.hass; {
-            groups.hass.gid = lib.mkForce gid;
-            users.hass = {
-              uid = lib.mkForce uid;
-              group = "hass";
-              home = lib.mkForce hassDir;
-              isSystemUser = true;
-            };
-          };
+          users = hassUser;
         };
     };
 }

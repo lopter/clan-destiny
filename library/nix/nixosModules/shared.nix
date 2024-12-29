@@ -25,6 +25,8 @@ in
     self.nixosModules.backups
     self.nixosModules.base-pkgs
     self.nixosModules.certbot-vault
+    self.nixosModules.certbot-vault-agent
+    self.nixosModules.containers
     self.nixosModules.lanzaboote
     self.nixosModules.linux
     self.nixosModules.nginx
@@ -32,6 +34,7 @@ in
     self.nixosModules.nix-settings
     self.nixosModules.postfix-relay
     self.nixosModules.ssh
+    self.nixosModules.starrs-gate
     self.nixosModules.typed-tags
     self.nixosModules.usergroups
     self.nixosModules.vault

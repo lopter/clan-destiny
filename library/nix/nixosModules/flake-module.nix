@@ -5,6 +5,9 @@
     backups = ./backups.nix;
     base-pkgs = ./base-pkgs.nix;
     certbot-vault = ./certbot-vault.nix;
+    certbot-vault-agent = ./certbot-vault-agent.nix;
+    containers = ./containers.nix;
+    fonts = ./fonts.nix;
     home-kal = ./home-kal.nix;
     kde = ./kde.nix;
     lanzaboote = ./lanzaboote.nix;
@@ -15,6 +18,7 @@
     postfix-relay = ./postfix-relay.nix;
     shared = ./shared.nix;
     ssh = ./ssh.nix;
+    starrs-gate = ./starrs-gate.nix;
     typed-tags = ./typed-tags.nix;
     unbound = ./unbound.nix;
     usergroups = ./usergroups.nix;

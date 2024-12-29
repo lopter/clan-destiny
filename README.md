@@ -18,12 +18,14 @@ With Clan, a single or small group of operators can provide durable infrastructu
 [SMB]: https://en.wikipedia.org/wiki/Server_Message_Block
 [kanidm:discussion#2755]: https://github.com/kanidm/kanidm/discussions/2755
 
-# See also
-
-This depends on two other repositories I own:
+This repository depends on two other repositories I own:
 
 - [destiny-core]: contains potentially reusable code that I authored and anyone could depend on;
 - [destiny-config]: contains private configuration files, let's talk if you wish to get access.
 
+By overriding the `destiny-config` input with your own it should be possible to take a dependency on `clan-destiny`, and reuse and/or share modules in this repository.
+
 [destiny-core]: https://github.com/lopter/destiny-core
 [destiny-config]: https://github.com/lopter/destiny-config
+
+<!-- vim: set spell spelllang=en: -->

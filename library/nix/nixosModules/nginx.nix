@@ -4,9 +4,8 @@
 let
   cfg = config.clan-destiny.nginx;
   vars = config.clan.core.vars.generators.clan-destiny-nginx;
-  certbotCfg = config.clan.clan-destiny.services.certbot-vault;
 
-  hasCertbotDomains = builtins.length cfg.vaultAgent.certbotDomains > 0;
+  hasCertbotDomains = builtins.length cfg.certbotDomains > 0;
 
   nginxHome = config.users.users.${nginxUser}.home;
   nginxUser = config.services.nginx.user;
@@ -25,41 +24,43 @@ in
         domain in `certbotDomains`).
       '';
     };
-    vaultAgent = {
-      certbotDomains = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [ ];
-        description = ''
-          List of certificates maintained by certbot to pull from Vault.
+    certbotDomains = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = ''
+        List of certificates maintained by certbot to pull from Vault.
 
-          For each domain the following files are written to the `certs/<domain>`
-          directory within Nginx's home directory:
+        For each domain the following files are written to the `certs/<domain>`
+        directory within Nginx's home directory:
 
-          - key.pem;
-          - chain.pem.
-        '';
-      };
+        - key.pem;
+        - chain.pem.
+      '';
     };
   };
 
   config = lib.mkIf cfg.enable {
     clan.core.vars.generators.clan-destiny-nginx = {
-      prompts.VaultRoleID = {
+      prompts.vaultRoleId = {
         createFile = true;
         description = "The Vault Role ID for certbot-vault";
         type = "hidden";
       };
-      prompts.VaultSecretId = {
+      prompts.vaultSecretId = {
         createFile = true;
         description = "The Vault Secret ID for certbot-vault";
         type = "hidden";
       };
     };
 
-    systemd.tmpfiles.rules = [
-      "d /run/nginx-vault-agent 0700 ${nginxUser} ${nginxGroup} - -"
-      "d ${cfg.certsDirectory} 0700 ${nginxUser} ${nginxGroup} - -"
-    ];
+    clan-destiny.certbot-vault-agents.nginx = lib.mkIf hasCertbotDomains {
+      roleIdFilePath = vars.files.vaultRoleId.path;
+      secretIdFilePath = vars.files.vaultSecretId.path;
+      domains = cfg.certbotDomains;
+      certsDirectory = cfg.certsDirectory;
+      user = nginxUser;
+      group = nginxGroup;
+    };
 
     # This will reload nginx for each certificate update because I couldn't
     # think of an easy way to coalesce changes for multiple certificates, other
@@ -87,7 +88,7 @@ in
             ])
           ];
         in
-        lib.lists.flatten (map mkPair cfg.vaultAgent.certbotDomains);
+        lib.lists.flatten (map mkPair cfg.certbotDomains);
       wantedBy = [ "nginx.service" ];
     };
 
@@ -113,73 +114,6 @@ in
       recommendedProxySettings = true;
       proxyTimeout = proxyTimeout;
       sslDhparam = config.security.dhparams.params.nginx.path;
-    };
-
-    services.vault-agent.instances.nginx = {
-      enable = hasCertbotDomains;
-      user = nginxUser;
-      group = nginxGroup;
-      settings = {
-        auto_auth = [
-          {
-            method = [
-              {
-                type = "approle";
-                config = [
-                  {
-                    role_id_file_path = vars.files.roleIdPath;
-                    secret_id_file_path = vars.files.secretIdPath;
-                  }
-                ];
-              }
-            ];
-            sink = {
-              file = {
-                config = [
-                  {
-                    path = "/run/nginx-vault-agent/token";
-                  }
-                ];
-              };
-            };
-          }
-        ];
-        cache = [
-          {
-            use_auto_auth_token = true;
-          }
-        ];
-        listener = {
-          unix = {
-            address = "/run/nginx-vault-agent/socket";
-            tls_disable = true;
-          };
-        };
-        vault = [
-          {
-            address = certbotCfg.vaultAddr;
-          }
-        ];
-        template =
-          let
-            mkTemplate = domain: field: {
-              contents = ''
-                {{ with secret "${certbotCfg.vaultMount}/${certbotCfg.vaultPath}/${domain}" }}
-                {{ .Data.data.${field} }}
-                {{ end }}
-              '';
-              perms = "0400";
-              error_on_missing_key = true;
-              backup = false;
-              destination = "${cfg.certsDirectory}/${domain}/${field}.pem";
-            };
-            mkDomain = domain: [
-              (mkTemplate domain "key")
-              (mkTemplate domain "chain")
-            ];
-          in
-          builtins.concatMap mkDomain cfg.vaultAgent.certbotDomains;
-      };
     };
   };
 }

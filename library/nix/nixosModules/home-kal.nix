@@ -2,7 +2,6 @@
   config,
   lib,
   self,
-  pkgs,
   ...
 }:
 let
@@ -21,18 +20,11 @@ let
   nixpkgsCfg = config.nixpkgs.config;
 in
 {
-  fonts.packages = with pkgs; [
-    inconsolata
-    nerd-fonts.bitstream-vera-sans-mono
-    nerd-fonts.fira-mono
-    nerd-fonts.inconsolata
-    nerd-fonts.monofur
-  ];
-
   imports = [
     catppuccin.nixosModules.catppuccin
 
     self.nixosModules.kde
+    self.nixosModules.fonts
   ];
 
   home-manager.sharedModules = [
@@ -98,7 +90,7 @@ in
           hunspell
           hunspellDicts.en-us
           hunspellDicts.fr-any
-          qalculate-qt
+          kdePackages.krdc
           lazygit
           libreoffice-qt
           # Until @teto merges the correct stuff:
@@ -119,6 +111,7 @@ in
               pyyaml
             ]
           ))
+          qalculate-qt
           shellcheck
           signal-desktop
           slurp
@@ -313,7 +306,10 @@ in
                 };
                 "Click" = {
                   urls = [ { template = "https://click.palletsprojects.com/en/latest/search/?q={searchTerms}"; } ];
-                  definedAliases = [ "click" "pc" ];
+                  definedAliases = [
+                    "click"
+                    "pc"
+                  ];
                   iconUpdateURL = "https://click.palletsprojects.com/en/latest/_static/click-icon.png";
                 };
                 "DuckDuckGo" = {
@@ -1052,8 +1048,8 @@ in
             };
             ksmserver = {
               "Lock Session" = [
-                "ScreenMaver"
                 "Favorites"
+                "Eject"
               ];
             };
             kwin = {
