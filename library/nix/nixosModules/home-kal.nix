@@ -705,7 +705,7 @@ in
             theme = "Bibata-Modern-Ice";
             size = 32;
           };
-          iconTheme = "Papirus";
+          iconTheme = "breeze";
           # wallpaperPlainColor = "0,0,0,0";
           wallpaper = "/stash/home/kal/cu/wp/banksy-tv-heads.jpg";
         };
@@ -1021,8 +1021,8 @@ in
           {
             # Those seem to go under "system settings" as opposed to Applications
             # or Common Actions.
-            krunner = {
-              "Launch" = "Meta+R";
+            "services/org.kde.krunner.desktop" = {
+              "_launch" = "Meta+R";
             };
             ksmserver = {
               "Lock Session" = [
@@ -1032,8 +1032,8 @@ in
             };
             kwin = {
               "Expose" = "Meta+,";
-              "Make Window Fullscreen" = "Meta+F";
-              "Maximize Window" = "Meta+M";
+              "Window Fullscreen" = "Meta+F";
+              "Window Maximize" = "Meta+M";
               "Switch Window Down" = "Meta+J";
               "Switch Window Left" = "Meta+H";
               "Switch Window Right" = "Meta+L";
@@ -1051,7 +1051,7 @@ in
             } // (repeat "Switch to Desktop" "Meta" 10);
 
             plasmashell = {
-              "Activate Application Launcher" = "Meta+O";
+              "activate application launcher" = "Meta+O";
             } // (repeat "Activate Task Manager Entry" "Ctrl" 9);
           };
 
