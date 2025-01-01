@@ -243,6 +243,39 @@
                     printf -- "--> Connecting to %s…\n" "$target"
                     exec fly-pop console --machine "$target"
                   '')
+
+                  (writeShellScriptBin "pop-sops" ''
+                    set -e
+                    if [ ! -f config/fly.toml ]; then
+                      echo >&2 "config/fly.toml not found, make sure you are at the repo's root."
+                      exit 1
+                    fi
+                    sops_config="$(mktemp sops-XXXXXXXXXX.yaml)"
+                    cleanup() {
+                      rm -rf "$sops_config"
+                    }
+                    trap cleanup EXIT INT QUIT TERM
+                    cat >"$sops_config" <<EOF
+                    creation_rules:
+                      - key_groups:
+                        - pgp:
+                          - $SOPS_PGP_FP
+                        - age:
+                          - age1zps7k9czhty4leyjfph8z3fd3lrl9j08aw0z7xctmp2jys2gdcesvnh7lx
+                    EOF
+                    secrets_file=library/nix/packages/fly-io-pop/secrets.yaml
+                    operation="$1"
+                    set +e
+                    set -x
+                    if [[ "$operation" = "decrypt" || "$operation" = "rotate" ]]; then
+                      sops "$@" "$secrets_file"
+                    else
+                      sops --config "$sops_config" "$@" "$secrets_file"
+                    fi
+                    rv=$?
+                    set +x
+                    exit $rv
+                  '')
                 ]);
 
               shellHook = ''
