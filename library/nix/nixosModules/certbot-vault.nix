@@ -78,6 +78,16 @@ in
       description = "`--vault-path` option for certbot.";
       type = lib.types.str;
     };
+    vaultTlsServerName = lib.mkOption {
+      description = "`--vault-tls-server-name` option for certbot.";
+      type = lib.types.str;
+      default = "";
+    };
+    vaultTlsCaCert = lib.mkOption {
+      description = "`--vault-tls-cacert` option for certbot.";
+      type = lib.types.str;
+      default = "";
+    };
   };
 
   config =
@@ -107,6 +117,16 @@ in
             --vault-addr ${cfg.vaultAddr} \
             --vault-mount ${cfg.vaultMount} \
             --vault-path ${cfg.vaultPath} \
+            ${
+              lib.optionalString (
+                builtins.stringLength cfg.vaultTlsServerName > 0
+              ) "--vault-tls-server-name ${cfg.vaultTlsServerName}"
+            } \
+            ${
+              lib.optionalString (
+                builtins.stringLength cfg.vaultTlsCaCert > 0
+              ) "--vault-tls-cacert ${cfg.vaultTlsCaCert}"
+            } \
             "$@"
       '';
       certbotPkgs = [
