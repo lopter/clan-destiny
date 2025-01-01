@@ -4,9 +4,7 @@
   inputs = {
     catppuccin.url = "github:catppuccin/nix";
 
-    clan-core.url = "git+https://git.clan.lol/clan/clan-core";
-    # clan-core.url = "git+file:///stash/home/kal/cu/src/nix/clan-core";
-    clan-core.inputs.nixpkgs.follows = "nixpkgs";
+    clan-core.follows = "destiny-core/clan-core";
 
     destiny-core.url = "git+ssh://gitolite.kalessin.fr/louis/destiny-core?ref=main";
 
@@ -190,6 +188,7 @@
                 ])
                 ++ (with inputs'.destiny-core.packages; [
                   git-fetch-and-checkout
+                  toolbelt
                   n
                 ])
                 ++ (with pkgs; [
