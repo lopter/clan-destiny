@@ -311,6 +311,11 @@ in
                   definedAliases = [ "bc" ];
                   iconUpdateURL = "https://s4.bcbits.com/img/favicon/favicon-32x32.png";
                 };
+                "Click" = {
+                  urls = [ { template = "https://click.palletsprojects.com/en/latest/search/?q={searchTerms}"; } ];
+                  definedAliases = [ "click" "pc" ];
+                  iconUpdateURL = "https://click.palletsprojects.com/en/latest/_static/click-icon.png";
+                };
                 "DuckDuckGo" = {
                   urls = [ { template = "https://duckduckgo.com/?q={searchTerms}"; } ];
                   definedAliases = [ "ddg" ];
@@ -340,6 +345,12 @@ in
                 "Kagi" = {
                   urls = [ { template = "https://kagi.com/search?q={searchTerms}"; } ];
                   definedAliases = [ "k" ];
+                  iconUpdateURL = "https://search-cdn.kagi.com/v1/favicon-32x32.png";
+                };
+                "Kagi FR" = {
+                  urls = [ { template = "https://kagi.com/search?q={searchTerms}&r=fr"; } ];
+                  definedAliases = [ "kf" ];
+                  iconUpdateURL = "https://search-cdn.kagi.com/v1/favicon-32x32.png";
                 };
                 "Nix Packages" = {
                   urls = [
@@ -380,9 +391,14 @@ in
                   icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
                   definedAliases = [ "no" ];
                 };
+                "Python" = {
+                  urls = [ { template = "https://docs.python.org/3/search.html?q={searchTerms}"; } ];
+                  iconUpdateURL = "https://docs.python.org/3/_static/py.svg";
+                  definedAliases = [ "py" ];
+                };
                 "PyPI" = {
                   urls = [ { template = "https://pypi.org/search/?q={searchTerms}"; } ];
-                  icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+                  iconUpdateURL = "https://docs.python.org/3/_static/py.svg";
                   definedAliases = [
                     "pp"
                     "pypi"
@@ -422,6 +438,16 @@ in
                   urls = [ { template = "https://www.youtube.com/results?search_query={searchTerms}"; } ];
                   icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
                   definedAliases = [ "yt" ];
+                };
+                "WordReference EN → FR" = {
+                  urls = [ { template = "https://www.wordreference.com/enfr/{searchTerms}"; } ];
+                  iconUpdateURL = "https://www.wordreference.com/icon.svg";
+                  definedAliases = [ "wef" ];
+                };
+                "WordReference FR → EN" = {
+                  urls = [ { template = "https://www.wordreference.com/fren/{searchTerms}"; } ];
+                  iconUpdateURL = "https://www.wordreference.com/icon.svg";
+                  definedAliases = [ "wfe" ];
                 };
               };
               search.force = true;
