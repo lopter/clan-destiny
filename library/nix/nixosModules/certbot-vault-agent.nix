@@ -100,6 +100,7 @@ let
             tls_server_name = certbotCfg.vaultTlsServerName;
           }
         ];
+        pid_file = "/run/${name}-vault-agent/pid";
         template =
           let
             mkTemplate = domain: field: {
@@ -121,11 +122,14 @@ let
           builtins.concatMap mkDomain domains;
       };
     };
-  mkAgentRunDirectory =
+  mkAgentCertsDirectory =
     name: agentCfg: with agentCfg; [
-      "d /run/${name}-vault-agent 0700 ${user} ${group} - -"
       "d ${certsDirectory} 0700 ${user} ${group} - -"
     ];
+  mkAgentRunDirectory =
+    name: lib.nameValuePair
+      "vault-agent-${name}"
+      { serviceConfig.RuntimeDirectory = lib.mkForce "${name}-vault-agent"; };
 in
 {
   options.clan-destiny.certbot-vault-agents = lib.mkOption {
@@ -140,8 +144,9 @@ in
   config = {
     clan-destiny.vault-client.enable = lib.mkDefault ((builtins.length (builtins.attrNames cfg)) > 0);
     services.vault-agent.instances = builtins.mapAttrs mkAgentConfig cfg;
+    systemd.services = builtins.listToAttrs (map mkAgentRunDirectory (builtins.attrNames cfg));
     systemd.tmpfiles.rules = lib.flatten (
-      builtins.attrValues (builtins.mapAttrs mkAgentRunDirectory cfg)
+      builtins.attrValues (builtins.mapAttrs mkAgentCertsDirectory cfg)
     );
   };
 }
