@@ -54,6 +54,10 @@ in
     # This only works however if you have avahi running on your admin machine else use IP
     clan.core.networking.targetHost = "root@${hostDetails.endPoint}";
 
+    # If manpages are installed then build the index
+    # so that `man -k` and `apropos` work:
+    documentation.man.generateCaches = config.documentation.man.enable;
+
     i18n.defaultLocale = "en_US.UTF-8";
 
     lib.clan-destiny.zoneFromHostname = self.lib.zoneFromHostname;
