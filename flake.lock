@@ -113,11 +113,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1735583494,
-        "narHash": "sha256-ElCEH7St05cOnWAXjencKMsrnQI6UAspi6rqjBxaN7Y=",
+        "lastModified": 1735820946,
+        "narHash": "sha256-YogZZRmJJvZtiBdnIooxLcjvWpf3/nT5EliA4M2cnMY=",
         "ref": "refs/heads/main",
-        "rev": "13b7a379943c0b95d7da960ddf1437749ab8c1fb",
-        "revCount": 5340,
+        "rev": "b2528fde5ae993eb75845196ce2eeca26f0fd69e",
+        "revCount": 5353,
         "type": "git",
         "url": "https://git.clan.lol/clan/clan-core"
       },
@@ -172,13 +172,13 @@
         ]
       },
       "locked": {
-        "lastModified": 1735845290,
-        "narHash": "sha256-MBaNAbOfVsAtGSmnRHDOPJ7hXJ7o0/iwI5VBghtmNwk=",
-        "ref": "refs/heads/main",
-        "rev": "26cb1b40417dc5dac67850b30ec4299e91a7672f",
-        "revCount": 50,
+        "lastModified": 1735894052,
+        "narHash": "sha256-p7sE/WAfEsdENSEN7YuME7Oj36lp2pnIte73q3AfREc=",
+        "ref": "main",
+        "rev": "56877905a0ef21f998ca13ebc26386c302594716",
+        "revCount": 51,
         "type": "git",
-        "url": "file:///stash/home/kal/cu/projs/destiny-config"
+        "url": "ssh://gitolite.kalessin.fr/louis/destiny-config"
       },
       "original": {
         "ref": "main",
@@ -204,13 +204,13 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1735771646,
-        "narHash": "sha256-bnOnJTLDQmW4M+6TKSiVBEJi0pWfHOTIjbqXCD/jYrc=",
-        "ref": "refs/heads/main",
-        "rev": "c2c792e188240fbc28fb8606735d016547b2f86f",
-        "revCount": 30,
+        "lastModified": 1735893924,
+        "narHash": "sha256-u9aILoX4sKVsKBmufV18pp5ji9wGFdRK4ciyhNVEn2w=",
+        "ref": "main",
+        "rev": "873b66017ffea9cd09d6878dbf2373422d98de06",
+        "revCount": 31,
         "type": "git",
-        "url": "file:///stash/home/kal/cu/projs/destiny-core"
+        "url": "ssh://gitolite.kalessin.fr/louis/destiny-core"
       },
       "original": {
         "ref": "main",
