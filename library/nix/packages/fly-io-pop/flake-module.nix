@@ -270,7 +270,7 @@ in
             };
             # TODO: split the vault-agent config to a different file so that we
             # don't conflict with the ports variable for process-compose:
-            vault = with destiny-config.lib; [
+            vault = [
               {
                 address = "https://${destiny-config.lib.vault.fqdn}:${toString destiny-config.lib.ports.vault}";
               }

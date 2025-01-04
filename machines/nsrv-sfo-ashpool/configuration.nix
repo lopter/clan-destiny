@@ -23,7 +23,7 @@ in
   clan.core.networking.zerotier.controller.enable = false;
 
   clan-destiny = {
-    acl-watcher.enable = true; # TODO: see why it does not work
+    acl-watcher.enable = false; # TODO: see why it does not work
     certbot-vault.enable = true;
     nginx.nixos-proxy-cache = {
       enable = true;
