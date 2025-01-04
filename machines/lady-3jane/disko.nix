@@ -189,7 +189,6 @@ in
       device = "/dev/vgLady3JaneSystem/lvTmp";
       fsType = "ext4";
       options = [
-        "noatime"
         "nodev"
         "nosuid"
       ] ++ lib.optionals allowDiscards [ "discard" ];

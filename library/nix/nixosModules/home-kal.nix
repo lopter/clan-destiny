@@ -1337,7 +1337,7 @@ in
   systemd.user.tmpfiles.users."${user}".rules = [
     "d /run/user/%U/ssh 0700 ${user} ${user} - -"
     "d /tmp/${user} 0700 ${user} ${user} - -"
-    "d /tmp/${user}/tmp 0700 ${user} ${user} - -"
+    "d /tmp/${user}/tmp 0700 ${user} ${user} aA:26w -"
     "d /tmp/${user}/build 0700 ${user} ${user} - -"
   ];
 
