@@ -294,6 +294,12 @@ in
                 Amazon = {
                   urls = [ { template = "https://www.amazon.com/s?k={searchTerms}"; } ];
                   definedAliases = [ "az" ];
+                  iconUpdateURL = "https://www.amazon.com/favicon.ico";
+                };
+                "Amazon FR" = {
+                  urls = [ { template = "https://www.amazon.fr/s?k={searchTerms}"; } ];
+                  definedAliases = [ "azf" ];
+                  iconUpdateURL = "https://www.amazon.fr/favicon.ico";
                 };
                 "Arch Linux" = {
                   urls = [ { template = "https://wiki.archlinux.org/index.php?search={searchTerms}"; } ];
