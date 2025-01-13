@@ -90,6 +90,7 @@ in
           hunspell
           hunspellDicts.en-us
           hunspellDicts.fr-any
+          inkscape
           kdePackages.krdc
           lazygit
           libreoffice-qt
@@ -104,6 +105,7 @@ in
           nix-tree
           (pass.override { waylandSupport = true; })
           picard
+          pwgen
           (python3.withPackages (
             ps: with ps; [
               ipython
@@ -323,17 +325,13 @@ in
                   definedAliases = [ "ddg" ];
                   iconUpdateURL = "https://duckduckgo.com/favicon.ico";
                 };
-                "Wiktionary EN" = {
-                  urls = [ { template = "https://en.wiktionary.org/w/index.php?search={searchTerms}"; } ];
-                  definedAliases = [ "d" ];
-                };
-                "Wiktionary FR" = {
-                  urls = [ { template = "https://fr.wiktionary.org/w/index.php?search={searchTerms}"; } ];
-                  definedAliases = [ "df" ];
-                };
                 Discogs = {
                   urls = [ { template = "https://www.discogs.com/search?q={searchTerms}&type=all"; } ];
                   definedAliases = [ "discogs" ];
+                };
+                Emojipedia = {
+                  urls = [ { template = "https://emojipedia.org/search?q={searchTerms}"; } ];
+                  definedAliases = [ "emoji" ];
                 };
                 GitHub = {
                   urls = [ { template = "https://github.com/search?q={searchTerms}&type=repositories"; } ];
@@ -354,25 +352,6 @@ in
                   definedAliases = [ "kf" ];
                   iconUpdateURL = "https://search-cdn.kagi.com/v1/favicon-32x32.png";
                 };
-                "Nix Packages" = {
-                  urls = [
-                    {
-                      template = "https://search.nixos.org/packages";
-                      params = [
-                        {
-                          name = "type";
-                          value = "packages";
-                        }
-                        {
-                          name = "query";
-                          value = "{searchTerms}";
-                        }
-                      ];
-                    }
-                  ];
-                  icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-                  definedAliases = [ "np" ];
-                };
                 "Home-Manager options" = {
                   urls = [ { template = "https://home-manager-options.extranix.com/?query={searchTerms}"; } ];
                   icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
@@ -392,6 +371,30 @@ in
                   urls = [ { template = "https://search.nixos.org/options?query={searchTerms}"; } ];
                   icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
                   definedAliases = [ "no" ];
+                };
+                "Nix Packages" = {
+                  urls = [
+                    {
+                      template = "https://search.nixos.org/packages";
+                      params = [
+                        {
+                          name = "type";
+                          value = "packages";
+                        }
+                        {
+                          name = "query";
+                          value = "{searchTerms}";
+                        }
+                      ];
+                    }
+                  ];
+                  icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+                  definedAliases = [ "np" ];
+                };
+                "NixOS Wiki" = {
+                  urls = [ { template = "https://nixos.wiki/index.php?title=Special:Search&search={searchTerms}"; } ];
+                  iconUpdateURL = "https://nixos.wiki/favicon.png";
+                  definedAliases = [ "nw" ];
                 };
                 "Python" = {
                   urls = [ { template = "https://docs.python.org/3/search.html?q={searchTerms}"; } ];
@@ -421,11 +424,6 @@ in
                   iconUpdateURL = "https://www.rust-lang.org/static/images/favicon.svg";
                   definedAliases = [ "rs" ];
                 };
-                "NixOS Wiki" = {
-                  urls = [ { template = "https://nixos.wiki/index.php?title=Special:Search&search={searchTerms}"; } ];
-                  iconUpdateURL = "https://nixos.wiki/favicon.png";
-                  definedAliases = [ "nw" ];
-                };
                 "Wikipedia FR" = {
                   urls = [ { template = "https://fr.wikipedia.org/w/index.php?search={searchTerms}"; } ];
                   iconUpdateURL = "https://fr.wikipedia.org/static/favicon/wikipedia.png";
@@ -436,10 +434,13 @@ in
                   iconUpdateURL = "https://en.wikipedia.org/static/favicon/wikipedia.png";
                   definedAliases = [ "w" ];
                 };
-                "YouTube" = {
-                  urls = [ { template = "https://www.youtube.com/results?search_query={searchTerms}"; } ];
-                  icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-                  definedAliases = [ "yt" ];
+                "Wiktionary EN" = {
+                  urls = [ { template = "https://en.wiktionary.org/w/index.php?search={searchTerms}"; } ];
+                  definedAliases = [ "d" ];
+                };
+                "Wiktionary FR" = {
+                  urls = [ { template = "https://fr.wiktionary.org/w/index.php?search={searchTerms}"; } ];
+                  definedAliases = [ "df" ];
                 };
                 "WordReference EN → FR" = {
                   urls = [ { template = "https://www.wordreference.com/enfr/{searchTerms}"; } ];
@@ -450,6 +451,11 @@ in
                   urls = [ { template = "https://www.wordreference.com/fren/{searchTerms}"; } ];
                   iconUpdateURL = "https://www.wordreference.com/icon.svg";
                   definedAliases = [ "wfe" ];
+                };
+                "YouTube" = {
+                  urls = [ { template = "https://www.youtube.com/results?search_query={searchTerms}"; } ];
+                  icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+                  definedAliases = [ "yt" ];
                 };
               };
               search.force = true;
@@ -1076,6 +1082,9 @@ in
               "Window to Desktop 8" = "Meta+*";
               "Window to Desktop 9" = "Meta+(";
               "Window to Desktop 10" = "Meta+)";
+              "view_actual_size" = "Alt+0";
+              "view_zoom_in" = "Alt++";
+              "view_zoom_out" = "Alt+-";
             } // (repeat "Switch to Desktop" "Meta" 10);
 
             plasmashell = {
@@ -1203,6 +1212,7 @@ in
               export EDITOR="nvim"
             fi
 
+            alias p="ipython"
             alias pu="pushd"
             alias po="popd"
             alias d="dirs -v"
@@ -1326,7 +1336,7 @@ in
         download = "/tmp/${user}/tmp";
         music = "/media/hsrv-sfo-ashpool/goinfre/music";
         pictures = "/stash/goinfre/photos";
-        publicShare = "/stash/home/$USER/www";
+        publicShare = "/stash/home/${user}/www";
         videos = "/stash/goinfre";
       };
     };
