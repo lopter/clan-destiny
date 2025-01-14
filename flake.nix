@@ -3,6 +3,8 @@
 
   inputs = {
     catppuccin.url = "github:catppuccin/nix";
+    catppuccin.inputs.nixpkgs.follows = "nixpkgs";
+    catppuccin.inputs.home-manager.follows = "home-manager";
 
     clan-core.follows = "destiny-core/clan-core";
 
