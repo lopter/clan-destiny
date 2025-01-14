@@ -1265,7 +1265,9 @@ in
               command tree --dirsfirst --gitignore -FC "$@"
             }
 
-            alias t=tree
+            tl() {
+              tree "$@" | less -FRX
+            }
 
             # It says ls was aliased, even though home-manager does not set any default:
             unalias ls
