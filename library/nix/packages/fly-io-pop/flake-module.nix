@@ -149,7 +149,7 @@ in
                       availability.restart = "always";
                     };
                     sshd = {
-                      command = "${pkgs.openssh}/bin/sshd -D -f ${sshdConfig}";
+                      command = "${pkgs.openssh}/bin/sshd -D -e -f ${sshdConfig}";
                       availability.restart = "always";
                       depends_on.tailscaled.condition = "process_healthy";
                     };
@@ -227,6 +227,11 @@ in
 
               HostKey /var/ssh/ssh_host_ed25519_key
             '';
+          };
+          rootAuthorizedSshKey = pkgs.writeTextFile rec {
+            name = "root";
+            destination = "/etc/ssh/authorized_keys.d/${name}";
+            text = destiny-config.lib.knownSshKeys.louisGPGAuthKey;
           };
           certbotDomains = [
             "www.lightsd.io"
@@ -471,6 +476,7 @@ in
                 gid = 0;
                 home = "/root";
                 shell = "${pkgs.bashInteractive}/bin/bash";
+                lockAccount = false;
               };
               sshd = {
                 uid = 1;
@@ -618,6 +624,8 @@ in
                   (pkgs.writeShellScriptBin "test-nginx-config" ''
                     exec ${pkgs.nginx}/bin/nginx -t -c ${nginxConfig}
                   '')
+
+                  rootAuthorizedSshKey
                 ];
                 pathsToLink = [
                   "/bin"
