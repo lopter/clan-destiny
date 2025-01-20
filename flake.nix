@@ -181,7 +181,7 @@
         );
 
         perSystem =
-          { pkgs, inputs', ... }:
+          { pkgs, inputs', system, ... }:
           {
             devShells.default = pkgs.mkShell {
               packages =
@@ -234,8 +234,19 @@
 
                   (writeShellScriptBin "pop-deploy" ''
                     set -e
-                    nix run -L '.#fly-io-pop.copyToRegistry'
-                    exec fly-pop deploy -i registry.fly.io/clan-destiny-pop:latest
+                    if [ $# -eq 1 ] ; then
+                      IMAGE_REPO="$1"
+                      printf -- "--> Redeploying image %s\n" "$IMAGE_REPO"
+                    else
+                      IMAGE_TAG="$(nix eval --raw '.#packages.${system}.fly-io-pop.imageTag')"
+                      IMAGE_REPO="registry.fly.io/clan-destiny-pop:$IMAGE_TAG"
+                      nix run -L '.#fly-io-pop.copyToRegistry'
+                    fi
+                    exec fly-pop deploy --image "$IMAGE_REPO"
+                  '')
+
+                  (writeShellScriptBin "pop-releases" ''
+                    exec fly-pop releases --image
                   '')
 
                   (writeShellScriptBin "pop-console" ''
