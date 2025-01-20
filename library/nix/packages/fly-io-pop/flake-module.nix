@@ -292,6 +292,7 @@ in
                   error_on_missing_key = true;
                   backup = false;
                   destination = "/var/lib/nginx/certs/${domain}/${field}.pem";
+                  exec.command = [ (lib.getExe' procps "pkill") "-HUP" "--pidfile" nginxPidFile ];
                 };
                 mkDomain = domain: [
                   (mkTemplate domain "key")
@@ -300,6 +301,7 @@ in
               in
               builtins.concatMap mkDomain certbotDomains;
           };
+          nginxPidFile = "/run/nginx/nginx.pid";
           unboundConfig = pkgs.writeTextFile {
             name = "unbound.conf";
             text = ''
@@ -333,7 +335,7 @@ in
             name = "nginx.conf";
             text =
               ''
-                pid /run/nginx/nginx.pid;
+                pid ${nginxPidFile};
                 error_log stderr;
                 daemon off;
                 events {
