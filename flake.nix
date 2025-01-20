@@ -196,6 +196,7 @@
                 ++ (with pkgs; [
                   age
                   flyctl
+                  skopeo
                   sops
                   ssh-to-age
                   python3Packages.ipython

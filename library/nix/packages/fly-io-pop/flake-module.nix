@@ -86,7 +86,7 @@ in
               nginx
               sops-install-secrets
             ]);
-          shellLayer = nix2container.buildLayer {
+          shellLayer = {
             copyToRoot = [
               (pkgs.buildEnv {
                 name = "root";
@@ -413,7 +413,7 @@ in
           mkVarDir = pkgs.runCommand "mkVarDir" derivationArgs ''
             mkdir -p $out/var
           '';
-          mountPointLayer = nix2container.buildLayer {
+          mountPointLayer = {
             copyToRoot = [ mkVarDir ];
             perms = [
               {
@@ -536,7 +536,7 @@ in
             };
           };
           secretsManifest = result.config.clan-destiny.fly-io-pop.secretsManifest;
-          configLayer = nix2container.buildLayer {
+          configLayer = {
             deps = [
               processComposeConfig
               secretsManifest
@@ -636,10 +636,15 @@ in
               })
             ];
           };
+          mkLayer = prevLayers: layerParams:
+          let
+            layer = nix2container.buildLayer (layerParams // { layers = prevLayers; });
+          in
+            prevLayers ++ [ layer ];
+          assembleLayers = layers: builtins.foldl' mkLayer [ ] layers;
         in
         nix2container.buildImage {
           name = "registry.fly.io/clan-destiny-pop";
-          tag = "latest";
           config = {
             env = [
               "PATH=/bin"
@@ -655,7 +660,7 @@ in
               "--unix-socket=/run/process-compose.sock"
             ];
           };
-          layers = [
+          layers = assembleLayers [
             shellLayer
             mountPointLayer
             configLayer
