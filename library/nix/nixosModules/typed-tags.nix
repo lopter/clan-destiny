@@ -90,7 +90,7 @@ in
 #       secret = false;
 #     };
 #     prompts.ssh-public-key = {
-#       createFile = true;
+#       persist = true;
 #       description = ''
 #         The SSH public key of the host. Get it with:
 #

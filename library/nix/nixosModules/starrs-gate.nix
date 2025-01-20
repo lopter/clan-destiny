@@ -89,18 +89,18 @@ in
       files.vaultSecretId.owner = "xrdp";
       files.vaultSecretId.group = "xrdp";
       prompts.vaultRoleId = {
-        createFile = true;
+        persist = true;
         description = "The Vault Role ID for certbot-vault";
         type = "hidden";
       };
       prompts.vaultSecretId = {
-        createFile = true;
+        persist = true;
         description = "The Vault Secret ID for certbot-vault";
         type = "hidden";
       };
       # This one is useful to consult the generated value:
       prompts.userPassword = {
-        createFile = true;
+        persist = true;
         description = "User password for ${cfg.user} (leave empty to generate one)";
         type = "hidden";
       };

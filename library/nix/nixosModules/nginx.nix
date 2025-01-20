@@ -42,12 +42,12 @@ in
   config = lib.mkIf cfg.enable {
     clan.core.vars.generators.clan-destiny-nginx = lib.mkIf hasCertbotDomains {
       prompts.vaultRoleId = {
-        createFile = true;
+        persist = true;
         description = "The Vault Role ID for certbot-vault";
         type = "hidden";
       };
       prompts.vaultSecretId = {
-        createFile = true;
+        persist = true;
         description = "The Vault Secret ID for certbot-vault";
         type = "hidden";
       };

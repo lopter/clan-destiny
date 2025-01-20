@@ -120,11 +120,11 @@ in
           jobSecrets = builtins.attrValues (builtins.mapAttrs mkJobSecrets jobsByName);
           resticDetails = lib.optionalAttrs hasB2Jobs {
             prompts."restic-b2-key-id" = {
-              createFile = true;
+              persist = true;
               description = "Key ID to access the B2 api";
             };
             prompts."restic-b2-application-key" = {
-              createFile = true;
+              persist = true;
               description = "Application key to access the B2 api";
             };
           };
@@ -135,7 +135,7 @@ in
         jobName: details:
         if details.type == "restic-b2" then
           lib.optionalAttrs (fqdn == details.localHost) {
-            prompts."${jobName}-password".createFile = true;
+            prompts."${jobName}-password".persist = true;
           }
         else
           throw "Backup type ${details.type} not supported";

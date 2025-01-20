@@ -34,7 +34,7 @@ in
         files.tlsCertChain.owner = "vault";
         files.tlsKey.owner = "vault";
         prompts.tlsCertChain = {
-          createFile = true;
+          persist = true;
           description = ''
             The TLS server certificate used by Vault followed by the CA
             certificate.
@@ -42,7 +42,7 @@ in
           type = "multiline";
         };
         prompts.tlsKey = {
-          createFile = true;
+          persist = true;
           description = "The key for the TLS certificate used by Vault";
           type = "multiline";
         };
@@ -101,7 +101,7 @@ in
       clan.core.vars.generators.clan-destiny-vault-common = {
         files.tlsCaCert.secret = false;
         prompts.tlsCaCert = {
-          createFile = true;
+          persist = true;
           description = "The TLS Certificate Authority certificate used by Vault";
           type = "multiline";
         };

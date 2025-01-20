@@ -40,7 +40,7 @@ in
   config.clan.core.vars.generators.postfix-relay = {
     files.credentials = { };
     prompts.password = {
-      createFile = false;
+      persist = false;
       description = ''
         Password used by Postifx for SASL authentication with the SMTPS relay.
       '';

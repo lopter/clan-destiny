@@ -140,17 +140,17 @@ in
         files.vaultCredentials.owner = "certbot";
         files.gandiCredentials.owner = "certbot";
         prompts.VaultRoleID = {
-          createFile = false;
+          persist = false;
           description = "The Vault Role ID for certbot-vault";
           type = "hidden";
         };
         prompts.VaultSecretId = {
-          createFile = false;
+          persist = false;
           description = "The Vault Secret ID for certbot-vault";
           type = "hidden";
         };
         prompts.gandiToken = {
-          createFile = false;
+          persist = false;
           description = "Your Gandi API token";
           type = "hidden";
         };
