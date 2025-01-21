@@ -90,6 +90,7 @@ in
           hunspell
           hunspellDicts.en-us
           hunspellDicts.fr-any
+          imagemagick
           inkscape
           kdePackages.krdc
           lazygit
