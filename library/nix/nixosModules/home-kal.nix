@@ -99,6 +99,7 @@ in
           # See https://discourse.nixos.org/t/plugins-for-neovim-are-not-installed-for-neovim-qt/29712/10
           (neovim-qt.override { neovim = config.programs.neovim.finalPackage; })
           mercurial
+          minicom
           mindforger
           ncmpcpp
           nixd
@@ -106,6 +107,7 @@ in
           nix-tree
           (pass.override { waylandSupport = true; })
           picard
+          pv
           pwgen
           (python3.withPackages (
             ps: with ps; [
@@ -353,10 +355,19 @@ in
                   definedAliases = [ "kf" ];
                   iconUpdateURL = "https://search-cdn.kagi.com/v1/favicon-32x32.png";
                 };
+                "Home-assistant discourse" = {
+                  urls = [ { template = "https://community.home-assistant.io/search?&q={searchTerms}"; } ];
+                  definedAliases = [ "hd" ];
+                  iconUpdateURL = "https://www.home-assistant.io/images/favicon-192x192.png";
+                };
                 "Home-Manager options" = {
                   urls = [ { template = "https://home-manager-options.extranix.com/?query={searchTerms}"; } ];
                   icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
                   definedAliases = [ "nh" ];
+                };
+                "Manpages" = {
+                  urls = [ { template = "https://manpages.ubuntu.com/cgi-bin/search.py?q={searchTerms}"; } ];
+                  definedAliases = [ "man" ];
                 };
                 "MDN" = {
                   urls = [ { template = "https://developer.mozilla.org/en-US/search?q={searchTerms}"; } ];
@@ -1260,6 +1271,11 @@ in
                   return 1;
               }
               ffmpeg -i "$1" -i "$2" -c:a copy -c:v copy "$3"
+            }
+
+            firefox-dev() {
+              mkdir -p "$MY_BUILD/firefox"
+              firefox --new-instance --devtools --profile "$MY_BUILD/firefox"
             }
 
             tree() {
