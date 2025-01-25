@@ -2,7 +2,7 @@
 {
   clan-destiny.nixpkgs.unfreePredicates = [
     "corefonts"
-    "vistafonts"
+    "vista-fonts"
   ];
 
   fonts.packages = with pkgs; [
