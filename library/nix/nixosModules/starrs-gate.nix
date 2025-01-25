@@ -164,6 +164,7 @@ in
 
             self.nixosModules.containers
             self.nixosModules.fonts
+            self.nixosModules.nixpkgs
           ];
 
           clan-destiny.containers = { inherit (cfg) macvlans; };

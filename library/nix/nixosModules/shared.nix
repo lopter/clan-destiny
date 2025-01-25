@@ -32,6 +32,7 @@ in
     self.nixosModules.nginx
     self.nixosModules.nginx-nixos-proxy-cache
     self.nixosModules.nix-settings
+    self.nixosModules.nixpkgs
     self.nixosModules.postfix-relay
     self.nixosModules.ssh
     self.nixosModules.starrs-gate
@@ -39,14 +40,6 @@ in
     self.nixosModules.usergroups
     self.nixosModules.vault
   ];
-
-  options.clan-destiny.nixpkgs.unfreePredicates = lib.mkOption {
-    description = ''
-      The list of unfree package names that are allowed for installation.
-    '';
-    type = lib.types.listOf lib.types.nonEmptyStr;
-    default = [ ];
-  };
 
   config = {
     # Set this for clan commands use ssh i.e. `clan machines update`
@@ -61,12 +54,6 @@ in
     i18n.defaultLocale = "en_US.UTF-8";
 
     lib.clan-destiny.zoneFromHostname = self.lib.zoneFromHostname;
-
-    nixpkgs.config.allowUnfreePredicate =
-      let
-        unfreePredicates = config.clan-destiny.nixpkgs.unfreePredicates;
-      in
-      pkg: builtins.elem (lib.getName pkg) unfreePredicates;
 
     powerManagement.powertop.enable = true;
     powerManagement.cpuFreqGovernor = lib.mkDefault "ondemand";

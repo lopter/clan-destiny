@@ -15,6 +15,7 @@
     nginx = ./nginx.nix;
     nginx-nixos-proxy-cache = ./nginx-nixos-proxy-cache.nix;
     nix-settings = ./nix-settings.nix;
+    nixpkgs = ./nixpkgs.nix;
     postfix-relay = ./postfix-relay.nix;
     shared = ./shared.nix;
     ssh = ./ssh.nix;
