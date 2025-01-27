@@ -55,8 +55,10 @@ in
 
     lib.clan-destiny.zoneFromHostname = self.lib.zoneFromHostname;
 
-    powerManagement.powertop.enable = true;
-    powerManagement.cpuFreqGovernor = lib.mkDefault "ondemand";
+    powerManagement = lib.mkIf (config.nixpkgs.hostPlatform == "x86_64-linux") {
+      powertop.enable = true;
+      cpuFreqGovernor = lib.mkDefault "ondemand";
+    };
 
     # Locale service discovery and mDNS
     services.avahi.enable = true;

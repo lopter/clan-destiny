@@ -82,8 +82,9 @@
           machines =
             let
               names = [
-                "nsrv-sfo-ashpool"
                 "lady-3jane"
+                "nsrv-sfo-ashpool"
+                "rpi-cdg-hass"
               ];
               mkMachine =
                 hostname:
