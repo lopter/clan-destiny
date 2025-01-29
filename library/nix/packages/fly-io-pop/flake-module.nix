@@ -233,10 +233,12 @@ in
             destination = "/etc/ssh/authorized_keys.d/${name}";
             text = destiny-config.lib.knownSshKeys.louisGPGAuthKey;
           };
-          certbotDomains = [
-            "www.lightsd.io"
-            "www.kalessin.fr"
-          ];
+          certbotDomains =
+          let
+            getDomains = instanceCfg: instanceCfg.domains;
+            inherit (destiny-config.lib) certbotInstances;
+          in
+            builtins.concatMap getDomains certbotInstances;
           nginxVaultAgentConfig = (pkgs.formats.json { }).generate "nginx-vault-agent.json" {
             auto_auth = [
               {

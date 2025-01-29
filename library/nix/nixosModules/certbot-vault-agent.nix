@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  certbotCfg = config.clan-destiny.certbot-vault;
+  certbotVaultCfg = config.clan-destiny.certbot-vault.vault;
   cfg = config.clan-destiny.certbot-vault-agents;
 
   agentModule = {
@@ -95,9 +95,9 @@ let
         };
         vault = [
           {
-            address = certbotCfg.vaultAddr;
-            ca_cert = certbotCfg.vaultTlsCaCert;
-            tls_server_name = certbotCfg.vaultTlsServerName;
+            address = certbotVaultCfg.addr;
+            ca_cert = certbotVaultCfg.tlsCaCert;
+            tls_server_name = certbotVaultCfg.tlsServerName;
           }
         ];
         pid_file = "/run/${name}-vault-agent/pid";
@@ -105,7 +105,7 @@ let
           let
             mkTemplate = domain: field: {
               contents = ''
-                {{ with secret "${certbotCfg.vaultMount}/${certbotCfg.vaultPath}/${domain}" }}
+                {{ with secret "${certbotVaultCfg.mount}/${certbotVaultCfg.path}/${domain}" }}
                 {{ .Data.data.${field} }}
                 {{ end }}
               '';
