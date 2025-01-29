@@ -4,13 +4,13 @@
   inputs = {
     catppuccin.url = "github:catppuccin/nix";
     catppuccin.inputs.nixpkgs.follows = "nixpkgs";
-    catppuccin.inputs.home-manager.follows = "home-manager";
 
     clan-core.follows = "destiny-core/clan-core";
 
     destiny-core.url = "git+ssh://gitolite.kalessin.fr/louis/destiny-core?ref=main";
 
     destiny-config.url = "git+ssh://gitolite.kalessin.fr/louis/destiny-config?ref=main";
+    # destiny-config.url = "git+file:///stash/home/kal/cu/projs/destiny-config?ref=main";
     destiny-config.inputs.nixpkgs.follows = "nixpkgs";
     destiny-config.inputs.destiny-core.follows = "destiny-core";
 
