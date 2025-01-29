@@ -92,6 +92,7 @@ in
           hunspellDicts.fr-any
           imagemagick
           inkscape
+          ipcalc
           kdePackages.krdc
           lazygit
           libreoffice-qt
