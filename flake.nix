@@ -277,6 +277,7 @@
                           - $SOPS_PGP_FP
                         - age:
                           - age1zps7k9czhty4leyjfph8z3fd3lrl9j08aw0z7xctmp2jys2gdcesvnh7lx
+                          - age105x37pue8hlm33dkmml946l4f74x6dpeq0yh38pw7zjc2gvsy5gspaykya
                     EOF
                     secrets_file=library/nix/packages/fly-io-pop/secrets.yaml
                     operation="$1"

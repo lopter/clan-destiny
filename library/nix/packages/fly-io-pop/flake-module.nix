@@ -111,9 +111,9 @@ in
             text =
               let
                 log_rotate_cfg = rec {
-                  max_size_mb = 1;
+                  max_size_mb = 10;
                   max_age_days = 180;
-                  max_backups = max_size_mb * 500; # 500MB
+                  max_backups = max_size_mb * 20; # 200MB
                   compress = true;
                 };
                 mkProcess =
@@ -133,7 +133,11 @@ in
                 log_configuration.rotation = log_rotate_cfg;
                 processes = builtins.mapAttrs mkProcess (
                   {
-                    postInit.command = "postInit";
+                    postInit = {
+                      command = "postInit";
+                      # Shut-down the machine if postInit fails:
+                      availability.restart = "exit_on_failure";
+                    };
                     nginx = {
                       command = "runas nginx ${pkgs.nginx}/bin/nginx -c ${nginxConfig}";
                       namespace = "nginx";
@@ -145,6 +149,7 @@ in
                         }
                         // lib.optionalAttrs (builtins.length certbotDomains > 0) {
                           nginx-vault-agent.condition = "process_healthy";
+                          nginx-wait-for-certificates.condition = "process_completed_successfully";
                         };
                       availability.restart = "always";
                     };
@@ -192,6 +197,28 @@ in
                       # even if vault-agent is not properly initialized yet.
                       readiness_probe.exec.command = ''[ "$(pgrep -c vault)" -gt 0 ]'';
                     };
+                    nginx-wait-for-certificates = {
+                      availability.restart = "on_failure";
+                      availability.backoff_seconds = 10;
+                      command = pkgs.writeShellScript "nginx-wait-for-certificates" ''
+                        domains=(${lib.concatStringsSep " " (map lib.escapeShellArg certbotDomains)})
+                        status=0
+                        for each in ''${domains[@]} ; do
+                          if [ ! -f "/var/lib/nginx/certs/$each/chain.pem" ] || [ ! -f "/var/lib/nginx/certs/$each/key.pem" ]; then
+                            printf >&2 "Missing certificate for: %s.\n" "$each"
+                            status=1
+                          fi
+                        done
+
+                        if [ $status -ne 0 ] ; then
+                          printf >&2 "Cannot start Nginx due to missing certificates.\n"
+                        fi
+
+                        exit $status
+                      '';
+                      namespace = "nginx";
+                      depends_on.postInit.condition = "process_completed_successfully";
+                    };
                   }
                 );
               };
@@ -238,7 +265,7 @@ in
             getDomains = instanceCfg: instanceCfg.domains;
             inherit (destiny-config.lib) certbotInstances;
           in
-            builtins.concatMap getDomains certbotInstances;
+            builtins.concatMap getDomains (builtins.attrValues certbotInstances);
           nginxVaultAgentConfig = (pkgs.formats.json { }).generate "nginx-vault-agent.json" {
             auto_auth = [
               {
@@ -294,7 +321,14 @@ in
                   error_on_missing_key = true;
                   backup = false;
                   destination = "/var/lib/nginx/certs/${domain}/${field}.pem";
-                  exec.command = [ (lib.getExe' procps "pkill") "-HUP" "--pidfile" nginxPidFile ];
+                  exec.command = [
+                    (pkgs.writeShellScript "vault-agent-reload-nginx" ''
+                      if [ -f ${nginxPidFile} ]; then
+                        exec ${lib.getExe' procps "pkill"} -HUP --pidfile ${nginxPidFile}
+                      fi
+                      exit 0
+                    '')
+                  ];
                 };
                 mkDomain = domain: [
                   (mkTemplate domain "key")
@@ -407,7 +441,7 @@ in
                   server_tokens off;
                   resolver 127.0.0.1:${ports.unbound};
               ''
-              + (destiny-config.lib.popNginxConfig { inherit ports; })
+              + (destiny-config.lib.popNginxConfig { inherit destiny-core ports; })
               + "}";
           };
           # Only one volume per machine:
@@ -468,6 +502,18 @@ in
                 install -d -m 700 /var/log/process-compose
                 install -d -o ${nginxUid} -g ${nginxGid} /var/log/nginx
 
+                [ -f /var/ssh/ssh_host_ed25519_key ] || {
+                  echo "Generating new SSH Host identity"
+                  install -d /var/ssh
+                  ssh-keygen -f /var/ssh/ssh_host_ed25519_key -N "" -t ed25519
+                  printf "Generated SSH Host identity, public key: %s\n" "$(cat /var/ssh/ssh_host_ed25519_key.pub)"
+                  # shellcheck disable=SC2016
+                  printf 'Please add the new key to "secrets.yaml" using "sops rotate -i --add-age $(echo "%s" | ssh-to-age) secrets.yaml"\n' "$(cat /var/ssh/ssh_host_ed25519_key.pub)"
+                  printf 'And edit "pop-sops" in "flake.nix" with the new recipient\n'
+                  echo >&2 'postInit: failed on new SSH Host identity'
+                  exit 1;
+                }
+
                 ${sops-install-secrets}/bin/sops-install-secrets ${secretsManifest}
               '';
           };
@@ -514,8 +560,6 @@ in
               {
                 sops.age.sshKeyPaths = [ "/var/ssh/ssh_host_ed25519_key" ];
                 sops.defaultSopsFile = ./secrets.yaml;
-                sops.secrets.sshHostEd25519PrivateKey = { };
-                sops.secrets.sshHostEd25519PublicKey.mode = "0444";
                 sops.secrets.tailscaleAuthKey = { };
                 sops.secrets.nginxVaultAgentRoleIdPath = {
                   owner = "nginx";

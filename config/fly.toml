@@ -10,24 +10,26 @@ initial_size = "3gb"
 [[services]]
 internal_port = 1101
 protocol = "tcp"
-auto_stop_machines = "suspend"
-min_machines_running = 1
+# set auto_stop_machines to off because min_machines_running
+# is only honored in the primary region:
+auto_stop_machines = "off"
+min_machines_running = 2
   [[services.ports]]
   port = 80
 
 [[services]]
 internal_port = 1102
 protocol = "tcp"
-auto_stop_machines = "suspend"
-min_machines_running = 1
+auto_stop_machines = "off"
+min_machines_running = 2
   [[services.ports]]
   port = 443
 
 [[services]]
 internal_port = 41641
 protocol = "udp"
-auto_stop_machines = "suspend"
-min_machines_running = 1
+auto_stop_machines = "off"
+min_machines_running = 2
   [[services.ports]]
   port = 41641
 
