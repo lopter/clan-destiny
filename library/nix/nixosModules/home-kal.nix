@@ -82,6 +82,7 @@ in
           aspellDicts.fr
           direnv
           easytag
+          entr
           # discord
           # fzf
           gnucash
@@ -106,8 +107,10 @@ in
           nixd
           nix-prefetch-github
           nix-tree
+          okteta
           (pass.override { waylandSupport = true; })
           picard
+          pngcrush
           pv
           pwgen
           (python3.withPackages (
@@ -346,6 +349,11 @@ in
                   icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
                   definedAliases = [ "maps" ];
                 };
+                "IETF" = {
+                  urls = [ { template = "https://datatracker.ietf.org/doc/search?name={searchTerms}&sort=&rfcs=on&activedrafts=on&by=group&group="; } ];
+                  iconUpdateURL = "https://static.ietf.org/dt/12.34.0/ietf/images/ietf-logo-nor-180.png";
+                  definedAliases = [ "ietf" ];
+                };
                 "Kagi" = {
                   urls = [ { template = "https://kagi.com/search?q={searchTerms}"; } ];
                   definedAliases = [ "k" ];
@@ -422,6 +430,11 @@ in
                     "pypi"
                   ];
                 };
+                "RFC" = {
+                  urls = [ { template = "https://datatracker.ietf.org/doc/html/rfc{searchTerms}"; } ];
+                  iconUpdateURL = "https://static.ietf.org/dt/12.34.0/ietf/images/ietf-logo-nor-180.png";
+                  definedAliases = [ "rfc" ];
+                };
                 "Rust docs" = {
                   urls = [ { template = "https://docs.rs/releases/search?query={searchTerms}"; } ];
                   iconUpdateURL = "https://www.rust-lang.org/static/images/favicon.svg";
@@ -436,6 +449,11 @@ in
                   urls = [ { template = "https://doc.rust-lang.org/std/index.html?search={searchTerms}"; } ];
                   iconUpdateURL = "https://www.rust-lang.org/static/images/favicon.svg";
                   definedAliases = [ "rs" ];
+                };
+                "Sphinx" = {
+                  urls = [ { template = "https://www.sphinx-doc.org/en/master/search.html?q={searchTerms}"; } ];
+                  iconUpdateURL = "	https://www.sphinx-doc.org/en/master/_static/favicon.svg";
+                  definedAliases = [ "sphinx" ];
                 };
                 "Wikipedia FR" = {
                   urls = [ { template = "https://fr.wikipedia.org/w/index.php?search={searchTerms}"; } ];
