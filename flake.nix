@@ -31,7 +31,7 @@
     nixpkgs-unfree.follows = "destiny-core/nixpkgs-unfree";
     nixpkgs-unfree.inputs.nixpkgs.follows = "nixpkgs";
 
-    nixos-hardware.url = "github:NixOS/nixos-hardware";
+    nixos-hardware.url = "github:lopter/nixos-hardware?ref=lo-aoostar-r1-n100";
 
     plasma-manager = {
       url = "github:nix-community/plasma-manager";
@@ -84,6 +84,7 @@
               names = [
                 "lady-3jane"
                 "nsrv-sfo-ashpool"
+                "nsrv-cdg-jellicent"
                 "rpi-cdg-hass"
               ];
               mkMachine =
@@ -310,6 +311,18 @@
               groups = builtins.match ".+(${capturePattern})(-.+)?$" hostname;
             in
             if groups == null then null else builtins.elemAt groups 0;
+
+          # Get the partition of the given number for the given storage device. Expand
+          # to the correct path whether devices are addressed using /dev/disk/by- or
+          # using something of the like of /dev/sda:
+          diskPart =
+            number: diskName:
+            if builtins.isList (builtins.match ".+by-(id|uuid).+" diskName) then
+              "${diskName}-part${toString number}"
+            else
+              "${diskName}${toString number}";
+
+          diskById = id: "/dev/disk/by-id/${id}";
         };
       }
     );

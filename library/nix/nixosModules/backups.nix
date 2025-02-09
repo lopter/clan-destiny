@@ -111,9 +111,8 @@ in
       cfg = config.clan-destiny.backups;
       vars = config.clan.core.vars.generators.clan-destiny-backups;
       fqdn = with config.networking; "${hostName}.${domain}";
-      allJobs = builtins.attrValues cfg.jobsByName;
-      allJobTypes = builtins.map (details: details.type) allJobs;
-      hasB2Jobs = builtins.foldl' (acc: type: acc && (type == "restic-b2")) true allJobTypes;
+      isLocalB2Job = details: details.type == "restic-b2" && fqdn == details.localHost;
+      hasB2Jobs = builtins.any isLocalB2Job (builtins.attrValues cfg.jobsByName);
       mkBackupSecrets =
         jobsByName:
         let
@@ -128,9 +127,8 @@ in
               description = "Application key to access the B2 api";
             };
           };
-          op = acc: secrets: lib.recursiveUpdate acc secrets;
         in
-        builtins.foldl' op { } (jobSecrets ++ [ resticDetails ]);
+          builtins.foldl' lib.recursiveUpdate { } (jobSecrets ++ [ resticDetails ]);
       mkJobSecrets =
         jobName: details:
         if details.type == "restic-b2" then

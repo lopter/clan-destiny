@@ -1,16 +1,7 @@
-{ lib, ... }:
+{ lib, self, ... }:
 let
-  # Get the partition of the given number for the given storage device. Expand
-  # to the correct path whether devices are addressed using /dev/disk/by- or
-  # using something of the like of /dev/sda:
-  diskPart =
-    number: diskName:
-    if builtins.isList (builtins.match ".+by-(id|uuid).+" diskName) then
-      "${diskName}-part${toString number}"
-    else
-      "${diskName}${toString number}";
-
   sataSSD = "/dev/disk/by-id/ata-Samsung_SSD_870_EVO_4TB_S6P3NS0W300955A";
+
   # https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)
   # https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance
   #
@@ -153,7 +144,7 @@ in
   };
 
   boot.initrd.luks.devices."ashpool-system" = luksSettings // {
-    device = diskPart 3 sataSSD;
+    device = self.lib.diskPart 3 sataSSD;
   };
 
   fileSystems = {
@@ -167,7 +158,7 @@ in
       }
       // maybeOptions;
     "/boot" = {
-      device = diskPart 1 sataSSD;
+      device = self.lib.diskPart 1 sataSSD;
       fsType = "vfat";
       options = [ "umask=077" ] ++ lib.optionals allowDiscards [ "discard" ];
     };
@@ -213,7 +204,7 @@ in
 
   swapDevices = [
     {
-      device = diskPart 2 sataSSD;
+      device = self.lib.diskPart 2 sataSSD;
       randomEncryption = {
         inherit allowDiscards;
         enable = true;

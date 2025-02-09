@@ -56,7 +56,7 @@ in
               priority = 3;
               size = "100%";
               content = {
-                name = "lady3jane-luks";
+                name = "lady-3jane-system";
                 type = "luks";
                 settings = luksSettings;
                 content = {
@@ -130,7 +130,6 @@ in
               format = "ext4";
               mountpoint = "/tmp";
               mountOptions = [
-                "noatime"
                 "nodev"
                 "nosuid"
               ] ++ lib.optionals allowDiscards [ "discard" ];
