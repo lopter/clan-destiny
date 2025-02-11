@@ -1,9 +1,14 @@
 { lib, self, ... }:
 let
+  inherit (self.lib) diskById diskPart;
+
   nvmeSSD = "/dev/disk/by-id/nvme-AirDisk_1TB_SSD_NF2015R000469P110N";
 
-  sataHDD-A = "/dev/disk/by-id/ata-ST16000NM000J-2TW103_ZR701X68";
-  sataHDD-B = "/dev/disk/by-id/ata-ST16000NM000J-2TW103_ZR51RHGA";
+  commonMkfsBtrfsOptions = [
+    "--checksum" "xxhash"
+    "--features" "${lib.concatStringsSep "," [ "block-group-tree" ]}"
+    "--force"
+  ];
 
   # https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)
   # https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance
@@ -13,37 +18,46 @@ let
   allowDiscards = true;
   bypassWorkqueues = true;
 
+  keyDrive = "/dev/disk/by-id/usb-SanDisk_Cruzer_Fit_4C530001190616105345-0:0";
+
   # cryptsetup open --key-file /dev/disk/by-id/usb-SanDisk_Cruzer_Fit*\:0 --keyfile-size 4096 ${nvmeSSD} jellicent-luks
   luksSettings = { isSSD }: {
     keyFileSize = 4096;
-    keyFile = "/dev/disk/by-id/usb-SanDisk_Cruzer_Fit_4C530001190616105345-0:0";
+    keyFileOffset = 64 * 1024;
+    keyFile = keyDrive;
   } // lib.optionalAttrs isSSD {
     inherit allowDiscards bypassWorkqueues;
   };
 
-  luksDataDisk = { label, luksContent ? null }: {
-      type = "gpt";
-      partitions = {
-        luks = {
-          start = "8M";
-          end = "-8M";
-          label = "jellicent-luks-data-${label}";
-          content = {
-            type = "luks";
-            name = "jellicent-data-${label}";
-            settings = luksSettings { isSSD = false; };
-          } // lib.optionalAttrs (luksContent != null) {
-            content = luksContent;
+  mkZfsDisk =
+    driveBayNo: deviceId: # driveBayNo is labeled on each drive's tray
+    {
+      name = "zpool-goinfre-${driveBayNo}";
+      value = {
+        type = "disk";
+        device = diskById deviceId;
+        content = {
+          type = "gpt";
+          partitions = {
+            zfs = {
+              label = "jellicent-zpool-goinfre-${driveBayNo}";
+              start = "8M";
+              content = {
+                type = "zfs";
+                pool = "zpool-goinfre";
+              };
+            };
           };
         };
       };
+    };
+
+  zfsDevices = lib.mapAttrs' mkZfsDisk {
+    "1" = "ata-ST4000VN008-2DR166_ZDH3BBFN";
+    "2" = "ata-ST4000VN006-3CW104_WW65RGP8";
   };
 
-  commonMkfsBtrfsOptions = [
-    "--checksum" "xxhash"
-    "--features" "${lib.concatStringsSep "," [ "block-group-tree" ]}"
-    "--force"
-  ];
+  zfsKeysDir = "/run/zfs-keys";
 in
 {
   disko.enableConfig = false;
@@ -129,48 +143,67 @@ in
           };
         };
       };
-      data-A = {
-        type = "disk";
-        device = sataHDD-A;
-        content = luksDataDisk { label = "A"; };
-      };
-      data-B = {
-        type = "disk";
-        device = sataHDD-B;
-        content = luksDataDisk {
-          label = "B";
-          luksContent = {
-            type = "btrfs";
-            extraArgs = commonMkfsBtrfsOptions ++ [
-              "--data" "raid1"
-              "/dev/mapper/jellicent-data-A"
+    } // zfsDevices;
+    zpool = {
+      zpool-goinfre = {
+        type = "zpool";
+        mode = {
+          topology = {
+            type = "topology";
+            vdev = [
+              {
+                mode = "mirror";
+                # Looks like there is [some assumptions] on how members are
+                # expressed so we gotta give absolute device paths:
+                #
+                # [some assumptions]: https://github.com/nix-community/disko/blob/ff3568858c54bd306e9e1f2886f0f781df307dff/lib/types/zpool.nix#L238
+                members = [
+                  "/dev/disk/by-partlabel/jellicent-zpool-goinfre-1"
+                  "/dev/disk/by-partlabel/jellicent-zpool-goinfre-2"
+                ];
+              }
             ];
-            subvolumes = {
-              goinfre = {
-                mountpoint = "/stash/goinfre";
-                mountOptions = [ "nodev" "nosuid" ];
-              };
-            };
+          };
+        };
+        rootFsOptions = {
+          acltype = "posix";
+          aclmode = "passthrough";
+          atime = "on";
+          compression = "lz4";
+          "com.sun:auto-snapshot" = "false";
+          encryption = "on";
+          keyformat = "passphrase";
+          keylocation = "file://${zfsKeysDir}/zpool-goinfre.key";
+          # Use legacy since we'll use the fileSystems option to mount the zfs
+          # datasets (see note in `boot.zfs.extraPools`):
+          mountpoint = "legacy";
+          recordsize = "1M";
+          relatime = "on"; # effective when atime=on
+          xattr = "sa";
+        };
+        options = {
+          ashift = "12";
+          "feature@lz4_compress" = "enabled";
+          "feature@raidz_expansion" = "enabled";
+        };
+        datasets = {
+          root = {
+            type = "zfs_fs";
+            options."com.sun:auto-snapshot" = "true";
           };
         };
       };
     };
   };
 
-
   boot.initrd = {
     luks.devices = {
       "jellicent-system" = (luksSettings { isSSD = true; }) // {
         device = self.lib.diskPart 3 nvmeSSD;
       };
-      "jellicent-data-A" = (luksSettings { isSSD = false; }) // {
-        device = self.lib.diskPart 1 sataHDD-A;
-      };
-      "jellicent-data-B" = (luksSettings { isSSD = false; }) // {
-        device = self.lib.diskPart 1 sataHDD-B;
-      };
     };
     supportedFilesystems.btrfs = true;
+    supportedFilesystems.zfs = true;
   };
 
   fileSystems =
@@ -193,6 +226,15 @@ in
       fsType = "vfat";
       options = [ "umask=077" ] ++ lib.optionals allowDiscards [ "discard" ];
     };
+    ${zfsKeysDir} = {
+      device = diskPart 1 keyDrive;
+      fsType = "vfat";
+      options = [ "ro" "umask=077" ];
+      # Note sure we really need that in stage-1, since zpool-goinfre only
+      # hosts data, and not something needed by the system, but it will at
+      # least make sure it's mounted when it's time to open zpool-goinfre.
+      neededForBoot = true;
+    };
     "/var" = jellicentSystemVolume {
       name = "var";
       options = [ "nodev" "nosuid" ];
@@ -210,13 +252,8 @@ in
       options = [ "nodev" "nosuid" ];
     };
     "/stash/goinfre" = {
-      device = "/dev/mapper/jellicent-data-A";
-      fsType = "btrfs";
-      options = [
-        "subvol=goinfre"
-        "nodev"
-        "nosuid"
-      ];
+      device = "zpool-goinfre/root";
+      fsType = "zfs";
     };
   };
 
