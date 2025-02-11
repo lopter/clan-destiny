@@ -10,6 +10,10 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  clan-destiny = {
+    nginx.nixos-proxy-cache.enable = true;
+  };
+
   networking.useDHCP = true;
 
   nixpkgs.hostPlatform = lib.mkForce "x86_64-linux";

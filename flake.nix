@@ -307,11 +307,18 @@
           zoneFromHostname =
             hostname:
             let
-              knownZones = [ "sfo" ];
+              knownZones = [
+                "cdg"
+                "cfr"
+                "sfo"
+              ];
               capturePattern = builtins.concatStringsSep "|" knownZones;
               groups = builtins.match ".+(${capturePattern})(-.+)?$" hostname;
             in
-            if groups == null then null else builtins.elemAt groups 0;
+              if groups == null then
+                builtins.warn "Could not recognize zone in hostname `${hostname}`" null
+              else
+                builtins.elemAt groups 0;
 
           # Get the partition of the given number for the given storage device. Expand
           # to the correct path whether devices are addressed using /dev/disk/by- or

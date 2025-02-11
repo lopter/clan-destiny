@@ -1,5 +1,7 @@
 { config, lib, ... }:
 let
+  inherit (config.lib.clan-destiny) ports;
+
   cfg = nginxCfg.nixos-proxy-cache;
   nginxCfg = config.clan-destiny.nginx;
   nginxUser = config.services.nginx.user;
@@ -35,27 +37,13 @@ in
       type = lib.types.nonEmptyStr;
       description = "Name of the http virtual host for the cache.";
     };
-    resolver.addresses = lib.mkOption {
-      type = lib.types.listOf lib.types.nonEmptyStr;
-      description = "The DNS server to use to resolve cache.nixos.org";
-    };
   };
 
   config = lib.mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = builtins.length cfg.resolver.addresses > 0;
-        message = ''
-          `clan-destiny.nginx.nixos-proxy-cache` requires
-          at least one resolver to be set.
-        '';
-      }
-    ];
-
     clan-destiny.nginx.enable = true;
 
     services.nginx = {
-      resolver.addresses = cfg.resolver.addresses;
+      resolver.addresses = [ "127.0.0.1:${toString ports.unbound}" ];
       appendHttpConfig = ''
         proxy_cache_path ${cfg.storageDir} levels=1:2 keys_zone=${cacheName}:100m max_size=${cfg.maxSize} inactive=${cfg.inactive} use_temp_path=off;
 
@@ -95,6 +83,7 @@ in
         };
       };
     };
+    services.unbound.enable = true;
 
     systemd = {
       services.nginx.serviceConfig.ReadWritePaths = [ cfg.storageDir ];

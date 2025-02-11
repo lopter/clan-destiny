@@ -25,10 +25,7 @@ in
   clan-destiny = {
     acl-watcher.enable = false; # TODO: see why it does not work
     certbot-vault.enable = true;
-    nginx.nixos-proxy-cache = {
-      enable = true;
-      resolver.addresses = [ "127.0.0.1:${toString ports.unbound}" ];
-    };
+    nginx.nixos-proxy-cache.enable = true;
     starrs-gate.enable = true;
     usergroups.createNormalUsers = true;
     vault-server.enable = true;
@@ -39,7 +36,6 @@ in
     gitolite.enable = true;
     mpd.enable = true;
     tailscale.enable = true;
-    unbound.enable = true;
   };
 
   networking.useDHCP = true;

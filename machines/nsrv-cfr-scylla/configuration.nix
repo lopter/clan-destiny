@@ -1,7 +1,4 @@
-{ config, lib, self, ... }:
-let
-  inherit (config.lib.clan-destiny) ports;
-in
+{ lib, ... }:
 {
   boot.kernelModules = [ "nct6775" ];
 
@@ -9,10 +6,7 @@ in
   boot.loader.efi.canTouchEfiVariables = true;
 
   clan-destiny = {
-    nginx.nixos-proxy-cache = {
-      enable = true;
-      resolver.addresses = [ "127.0.0.1:${toString ports.unbound}" ];
-    };
+    nginx.nixos-proxy-cache.enable = true;
   };
 
   hardware.fancontrol.enable = true;
@@ -29,15 +23,10 @@ in
     MAXPWM=hwmon1/pwm2=255
   '';
 
-  networking.useDHCP = true;
-
   # ZFS uses `hostId` to identify to which machine a pool belongs to:
   networking.hostId = "031cfef3";
+  networking.useDHCP = true;
 
   nixpkgs.hostPlatform = lib.mkForce "x86_64-linux";
-
-  services = {
-    unbound.enable = true;
-  };
 
 }
