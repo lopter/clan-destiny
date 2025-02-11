@@ -163,6 +163,7 @@ in
       device = "/dev/vgLady3JaneSystem/lvVar";
       fsType = "ext4";
       options = [
+        "relatime"
         "nodev"
         "nosuid"
       ] ++ lib.optionals allowDiscards [ "discard" ];
@@ -171,6 +172,7 @@ in
       device = "/dev/vgLady3JaneSystem/lvStash";
       fsType = "ext4";
       options = [
+        "relatime"
         "nodev"
         "nosuid"
       ] ++ lib.optionals allowDiscards [ "discard" ];
@@ -188,6 +190,7 @@ in
       device = "/dev/vgLady3JaneSystem/lvTmp";
       fsType = "ext4";
       options = [
+        "strictatime"
         "nodev"
         "nosuid"
       ] ++ lib.optionals allowDiscards [ "discard" ];

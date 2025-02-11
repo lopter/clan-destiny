@@ -166,6 +166,7 @@ in
       device = "/dev/vgAshpoolSystem/lvVar";
       fsType = "ext4";
       options = [
+        "relatime"
         "nodev"
         "nosuid"
       ] ++ lib.optionals allowDiscards [ "discard" ];
@@ -174,6 +175,7 @@ in
       device = "/dev/vgAshpoolSystem/lvStash";
       fsType = "ext4";
       options = [
+        "relatime"
         "nodev"
         "nosuid"
       ] ++ lib.optionals allowDiscards [ "discard" ];
@@ -191,7 +193,7 @@ in
       device = "/dev/vgAshpoolSystem/lvTmp";
       fsType = "ext4";
       options = [
-        "noatime"
+        "relatime"
         "nodev"
         "nosuid"
       ] ++ lib.optionals allowDiscards [ "discard" ];
