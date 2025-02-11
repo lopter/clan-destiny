@@ -134,6 +134,7 @@ in
             doCheck = false;
           }))
           wl-clipboard
+          xkcdpass
           yt-dlp
           zeal
           zotero
