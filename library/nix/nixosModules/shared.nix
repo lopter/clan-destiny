@@ -55,7 +55,7 @@ in
 
     lib.clan-destiny.zoneFromHostname = self.lib.zoneFromHostname;
 
-    powerManagement = lib.mkIf (config.nixpkgs.hostPlatform == "x86_64-linux") {
+    powerManagement = lib.mkIf config.nixpkgs.hostPlatform.isx86 {
       powertop.enable = true;
       cpuFreqGovernor = lib.mkDefault "ondemand";
     };
