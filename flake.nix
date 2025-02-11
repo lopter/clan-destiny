@@ -85,6 +85,7 @@
                 "lady-3jane"
                 "nsrv-sfo-ashpool"
                 "nsrv-cdg-jellicent"
+                "nsrv-cfr-scylla"
                 "rpi-cdg-hass"
               ];
               mkMachine =
