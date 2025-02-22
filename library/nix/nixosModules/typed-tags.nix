@@ -54,6 +54,26 @@ in
     type = lib.types.listOf lib.types.nonEmptyStr;
     default = [ ];
   };
+  options.clan-destiny.typed-tags.addrsByInterface = lib.mkOption {
+    description = ''
+      Known static addresses by interface name. If we start to need that
+      information across hosts we may need to keep it as a true flake lib
+      attribute on `destiny-config`, or figure some other solution.
+    '';
+    type = with lib.types; attrsOf (listOf (submodule {
+      options = {
+        v4 = lib.mkOption {
+          description = "IPv4 address";
+          type = nullOr nonEmptyStr;
+        };
+        v6 = lib.mkOption {
+          description = "IPv6 address";
+          type = nullOr nonEmptyStr;
+        };
+      };
+    }));
+    default = { };
+  };
   options.clan-destiny.typed-tags.interfacesByRole =
     let
       option =
@@ -81,6 +101,20 @@ in
       };
     in
     builtins.listToAttrs (builtins.map mkPair (lib.flatten interfacesLists));
+
+  config.assertions = [
+    {
+      assertion =
+        let
+          knownInterfaces = lib.flatten (builtins.attrValues cfg.interfacesByRole);
+        in
+        builtins.all (lib.flip builtins.elem knownInterfaces) (builtins.attrNames cfg.addrsByInterface);
+      message = ''
+        An interface in `clan-destiny.typed-tags.addrsByInterface` could not be
+        found in `interfacesByRole`.
+      '';
+    }
+  ];
 }
 
 # {

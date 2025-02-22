@@ -1,6 +1,8 @@
-{ config, lib, self, ... }:
+{ config, lib, ... }:
 let
   inherit (config.lib.clan-destiny) ports typed-tags usergroups;
+  inherit (pkgs.stdenv.hostPlatform) system;
+  inherit (self.inputs) destiny-core;
 
   lanInterfaces = [
     "end0"
@@ -9,18 +11,33 @@ let
   hassDir = "/stash/volumes/hass";
 in
 {
-  clan-destiny.typed-tags.interfacesByRole = {
-    lan = lanInterfaces;
+  clan-destiny = {
+    nginx.enable = true;
+    typed-tags.interfacesByRole = {
+      lan = lanInterfaces;
+      tailnet-lopter-github = [ config.services.tailscale.interfaceName ];
+    };
+    usergroups.createNormalUsers = true;
   };
 
-  networking.firewall.interfaces = typed-tags.repeatForInterfaces {
-    allowedTCPPorts = [
-      80
-      443
-    ];
-  } lanInterfaces;
+  networking.firewall.interfaces =
+  let
+    inherit (config.clan-destiny.typed-tags) interfacesByRole;
+  in
+  lib.mergeAttrsList (lib.flatten [
+    (
+      typed-tags.repeatForInterfaces
+        { allowedTCPPorts = [ 443 ]; }
+        interfacesByRole.lan
+    )
+    (
+      typed-tags.repeatForInterfaces
+        { allowedTCPPorts = [ 80 ]; }
+        interfacesByRole.tailnet-lopter-github
+    )
+  ]);
 
-  services.home-assistant = {
+  services.home-assistant = { # some bits are in destiny-config
       enable = true;
       extraComponents = [
         "default_config"
@@ -38,20 +55,18 @@ in
           latitude = 48.5124;
         };
         logger.default = "info";
-        http.server_port = ports.homeAssistant;
+        http = {
+          server_port = ports.homeAssistant;
+          use_x_forwarded_for = true;
+        };
         zha = { };
       };
   };
-  services.nginx = {
-    enable = true;
-    virtualHosts = {
-      "home-assistant-cdg.kalessin.fr" = {
-        locations."/" = {
-          proxyPass = "http://localhost:${toString ports.homeAssistant}";
-        };
-      };
-    };
-  };
+  # Nginx virtual hosts are configured from destiny-config.
+  services.nginx.appendHttpConfig = ''
+    proxy_buffering off;
+  '';
+  services.tailscale.enable = true;
   users = with usergroups.users.hass; {
     groups.hass.gid = lib.mkForce gid;
     users.hass = {
