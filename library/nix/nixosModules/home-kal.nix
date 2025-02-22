@@ -80,6 +80,7 @@ in
           aspell
           aspellDicts.en
           aspellDicts.fr
+          binutils
           direnv
           easytag
           entr
@@ -376,7 +377,7 @@ in
                   definedAliases = [ "nh" ];
                 };
                 "Manpages" = {
-                  urls = [ { template = "https://manpages.ubuntu.com/cgi-bin/search.py?q={searchTerms}"; } ];
+                  urls = [ { template = "https://man.archlinux.org/search?q={searchTerms}"; } ];
                   definedAliases = [ "man" ];
                 };
                 "MDN" = {
