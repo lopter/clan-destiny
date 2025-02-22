@@ -64,6 +64,8 @@
         ];
         # https://docs.clan.lol/getting-started/flake-parts/
         clan = {
+          inherit self;
+
           meta.name = "ClanDestiny";
 
           # Make flake available in modules
@@ -75,8 +77,6 @@
               packages
               ;
           };
-          directory = self;
-
           # inventory.services = { };
 
           machines =
