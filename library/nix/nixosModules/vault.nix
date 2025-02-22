@@ -2,16 +2,21 @@
   self,
   config,
   lib,
+  pkgs,
   ...
 }:
 let
-  inherit (config.nixpkgs.hostPlatform) system;
+  inherit (pkgs.stdenv.hostPlatform) system isx86;
   inherit (config.lib.clan-destiny) ports;
   vaultFQDN = self.inputs.destiny-config.lib.vault.fqdn;
   nixpkgs-unfree' = self.inputs.nixpkgs-unfree.legacyPackages.${system};
-  vault = nixpkgs-unfree'.vault.overrideAttrs (_prev: {
-    doCheck = false;
-  });
+  vault =
+  if isx86 then
+    nixpkgs-unfree'.vault.overrideAttrs (_prev: { doCheck = false; })
+  else
+    lib.info
+      "Using vault-bin instead of compiling vault since ${system} is not x86"
+      nixpkgs-unfree'.vault-bin;
   destiny-core' = self.inputs.destiny-core.packages.${system};
   serverCfg = config.clan-destiny.vault-server;
   clientCfg = config.clan-destiny.vault-client;
@@ -29,6 +34,9 @@ in
     '';
   };
   config = lib.mkMerge [
+    (lib.mkIf (serverCfg.enable || clientCfg.enable) {
+      services.vault.package = vault;
+    })
     (lib.mkIf serverCfg.enable {
       clan.core.vars.generators.clan-destiny-vault = {
         files.tlsCertChain.owner = "vault";
@@ -49,7 +57,6 @@ in
       };
       services.vault = {
         enable = true;
-        package = vault;
         tlsCertFile = vars.files.tlsCertChain.path;
         tlsKeyFile = vars.files.tlsKey.path;
         storageBackend = "file";
@@ -72,7 +79,7 @@ in
       };
     })
     (lib.mkIf clientCfg.enable {
-      clan-destiny.nixpkgs.unfreePredicates = [ "vault" ];
+      clan-destiny.nixpkgs.unfreePredicates = [ "vault" "vault-bin" ];
       environment.variables = {
         VAULT_ADDR =
           if serverCfg.enable then

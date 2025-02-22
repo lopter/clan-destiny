@@ -7,7 +7,7 @@
 }:
 let
   inherit (config.networking) hostName;
-  inherit (config.nixpkgs.hostPlatform) system;
+  inherit (pkgs.stdenv.hostPlatform) system;
   destiny-core' = self.inputs.destiny-core.packages.${system};
 in
 {

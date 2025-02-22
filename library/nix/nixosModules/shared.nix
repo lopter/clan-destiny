@@ -3,6 +3,7 @@
   lib,
   config,
   clan-core,
+  pkgs,
   ...
 }:
 let
@@ -55,7 +56,7 @@ in
 
     lib.clan-destiny.zoneFromHostname = self.lib.zoneFromHostname;
 
-    powerManagement = lib.mkIf config.nixpkgs.hostPlatform.isx86 {
+    powerManagement = lib.mkIf pkgs.stdenv.hostPlatform.isx86 {
       powertop.enable = true;
       cpuFreqGovernor = lib.mkDefault "ondemand";
     };

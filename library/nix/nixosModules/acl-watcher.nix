@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (config.nixpkgs.hostPlatform) system;
+  inherit (pkgs.stdenv.hostPlatform) system;
   destiny-core' = self.inputs.destiny-core.packages.${system};
   description = "Use watchman to enforce permissions, and ACLs, when files are copied to certain folders";
   cfg = config.clan-destiny.acl-watcher;

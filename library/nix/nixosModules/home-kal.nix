@@ -1,6 +1,6 @@
 {
   config,
-  lib,
+  pkgs,
   self,
   ...
 }:
@@ -13,7 +13,7 @@ let
     ;
   inherit (destiny-core.lib) attrsToEnvironmentString;
   inherit (config.lib.clan-destiny) ports usergroups;
-  inherit (config.nixpkgs.hostPlatform) system;
+  inherit (pkgs.stdenv.hostPlatform) system;
 
   user = "kal";
   userAuthorizedSSHKey = config.clan-destiny.typed-tags.knownSshKeys.louisGPGAuthKey;
