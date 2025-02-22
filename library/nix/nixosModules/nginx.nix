@@ -41,6 +41,8 @@ in
 
   config = lib.mkIf cfg.enable {
     clan.core.vars.generators.clan-destiny-nginx = lib.mkIf hasCertbotDomains {
+      files.vaultRoleId.owner = "nginx";
+      files.vaultSecretId.owner = "nginx";
       prompts.vaultRoleId = {
         persist = true;
         description = "The Vault Role ID for certbot-vault";
