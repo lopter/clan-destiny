@@ -4,12 +4,6 @@ let
 
   nvmeSSD = "/dev/disk/by-id/nvme-AirDisk_1TB_SSD_NF2015R000469P110N";
 
-  commonMkfsBtrfsOptions = [
-    "--checksum" "xxhash"
-    "--features" "${lib.concatStringsSep "," [ "block-group-tree" ]}"
-    "--force"
-  ];
-
   # https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)
   # https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance
   #
@@ -32,7 +26,7 @@ let
   mkZfsDisk =
     driveBayNo: deviceId: # driveBayNo is labeled on each drive's tray
     {
-      name = "zpool-goinfre-${driveBayNo}";
+      name = "zpool-storage-${driveBayNo}";
       value = {
         type = "disk";
         device = diskById deviceId;
@@ -40,11 +34,11 @@ let
           type = "gpt";
           partitions = {
             zfs = {
-              label = "jellicent-zpool-goinfre-${driveBayNo}";
+              label = "jellicent-zpool-storage-${driveBayNo}";
               start = "8M";
               content = {
                 type = "zfs";
-                pool = "zpool-goinfre";
+                pool = "jellicent-storage";
               };
             };
           };
@@ -101,7 +95,12 @@ in
                 settings = luksSettings { isSSD = true; };
                 content = {
                   type = "btrfs";
-                  extraArgs = commonMkfsBtrfsOptions;
+                  extraArgs = [
+                    "--metadata" "single"
+                    "--checksum" "xxhash"
+                    "--features" "${lib.concatStringsSep "," [ "block-group-tree" ]}"
+                    "--force"
+                  ];
                   subvolumes = {
                     "root" = {
                       mountpoint = "/";
@@ -145,7 +144,7 @@ in
       };
     } // zfsDevices;
     zpool = {
-      zpool-goinfre = {
+      jellicent-storage = {
         type = "zpool";
         mode = {
           topology = {
@@ -158,8 +157,8 @@ in
                 #
                 # [some assumptions]: https://github.com/nix-community/disko/blob/ff3568858c54bd306e9e1f2886f0f781df307dff/lib/types/zpool.nix#L238
                 members = [
-                  "/dev/disk/by-partlabel/jellicent-zpool-goinfre-1"
-                  "/dev/disk/by-partlabel/jellicent-zpool-goinfre-2"
+                  "/dev/disk/by-partlabel/jellicent-zpool-storage-1"
+                  "/dev/disk/by-partlabel/jellicent-zpool-storage-2"
                 ];
               }
             ];
@@ -173,11 +172,10 @@ in
           "com.sun:auto-snapshot" = "false";
           encryption = "on";
           keyformat = "passphrase";
-          keylocation = "file://${zfsKeysDir}/zpool-goinfre.key";
+          keylocation = "file://${zfsKeysDir}/zpool-jellicent-storage.key";
           # Use legacy since we'll use the fileSystems option to mount the zfs
           # datasets (see note in `boot.zfs.extraPools`):
           mountpoint = "legacy";
-          recordsize = "1M";
           relatime = "on"; # effective when atime=on
           xattr = "sa";
         };
@@ -187,8 +185,14 @@ in
           "feature@raidz_expansion" = "enabled";
         };
         datasets = {
-          root = {
+          goinfre = {
             type = "zfs_fs";
+            options.recordsize = "1M";
+            options."com.sun:auto-snapshot" = "true";
+          };
+          home = {
+            type = "zfs_fs";
+            options.recordsize = "16K";
             options."com.sun:auto-snapshot" = "true";
           };
         };
@@ -230,9 +234,9 @@ in
       device = diskPart 1 keyDrive;
       fsType = "vfat";
       options = [ "ro" "umask=077" ];
-      # Note sure we really need that in stage-1, since zpool-goinfre only
+      # Note sure we really need that in stage-1, since scylla-goinfre only
       # hosts data, and not something needed by the system, but it will at
-      # least make sure it's mounted when it's time to open zpool-goinfre.
+      # least make sure it's mounted when it's time to open scylla-goinfre.
       neededForBoot = true;
     };
     "/var" = jellicentSystemVolume {
@@ -252,7 +256,11 @@ in
       options = [ "nodev" "nosuid" ];
     };
     "/stash/goinfre" = {
-      device = "zpool-goinfre/root";
+      device = "jellicent-storage/goinfre";
+      fsType = "zfs";
+    };
+    "/stash/home" = {
+      device = "jellicent-storage/home";
       fsType = "zfs";
     };
   };
