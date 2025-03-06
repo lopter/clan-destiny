@@ -7,6 +7,7 @@
 let
   inherit (self.inputs)
     catppuccin
+    clan-core
     destiny-core
     destiny-config
     plasma-manager
@@ -89,6 +90,7 @@ in
           gnucash
           grim
           gv # replace with nix-visualize
+          httpie
           hunspell
           hunspellDicts.en-us
           hunspellDicts.fr-any
@@ -131,6 +133,7 @@ in
           tldr
           ungoogled-chromium
           universal-ctags
+          unoconv
           (vault.overrideAttrs (_prev: {
             doCheck = false;
           }))
@@ -142,6 +145,9 @@ in
         ]
         ++ (with plasma-manager.packages.${system}; [
           rc2nix
+        ])
+        ++ (with clan-core.packages.${system}; [
+            clan-cli
         ]);
 
       nixpkgs.config = nixpkgsCfg;
@@ -1297,6 +1303,10 @@ in
             firefox-dev() {
               mkdir -p "$MY_BUILD/firefox"
               firefox --new-instance --devtools --profile "$MY_BUILD/firefox"
+            }
+
+            nix-prefetch-github() {
+              command nix-prefetch-github --no-deep-clone --nix "@"
             }
 
             tree() {
