@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ config, lib, pkgs, self, ... }:
 let
   inherit (config.lib.clan-destiny) ports typed-tags usergroups;
   inherit (pkgs.stdenv.hostPlatform) system;
@@ -9,6 +9,8 @@ let
   ];
 
   hassDir = "/stash/volumes/hass";
+
+  hass-pam-authenticate = destiny-core.packages.${system}.hass-pam-authenticate;
 in
 {
   clan-destiny = {
@@ -39,6 +41,9 @@ in
 
   services.home-assistant = { # some bits are in destiny-config
       enable = true;
+      extraPackages =  [
+        hass-pam-authenticate
+      ];
       extraComponents = [
         "default_config"
         "zha"
@@ -51,8 +56,19 @@ in
           unit_system = "metric";
           time_zone = "Europe/Paris";
           name = "CDG";
-          longitude = 2.2107;
-          latitude = 48.5124;
+          longitude = 2.350699;
+          latitude = 48.852737;
+          auth_providers = [
+            {
+              type = "homeassistant";
+            }
+            {
+              type = "command_line";
+              command = "${hass-pam-authenticate}/bin/hass-pam-authenticate";
+              args = [ "client" ];
+              meta = true;
+            }
+          ];
         };
         logger.default = "info";
         http = {
@@ -67,6 +83,7 @@ in
     proxy_buffering off;
   '';
   services.tailscale.enable = true;
+
   users = with usergroups.users.hass; {
     groups.hass.gid = lib.mkForce gid;
     users.hass = {

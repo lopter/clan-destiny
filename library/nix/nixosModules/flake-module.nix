@@ -8,6 +8,7 @@
     certbot-vault-agent = ./certbot-vault-agent.nix;
     containers = ./containers.nix;
     fonts = ./fonts.nix;
+    hass-pam-authenticate = ./hass-pam-authenticate.nix;
     home-kal = ./home-kal.nix;
     kde = ./kde.nix;
     lanzaboote = ./lanzaboote.nix;

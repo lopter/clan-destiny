@@ -28,6 +28,7 @@ in
     self.nixosModules.certbot-vault
     self.nixosModules.certbot-vault-agent
     self.nixosModules.containers
+    self.nixosModules.hass-pam-authenticate
     self.nixosModules.lanzaboote
     self.nixosModules.linux
     self.nixosModules.nginx

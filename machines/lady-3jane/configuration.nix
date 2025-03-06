@@ -1,7 +1,6 @@
 {
   lib,
   self,
-  clan-core,
   ...
 }:
 let
@@ -9,8 +8,6 @@ let
 in
 {
   imports = [
-    clan-core.clanModules.user-password
-
     nixos-hardware.nixosModules.lenovo-thinkpad-t480s
 
     self.nixosModules.home-kal
@@ -26,7 +23,6 @@ in
     usergroups.createNormalUsers = true;
     vault-client.enable = true;
   };
-  clan.user-password.user = "kal";
 
   services = {
     tailscale.enable = true;
