@@ -329,10 +329,19 @@ in
               serviceConfig = {
                 Type = "oneshot";
                 ExecStart = pkgs.writeShellScript "certbot-${name}-renew" ''
-                  ${certbotWrapper}/bin/certbot-${name} renew \
-                    -d ${lib.concatStringsSep " \\\n  -d " (map lib.escapeShellArg domains)}
+                  status=0
 
-                  exit $?
+                  # Certbot's renew command only supports renewing:
+                  #
+                  # 1. all expiring certificates, which would not work since
+                  #    different domains need different arguments (corresponding
+                  #    to one of our certbot instances);
+                  # 2. or, renewing one certificate at a time:
+                  for domain in ${lib.concatStringsSep " " (map lib.escapeShellArg domains)} ; do
+                    ${certbotWrapper}/bin/certbot-${name} renew --cert-name "$domain" || status=1
+                  done
+
+                  exit "$status"
                 '';
                 User = "certbot";
                 Group = "certbot";
