@@ -100,12 +100,14 @@ in
           kdePackages.krdc
           lazygit
           libreoffice-qt
-          # Until @teto merges the correct stuff:
-          # See https://discourse.nixos.org/t/plugins-for-neovim-are-not-installed-for-neovim-qt/29712/10
-          (neovim-qt.override { neovim = config.programs.neovim.finalPackage; })
+          man-pages
+          man-pages-posix
           mercurial
           minicom
           mindforger
+          # Until @teto merges the correct stuff:
+          # See https://discourse.nixos.org/t/plugins-for-neovim-are-not-installed-for-neovim-qt/29712/10
+          (neovim-qt.override { neovim = config.programs.neovim.finalPackage; })
           ncmpcpp
           nixd
           nix-prefetch-github
