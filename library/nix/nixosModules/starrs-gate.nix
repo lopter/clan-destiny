@@ -83,6 +83,7 @@ in
 
   config = lib.mkIf cfg.enable {
     clan.core.vars.generators.clan-destiny-starrs-gate = {
+      files.userPassword.deploy = false;
       files.userPasswordHash = { };
       files.vaultRoleId.owner = "xrdp";
       files.vaultRoleId.group = "xrdp";
