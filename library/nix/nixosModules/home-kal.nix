@@ -309,7 +309,23 @@ in
               };
               containersForce = true;
               search.default = "Kagi";
-              search.engines = {
+              search.engines =
+              let
+                searchMusicBrainz = { type, alias }: {
+                  urls = [
+                    {
+                      template = "https://musicbrainz.org/search";
+                      params = [
+                        (lib.nameValuePair "type" type)
+                        (lib.nameValuePair "method" "indexed")
+                        (lib.nameValuePair "query" "{searchTerms}")
+                      ];
+                    }
+                  ];
+                  definedAliases = [ alias ];
+                };
+              in
+              {
                 Amazon = {
                   urls = [ { template = "https://www.amazon.com/s?k={searchTerms}"; } ];
                   definedAliases = [ "az" ];
@@ -393,6 +409,8 @@ in
                   icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
                   definedAliases = [ "mdn" ];
                 };
+                "MusicBrainz Artists" = searchMusicBrainz { type = "artist"; alias = "mba"; };
+                "MusicBrainz Release (Album)" = searchMusicBrainz { type = "release"; alias = "mbr"; };
                 "NixOS Discourse" = {
                   urls = [ { template = "https://discourse.nixos.org/search?q={searchTerms}"; } ];
                   icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
@@ -408,14 +426,8 @@ in
                     {
                       template = "https://search.nixos.org/packages";
                       params = [
-                        {
-                          name = "type";
-                          value = "packages";
-                        }
-                        {
-                          name = "query";
-                          value = "{searchTerms}";
-                        }
+                        (lib.nameValuePair "type" "packages")
+                        (lib.nameValuePair "query" "{searchTerms}")
                       ];
                     }
                   ];
