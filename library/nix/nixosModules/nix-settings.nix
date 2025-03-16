@@ -2,7 +2,7 @@
 {
   nix = {
     gc = {
-      automatic = true;
+      automatic = lib.mkDefault true;
       options = "--delete-older-than 31d";
       dates = "03:15";
     };

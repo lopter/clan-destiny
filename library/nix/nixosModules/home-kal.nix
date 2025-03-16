@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   self,
   ...
@@ -110,6 +111,7 @@ in
           (neovim-qt.override { neovim = config.programs.neovim.finalPackage; })
           ncmpcpp
           nixd
+          nix-output-monitor
           nix-prefetch-github
           nix-tree
           okteta
@@ -352,6 +354,11 @@ in
                     "pc"
                   ];
                   iconUpdateURL = "https://click.palletsprojects.com/en/latest/_static/click-icon.png";
+                };
+                "CTAN" = {
+                  urls = [ { template = "https://ctan.org/search?phrase={searchTerms}"; } ];
+                  definedAliases = [ "ctan" ];
+                  iconUpdateURL = "http://www.ctan.org/images/favicon.ico";
                 };
                 "DuckDuckGo" = {
                   urls = [ { template = "https://duckduckgo.com/?q={searchTerms}"; } ];
@@ -1409,6 +1416,8 @@ in
     "discord"
     "vault"
   ];
+
+  nix.gc.automatic = lib.mkForce false;
 
   security.sudo.extraConfig = ''
     ${user}   ALL=(ALL) ALL
