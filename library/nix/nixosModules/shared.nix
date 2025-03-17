@@ -44,6 +44,19 @@ in
   ];
 
   config = {
+    assertions = [
+      {
+        assertion =
+        let
+          usesZFS = builtins.any (e: e.fsType == "zfs") (builtins.attrValues config.fileSystems);
+          # The hostId from the installer leaked into jellicent, let's not have that again in the future:
+          usesDefaultHostId = config.networking.hostId != "8425e349" && config.networking.hostName != "nsrv-cdg-jellicent";
+        in
+            !usesZFS || !usesDefaultHostId;
+        message = "config.networking.hostId must be set when ZFS is in use";
+      }
+    ];
+
     # Set this for clan commands use ssh i.e. `clan machines update`
     # If you change the hostname, you need to update this line to root@<new-hostname>
     # This only works however if you have avahi running on your admin machine else use IP
