@@ -12,6 +12,7 @@
       curl
       fd
       file
+      findutils # xargs
       git
       gptfdisk
       htop
