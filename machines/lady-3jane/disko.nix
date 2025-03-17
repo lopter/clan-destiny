@@ -14,7 +14,7 @@ let
     # Do that until we can manually add a passphrase or do secure boot with
     # a fingerprint:
     keyFileSize = 4096;
-    keyFile = "/dev/disk/by-id/usb-USB_SanDisk_3.2Gen1_03023411042524070542-0:0";
+    keyFile = "/dev/disk/by-id/usb-SanDisk_Cruzer_Fit_4C530001090616105200-0:0";
   };
 in
 {
