@@ -140,11 +140,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1741329719,
-        "narHash": "sha256-PP+b6W/qqvxkYPYpyWBaUmpeQA94nRRoY8SLqyOr/hs=",
+        "lastModified": 1742172159,
+        "narHash": "sha256-8HT7QhWK6T6KZhWkklz7iqpOYhLjBjlvz3H51VGNF9I=",
         "ref": "main",
-        "rev": "b287ef7ffd8e901a8d652547589e2ea24064a7f1",
-        "revCount": 84,
+        "rev": "51769d0b51d1a252008ea093e8ff900074800380",
+        "revCount": 85,
         "type": "git",
         "url": "ssh://gitolite@gitolite.kalessin.fr/louis/destiny-config"
       },
