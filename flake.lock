@@ -171,11 +171,11 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1742155015,
-        "narHash": "sha256-qPtbTKa502u4ifcN3FQ7uSrspNKap2L86urkqGYkg/0=",
+        "lastModified": 1742352809,
+        "narHash": "sha256-HbwRqpfxIkXu9K5H9yasFIJByTSjhVfVbk+PdIzXGik=",
         "ref": "main",
-        "rev": "c64f00093a50599a376c49619b0ccab363519641",
-        "revCount": 63,
+        "rev": "0a29a8c2f2caaaac52d22758730c1046c1e77b1d",
+        "revCount": 64,
         "type": "git",
         "url": "ssh://gitolite@gitolite.kalessin.fr/destiny-core"
       },
