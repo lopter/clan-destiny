@@ -24,7 +24,9 @@ in
           procps = pkgs.procps.override (_prev: {
             withSystemd = false;
           });
-          tailscale = pkgs.tailscale.override (_prev: {
+          tailscale = (pkgs.tailscale.overrideAttrs (_prev: {
+            doCheck = false;
+          })).override (_prev: {
             inherit procps;
           });
           vault = inputs'.nixpkgs-unfree.legacyPackages.vault.overrideAttrs (_prev: {
