@@ -41,7 +41,7 @@ in
 
   services.home-assistant = { # some bits are in destiny-config
       enable = true;
-      extraPackages =  [
+      extraPackages = python3Packages: [
         hass-pam-authenticate
       ];
       extraComponents = [
