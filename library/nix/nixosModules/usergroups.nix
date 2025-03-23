@@ -1,12 +1,10 @@
 { config, lib, pkgs, self, ... }:
 let
   cfg = config.clan-destiny.usergroups;
-  cfg' = self.inputs.destiny-config.lib.usergroups or { };
+  cfg' = self.inputs.destiny-config.lib.usergroups;
   vars = config.clan.core.vars.generators.clan-destiny-user-passwords;
 
-  isNormalUser = userName: userCfg: userCfg.isNormalUser or false;
-  normalUsers = lib.filterAttrs isNormalUser cfg'.users;
-  userNames = builtins.attrNames normalUsers;
+  userNames = builtins.attrNames cfg'.familyUsers;
 in
 {
   # This is option is for use by our `destiny-config` input.

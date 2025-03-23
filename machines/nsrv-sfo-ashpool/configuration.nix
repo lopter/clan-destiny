@@ -1,7 +1,6 @@
-{ config, lib, self, ... }:
+{ config, lib, ... }:
 let
   inherit (config.lib.clan-destiny) ports usergroups;
-  inherit (config.clan-destiny) typed-tags;
 
   hassDir = "/stash/volumes/hass";
   hassUser = with usergroups.users.hass; {
@@ -14,7 +13,6 @@ let
       isSystemUser = true;
     };
   };
-
 in
 {
   boot.loader.systemd-boot.enable = true;
@@ -27,6 +25,12 @@ in
     certbot-vault.enable = true;
     nginx.nixos-proxy-cache.enable = true;
     starrs-gate.enable = true;
+    syncthing = {
+      createUserAccounts = [
+        "kal"
+      ];
+      containerHostnameSuffix = "ashpool";
+    };
     usergroups.createNormalUsers = true;
     vault-server.enable = true;
     vault-client.enable = true;
@@ -42,14 +46,12 @@ in
 
   users = hassUser;
 
-  containers.home-assistant =
-    let
-      macvlans = typed-tags.interfacesByRole.lan;
-    in
-    {
-      inherit macvlans;
-      ephemeral = true;
-      autoStart = true;
+  containers =
+  let
+    inherit (config.lib.clan-destiny) mkContainer;
+  in
+  {
+    home-assistant = mkContainer {
       bindMounts = {
         ${hassDir} = {
           hostPath = hassDir;
@@ -69,12 +71,6 @@ in
       config =
         { ... }:
         {
-          imports = [
-            self.nixosModules.containers
-          ];
-
-          clan-destiny.containers = { inherit macvlans; };
-
           services.home-assistant = {
             enable = true;
             extraComponents = [
@@ -104,4 +100,5 @@ in
           users = hassUser;
         };
     };
+  };
 }

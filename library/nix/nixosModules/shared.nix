@@ -7,10 +7,11 @@
   ...
 }:
 let
-  inherit (self.inputs) home-manager;
+  inherit (self.inputs) destiny-config home-manager;
+  inherit (config.clan-destiny.typed-tags) knownHosts interfacesByRole;
 
   hostName = config.networking.hostName;
-  hostDetails = config.clan-destiny.typed-tags.knownHosts.${hostName};
+  hostDetails = knownHosts.${hostName};
 in
 {
   imports = [
@@ -27,7 +28,6 @@ in
     self.nixosModules.base-pkgs
     self.nixosModules.certbot-vault
     self.nixosModules.certbot-vault-agent
-    self.nixosModules.containers
     self.nixosModules.hass-pam-authenticate
     self.nixosModules.lanzaboote
     self.nixosModules.linux
@@ -38,6 +38,7 @@ in
     self.nixosModules.postfix-relay
     self.nixosModules.ssh
     self.nixosModules.starrs-gate
+    self.nixosModules.syncthing
     self.nixosModules.typed-tags
     self.nixosModules.usergroups
     self.nixosModules.vault
@@ -64,7 +65,33 @@ in
 
     i18n.defaultLocale = "en_US.UTF-8";
 
-    lib.clan-destiny.zoneFromHostname = self.lib.zoneFromHostname;
+    lib.clan-destiny = {
+      inherit (self.lib) zoneFromHostname;
+
+      mkContainer =
+      let
+        macvlans = interfacesByRole.lan;
+        defaultOptions = {
+          inherit macvlans;
+          ephemeral = true;
+          autoStart = true;
+          specialArgs = { inherit self; };
+        };
+      in
+        containerConfig: defaultOptions // containerConfig // {
+          config =
+            { ... }:
+            {
+              imports = [
+                containerConfig.config
+                destiny-config.nixosModules.usergroups
+                self.nixosModules.containers
+                self.nixosModules.base-pkgs
+              ];
+              clan-destiny.containers = { inherit macvlans; };
+            };
+        };
+    };
 
     powerManagement = lib.mkIf pkgs.stdenv.hostPlatform.isx86 {
       powertop.enable = true;

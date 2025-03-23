@@ -1,5 +1,6 @@
 { lib, ... }:
 {
+  flake.lib.mkSyncthingInitIgnoreService = (import ./mkSyncthingInitIgnoreService.nix) lib;
   flake.lib.zoneFromHostname = import ./zoneFromHostname.nix;
   # Get the partition of the given number for the given storage device. Expand
   # to the correct path whether devices are addressed using /dev/disk/by- or

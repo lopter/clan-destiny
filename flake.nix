@@ -189,6 +189,35 @@
         perSystem =
           { pkgs, inputs', system, ... }:
           {
+            packages.nginxWithPamSupport =
+            let
+              modulesArgsOverride = nginxMainline: nginxMainline.override(prev: {
+                modules = with pkgs.nginxModules; [ brotli dav moreheaders pam ];
+                withDebug = true;
+              });
+              setBuildFlagsAttrsOverride = nginxMainline: nginxMainline.overrideAttrs(prev: {
+                CFLAGS = lib.concatStringsSep " " [
+                  "-O3"
+                  "-pipe"
+                  "-fno-plt"
+                  "-fexceptions"
+                  "-Wp,-D_FORTIFY_SOURCE=3"
+                  "-Wall"
+                  "-Wextra"
+                  "-Wstrict-prototypes"
+                  "-Werror=format-security"
+                  "-fstack-clash-protection"
+                  "-fcf-protection"
+                  "-fno-omit-frame-pointer"
+                  "-mno-omit-leaf-frame-pointer"
+                ];
+              });
+            in
+              lib.pipe pkgs.nginxMainline [
+                modulesArgsOverride
+                setBuildFlagsAttrsOverride
+              ];
+
             devShells.default = pkgs.mkShell {
               packages =
                 (with inputs'.clan-core.packages; [

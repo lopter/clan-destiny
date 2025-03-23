@@ -21,6 +21,7 @@
     shared = ./shared.nix;
     ssh = ./ssh.nix;
     starrs-gate = ./starrs-gate.nix;
+    syncthing = ./syncthing.nix;
     typed-tags = ./typed-tags.nix;
     unbound = ./unbound.nix;
     usergroups = ./usergroups.nix;

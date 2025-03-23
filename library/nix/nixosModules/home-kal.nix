@@ -29,6 +29,16 @@ in
     self.nixosModules.fonts
   ];
 
+  clan-destiny = {
+    nixpkgs.unfreePredicates = [
+      "discord"
+      "vault"
+    ];
+    syncthing.createUserAccounts = [
+      user
+    ];
+  };
+
   # If manpages are installed then build the index
   # so that `man -k` and `apropos` work:
   documentation.man.generateCaches = config.documentation.man.enable;
@@ -39,6 +49,11 @@ in
   ];
 
   home-manager.users."${user}" =
+  let
+    syncthingVars = config.clan.core.vars.generators.clan-destiny-syncthing-accounts;
+    syncthingCert = syncthingVars.files."${user}-cert".path;
+    syncthingKey = syncthingVars.files."${user}-key".path;
+  in
     {
       config,
       lib,
@@ -1403,6 +1418,32 @@ in
         pinentryPackage = pkgs.pinentry-qt;
       };
 
+      services.syncthing =
+      {
+        enable = true;
+        cert = syncthingCert;
+        key = syncthingKey;
+        overrideDevices = true;
+        overrideFolders = true;
+        settings = {
+          defaults.ignores.lines = [
+            "#include ignore-patterns.txt"
+          ];
+          devices.syncthing-kal-sfo-ashpool.id = "NSDD5RA-GNXQEOX-ISYW2ZE-TLUY7M7-HJ676HN-H3B6JGQ-TS5B4ZF-HZLJMQH";
+          devices.wks-sfo-wintermute.id = "SUACJFD-NSB5R67-GSTXENV-G5AQNKD-WPGHO2I-GPYRGLZ-FT4P46C-MYFYOAR";
+          folders.syncthing = {
+            path = "/stash/home/kal/syncthing";
+            label = "syncthing";
+            devices = [
+              "syncthing-kal-sfo-ashpool"
+              "wks-sfo-wintermute"
+            ];
+            autoNormalize = false;
+            caseSensitiveFS = true;
+          };
+        };
+      };
+
       xdg.userDirs = {
         enable = true;
 
@@ -1416,11 +1457,6 @@ in
       };
     };
 
-  clan-destiny.nixpkgs.unfreePredicates = [
-    "discord"
-    "vault"
-  ];
-
   nix.gc.automatic = lib.mkForce false;
 
   security.sudo.extraConfig = ''
@@ -1432,7 +1468,11 @@ in
     "d /tmp/${user} 0700 ${user} ${user} - -"
     "d /tmp/${user}/tmp 0700 ${user} ${user} aA:26w -"
     "d /tmp/${user}/build 0700 ${user} ${user} - -"
+    "d /stash/home/${user}/syncthing 0700 ${user} ${user} - -"
+    "f /stash/home/${user}/syncthing/.stignore 0600 ${user} ${user} - #include ignore-patterns.txt\\x0a"
   ];
+
+  systemd.user.services."syncthing-init-ignores-kal" = self.lib.mkSyncthingInitIgnoreService pkgs "kal";
 
   users.users."${user}" = {
     openssh.authorizedKeys.keys = [
