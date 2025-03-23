@@ -140,11 +140,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1742172159,
-        "narHash": "sha256-8HT7QhWK6T6KZhWkklz7iqpOYhLjBjlvz3H51VGNF9I=",
+        "lastModified": 1742768619,
+        "narHash": "sha256-HzGpogRzXQs5qgmFSQt2CRs31wU7jaKwK2Oq98zLGOA=",
         "ref": "main",
-        "rev": "51769d0b51d1a252008ea093e8ff900074800380",
-        "revCount": 85,
+        "rev": "0a677441a20988c0b2f767fe4aa34e36296235d5",
+        "revCount": 88,
         "type": "git",
         "url": "ssh://gitolite@gitolite.kalessin.fr/louis/destiny-config"
       },
@@ -171,11 +171,11 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1742352809,
-        "narHash": "sha256-HbwRqpfxIkXu9K5H9yasFIJByTSjhVfVbk+PdIzXGik=",
+        "lastModified": 1742768493,
+        "narHash": "sha256-hTfjCZ8mnaIzHQOpgH1ZXvAHi+dtpdk/TReMqIOQyYE=",
         "ref": "main",
-        "rev": "0a29a8c2f2caaaac52d22758730c1046c1e77b1d",
-        "revCount": 64,
+        "rev": "711cd70fba6ef76c1f787682249ab040405e1bcb",
+        "revCount": 68,
         "type": "git",
         "url": "ssh://gitolite@gitolite.kalessin.fr/destiny-core"
       },
