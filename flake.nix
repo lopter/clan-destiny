@@ -61,6 +61,7 @@
         imports = [
           inputs.clan-core.flakeModules.default
 
+          ./library/nix/flake-module.nix
           ./library/nix/nixosModules/flake-module.nix
           ./library/nix/packages/fly-io-pop/flake-module.nix
         ];
@@ -303,37 +304,6 @@
               '';
             };
           };
-
-        flake.lib = {
-          # How could you actually make this a vars?
-          zoneFromHostname =
-            hostname:
-            let
-              knownZones = [
-                "cdg"
-                "cfr"
-                "sfo"
-              ];
-              capturePattern = builtins.concatStringsSep "|" knownZones;
-              groups = builtins.match ".+(${capturePattern})(-.+)?$" hostname;
-            in
-              if groups == null then
-                builtins.warn "Could not recognize zone in hostname `${hostname}`" null
-              else
-                builtins.elemAt groups 0;
-
-          # Get the partition of the given number for the given storage device. Expand
-          # to the correct path whether devices are addressed using /dev/disk/by- or
-          # using something of the like of /dev/sda:
-          diskPart =
-            number: diskName:
-            if builtins.isList (builtins.match ".+by-(id|uuid).+" diskName) then
-              "${diskName}-part${toString number}"
-            else
-              "${diskName}${toString number}";
-
-          diskById = id: "/dev/disk/by-id/${id}";
-        };
       }
     );
 }
