@@ -7,6 +7,7 @@
       alacritty.terminfo
       attr
       bcc
+      bpftrace
       bridge-utils
       btop
       curl
