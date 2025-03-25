@@ -29,6 +29,10 @@ in
     self.nixosModules.fonts
   ];
 
+  # If manpages are installed then build the index
+  # so that `man -k` and `apropos` work:
+  documentation.man.generateCaches = config.documentation.man.enable;
+
   home-manager.sharedModules = [
     catppuccin.homeManagerModules.catppuccin
     plasma-manager.homeManagerModules.plasma-manager
@@ -41,28 +45,6 @@ in
       pkgs,
       ...
     }:
-    let
-      vim-desert256 = pkgs.vimUtils.buildVimPlugin {
-        pname = "vim-desert256";
-        version = "2010-10-17";
-        src = pkgs.fetchFromGitHub {
-          owner = "vim-scripts";
-          repo = "desert256.vim";
-          rev = "28218ba05f77003e720ede1e74efaa17cc3e9051";
-          hash = "sha256-QDen762FPk+ODrzpLZbGBFZoolk7UFSPxkjzy0EvrcU=";
-        };
-      };
-      vim-lucius = pkgs.vimUtils.buildVimPlugin {
-        pname = "vim-lucius";
-        version = "2020-06-18";
-        src = pkgs.fetchFromGitHub {
-          owner = "jonathanfilip";
-          repo = "vim-lucius";
-          rev = "b5dea9864ae64714da4635993ad2fc2703e7c832";
-          hash = "sha256-FlSqTEQyYm17vR7sNw5hlq2Hpz1cWYr23ARsVNibUBM=";
-        };
-      };
-    in
     {
       # nix.extraConfig = ''
       #   experimental-features = nix-command flakes
@@ -311,7 +293,7 @@ in
               };
               containersForce = true;
               search.default = "Kagi";
-              search.engines =
+              search.engines = # {{{
               let
                 searchMusicBrainz = { type, alias }: {
                   urls = [
@@ -517,7 +499,7 @@ in
                   icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
                   definedAliases = [ "yt" ];
                 };
-              };
+              }; # }}}
               search.force = true;
             };
           };
@@ -564,8 +546,31 @@ in
           ytdl_hook.ytdl_path = "${pkgs.yt-dlp}/bin/yt-dlp";
         };
       };
-      programs.neovim = {
-        # {{{
+
+      programs.neovim = # {{{
+      let
+        vim-desert256 = pkgs.vimUtils.buildVimPlugin {
+          pname = "vim-desert256";
+          version = "2010-10-17";
+          src = pkgs.fetchFromGitHub {
+            owner = "vim-scripts";
+            repo = "desert256.vim";
+            rev = "28218ba05f77003e720ede1e74efaa17cc3e9051";
+            hash = "sha256-QDen762FPk+ODrzpLZbGBFZoolk7UFSPxkjzy0EvrcU=";
+          };
+        };
+        vim-lucius = pkgs.vimUtils.buildVimPlugin {
+          pname = "vim-lucius";
+          version = "2020-06-18";
+          src = pkgs.fetchFromGitHub {
+            owner = "jonathanfilip";
+            repo = "vim-lucius";
+            rev = "b5dea9864ae64714da4635993ad2fc2703e7c832";
+            hash = "sha256-FlSqTEQyYm17vR7sNw5hlq2Hpz1cWYr23ARsVNibUBM=";
+          };
+        };
+      in
+      {
         enable = true;
         coc = {
           enable = true;
@@ -772,6 +777,7 @@ in
           map <silent> <Leader>l :call CopyGithubPermalink()<CR>
           map <silent> <Leader>h :set invhlsearch<CR>
           map <silent> <Leader>w :set invwrap<CR>
+          map <silent> <Leader>c :set invcursorcolumn<CR>
           vmap <silent> <Leader>s :'<,'>!sort<CR>
           nnoremap <silent> <C-j> :tabnext<CR>
           nnoremap <silent> <C-k> :tabprevious<CR>
@@ -786,7 +792,7 @@ in
           }
         '';
       }; # }}}
-      programs.plasma = {
+      programs.plasma = { # {{{
         enable = true;
 
         #
@@ -1170,7 +1176,7 @@ in
             "Greeter/Wallpaper/org.kde.potd/General".Provider = "bing";
           };
         };
-      };
+      }; # }}}
 
       programs.ssh = {
         enable = true;
@@ -1195,7 +1201,7 @@ in
         '';
       };
 
-      programs.zsh =
+      programs.zsh = # {{{
         let
           locale = "en_US.UTF-8";
           zshenv = {
@@ -1371,7 +1377,7 @@ in
               command mosh -p ${toString ports.mosh.from}:${toString ports.mosh.to} "$@"
             }
           '';
-        };
+        }; # }}}
 
       # This value determines the Home Manager release that your
       # configuration is compatible with. This helps avoid breakage
@@ -1387,8 +1393,6 @@ in
       # qt.kde.settings.kdesurc = {
       #   "super-user-command"."super-user-command" = "sudo";
       # };
-
-      services.lorri.enable = false;
 
       services.gpg-agent = {
         enable = true;
