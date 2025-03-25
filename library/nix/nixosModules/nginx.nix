@@ -2,6 +2,8 @@
 # module by adding a vault-agent sidecar to pull TLS certificates from Vault.
 { config, lib, ... }:
 let
+  inherit (config.lib.clan-destiny) ports;
+
   cfg = config.clan-destiny.nginx;
   vars = config.clan.core.vars.generators.clan-destiny-nginx;
 
@@ -36,6 +38,13 @@ in
         - key.pem;
         - chain.pem.
       '';
+    };
+    resolver.enable = lib.mkOption {
+      description = ''
+        Start a local unbound instance and configure Nginx to use it.
+      '';
+      default = false;
+      type = lib.types.bool;
     };
   };
 
@@ -110,6 +119,9 @@ in
 
     services.nginx = {
       enable = true;
+      resolver.addresses = lib.mkIf cfg.resolver.enable [
+        "127.0.0.1:${toString ports.unbound}"
+      ];
       recommendedTlsSettings = true;
       recommendedOptimisation = true;
       recommendedGzipSettings = true;
@@ -117,5 +129,7 @@ in
       proxyTimeout = proxyTimeout;
       sslDhparam = config.security.dhparams.params.nginx.path;
     };
+
+    services.unbound.enable = cfg.resolver.enable;
   };
 }

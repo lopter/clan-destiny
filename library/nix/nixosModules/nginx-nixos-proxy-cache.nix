@@ -1,7 +1,5 @@
 { config, lib, ... }:
 let
-  inherit (config.lib.clan-destiny) ports;
-
   cfg = nginxCfg.nixos-proxy-cache;
   nginxCfg = config.clan-destiny.nginx;
   nginxUser = config.services.nginx.user;
@@ -41,9 +39,9 @@ in
 
   config = lib.mkIf cfg.enable {
     clan-destiny.nginx.enable = true;
+    clan-destiny.nginx.resolver.enable = true;
 
     services.nginx = {
-      resolver.addresses = [ "127.0.0.1:${toString ports.unbound}" ];
       appendHttpConfig = ''
         proxy_cache_path ${cfg.storageDir} levels=1:2 keys_zone=${cacheName}:100m max_size=${cfg.maxSize} inactive=${cfg.inactive} use_temp_path=off;
 
@@ -83,7 +81,6 @@ in
         };
       };
     };
-    services.unbound.enable = true;
 
     systemd = {
       services.nginx.serviceConfig.ReadWritePaths = [ cfg.storageDir ];
