@@ -32,10 +32,12 @@ in
           vault = inputs'.nixpkgs-unfree.legacyPackages.vault.overrideAttrs (_prev: {
             doCheck = false;
           });
+          nginx = pkgs.nginxMainline;
           basePkgs =
             [
               procps
               tailscale
+              nginx
               util-linux
               vault
             ]
@@ -85,7 +87,6 @@ in
               unbound
               vis
 
-              nginx
               sops-install-secrets
             ]);
           shellLayer = {
@@ -141,7 +142,7 @@ in
                       availability.restart = "exit_on_failure";
                     };
                     nginx = {
-                      command = "runas nginx ${pkgs.nginx}/bin/nginx -c ${nginxConfig}";
+                      command = "runas nginx ${nginx}/bin/nginx -c ${nginxConfig}";
                       namespace = "nginx";
                       depends_on =
                         {
@@ -383,8 +384,8 @@ in
                   # Load mime types and configure maximum size of the types hash tables.
                   include ${pkgs.mailcap}/etc/nginx/mime.types;
                   types_hash_max_size 2688;
-                  include ${pkgs.nginx}/conf/fastcgi.conf;
-                  include ${pkgs.nginx}/conf/uwsgi_params;
+                  include ${nginx}/conf/fastcgi.conf;
+                  include ${nginx}/conf/uwsgi_params;
                   default_type application/octet-stream;
                   log_subrequest on;
                   sendfile on;
@@ -672,7 +673,7 @@ in
                   '')
 
                   (pkgs.writeShellScriptBin "test-nginx-config" ''
-                    exec ${pkgs.nginx}/bin/nginx -t -c ${nginxConfig}
+                    exec ${nginx}/bin/nginx -t -c ${nginxConfig}
                   '')
 
                   rootAuthorizedSshKey
