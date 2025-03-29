@@ -257,11 +257,15 @@
 
                   (writeShellScriptBin "pop-console" ''
                     set -e
-                    machines="$(fly-pop machines list -j | jq -r '.[]["id"]')"
-                    printf -- "--> Found %d machines:\n%s\n" "$(echo "$machines" | wc -l)" "$machines"
-                    target="$(echo "$machines" | shuf -n 1)"
-                    printf -- "--> Connecting to %s…\n" "$target"
-                    exec fly-pop console --machine "$target"
+                    if [ $# -eq 1 ] ; then
+                      MACHINE_ID="$1"
+                    else
+                      machines="$(fly-pop machines list -j | jq -r '.[]["id"]')"
+                      printf -- "--> Found %d machines:\n%s\n" "$(echo "$machines" | wc -l)" "$machines"
+                      MACHINE_ID="$(echo "$machines" | shuf -n 1)"
+                    fi
+                    printf -- "--> Connecting to %s…\n" "$MACHINE_ID"
+                    exec fly-pop console --machine "$MACHINE_ID"
                   '')
 
                   (writeShellScriptBin "pop-sops" ''
