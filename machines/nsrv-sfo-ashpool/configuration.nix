@@ -26,7 +26,7 @@ in
     nginx.nixos-proxy-cache.enable = true;
     starrs-gate.enable = true;
     syncthing = {
-      createUserAccounts = [
+      createUserSystemInstances = [
         "kal"
       ];
       containerHostnameSuffix = "ashpool";
