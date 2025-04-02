@@ -81,6 +81,7 @@ in
           aspell
           aspellDicts.en
           aspellDicts.fr
+          basedpyright
           binutils
           direnv
           easytag
@@ -109,6 +110,7 @@ in
           # See https://discourse.nixos.org/t/plugins-for-neovim-are-not-installed-for-neovim-qt/29712/10
           (neovim-qt.override { neovim = config.programs.neovim.finalPackage; })
           ncmpcpp
+          # nil
           nixd
           nix-output-monitor
           nix-prefetch-github
@@ -135,7 +137,6 @@ in
           tig
           tldr
           ungoogled-chromium
-          universal-ctags
           unoconv
           (vault.overrideAttrs (_prev: {
             doCheck = false;
@@ -595,38 +596,151 @@ in
             hash = "sha256-FlSqTEQyYm17vR7sNw5hlq2Hpz1cWYr23ARsVNibUBM=";
           };
         };
+        inlay-hint-nvim = pkgs.vimUtils.buildVimPlugin rec {
+          pname = "inlay-hint.nvim";
+          version = "1.1.0";
+          src = pkgs.fetchFromGitHub {
+            owner = "felpafel";
+            repo = "inlay-hint.nvim";
+            tag = "v${version}";
+            hash = "sha256-B2Y1Qls6R+F9Ws4pKMleGP7ISEybq3VxZZAMkqEdR5E=";
+          };
+        };
+        usePlugin = plugin: { type ? "lua", config }: { inherit plugin type config; };
       in
       {
         enable = true;
-        coc = {
-          enable = true;
-          settings = {
-            "diagnostic.virtualText" = false;
-            "inlayHint.position" = "eol";
-            languageserver.nix = {
-              command = "nixd";
-              filetypes = [ "nix" ];
-            };
-          };
-        };
         defaultEditor = true;
         vimAlias = true;
-        withNodeJs = true;
         plugins = with pkgs.vimPlugins; [
-          coc-go
-          coc-pyright
-          coc-rust-analyzer
-          coc-sh
-          coc-tsserver
           direnv-vim
           fzf-vim
-          (nvim-treesitter.withPlugins (
-            plugins: with plugins; [
+          (usePlugin lsp-format-nvim { # {{{
+            config = ''
+              require("lsp-format").setup({})
+            '';
+          }) # }}}
+          (usePlugin nvim-cmp { # {{{
+            config = ''
+              -- Autocompletion
+              -- https://github.com/hrsh7th/nvim-cmp
+              local cmp = require('cmp')
+
+              cmp.setup({
+                  sources = {
+                      { name = 'nvim_lsp' }, -- Use LSP as a source for autocompletion
+                  },
+                  snippet = {
+                      expand = function(args)
+                          vim.snippet.expand(args.body)
+                      end,
+                  },
+                  preselect = 'item', -- Automatically select the first item
+                  completion = {
+                      completeopt = 'menu,menuone,noinsert'
+                  },
+                  mapping = cmp.mapping.preset.insert({
+                      ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Confirm selection with Enter
+                  }),
+              })
+            ''; # }}}
+            })
+          cmp-nvim-lsp
+          (usePlugin nvim-lspconfig { # {{{
+            config = ''
+              vim.lsp.enable({
+                'basedpyright',
+                'clangd',
+                'gopls',
+                'nixd',
+                'kotlin_language_server',
+                'ts_ls',
+                'rust_analyzer',
+              })
+
+              vim.lsp.config('gopls', {
+                settings = {
+                  ['gopls'] = {
+                    hints = {
+                      parameterNames = true,
+                      functionTypeParameters = true,
+                      assignVariableTypes = true,
+                      rangeVariableTypes = true,
+                      compositeLiteralFields = true,
+                      compositeLiteralTypes = true,
+                    }
+                  },
+                },
+              })
+              vim.lsp.config('nixd', {
+                settings = {
+                  ['nixd'] = {
+                    nixpkgs = "import <nixpkgs> { }",
+                  },
+                },
+              })
+              vim.lsp.config('rust-analyzer', {
+                settings = {
+                  ['rust-analyzer'] = {
+                    imports = {
+                        granularity = {
+                            group = "module",
+                        },
+                        prefix = "self",
+                    },
+                    cargo = {
+                        buildScripts = {
+                            enable = true,
+                        },
+                    },
+                    procMacro = {
+                        enable = true
+                    },
+                  },
+                },
+              })
+
+              vim.api.nvim_create_autocmd('LspAttach', {
+                callback = function(args)
+                  local bufnr = args.buf ---@type number
+                  local client = vim.lsp.get_client_by_id(args.data.client_id)
+                  if client.supports_method('textDocument/inlayHint') then
+                    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+                    vim.keymap.set('n', '<leader>i', function()
+                      vim.lsp.inlay_hint.enable(
+                        not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }),
+                        { bufnr = bufnr }
+                      )
+                    end, { buffer = bufnr })
+                  end
+                  require("lsp-format").on_attach(client, bufnr)
+                end,
+              })
+
+              -- Extend LSP capabilities for autocompletion
+              -- https://github.com/hrsh7th/nvim-cmp
+              -- https://github.com/hrsh7th/cmp-nvim-lsp
+              capabilities = require('cmp_nvim_lsp').default_capabilities()
+              vim.lsp.config('*', {
+                capabilities = capabilities
+              })
+
+              -- See also: https://www.reddit.com/r/neovim/comments/1kq8jxb/comment/mt5u6gs/
+              vim.api.nvim_create_autocmd("CursorHold", {
+                callback = function()
+                  vim.diagnostic.open_float(nil, { focusable = false, source = "if_many" })
+                end,
+              })
+            '';
+          }) # }}}
+          (usePlugin (nvim-treesitter.withPlugins ( # {{{
+            plugins: with plugins; [ # {{{
               awk
               bash
               c
               cmake
               cpp
+              css
               diff
               dockerfile
               git_config
@@ -634,45 +748,134 @@ in
               gitcommit
               gitignore
               go
+              graphql
               hcl
+              html
+              jinja
               json
               latex
               make
               markdown
               nix
-              # pkgs.tree-sitter.buildGrammar {
-              #   language = "orgmode";
-              #   version = "2023-11-22";
-              #   src = pkgs.fetchFromGitHub {
-              #     owner = "nvim-orgmode";
-              #     repo = "orgmode";
-              #     rev = "cbb10d4c7514680e90f791d62f1168cb87aad0ce";
-              #     sha256 = "";
-              #   };
-              #   meta.homepage = "https://nvim-orgmode.github.io/";
-              # }
+              (pkgs.tree-sitter.buildGrammar {
+                language = "orgmode";
+                version = "2.0.1";
+                src = pkgs.fetchFromGitHub {
+                  owner = "nvim-orgmode";
+                  repo = "tree-sitter-org";
+                  rev = "a146dd51d52e0eb5a736e427cd244d93375fbed9";
+                  sha256 = "sha256-k1g5+iyJvVWKOuAkFNaaKl42Xmmz9BN+vT0+IQ/4RQI=";
+                };
+                meta.homepage = "https://nvim-orgmode.github.io/";
+              })
               python
               rust
               rst
-              smali
               toml
               yaml
-            ]
-          ))
+            ] # }}}
+          )) {
+            config = ''
+              -- Treesitter configuration for better syntax highlighting and code manipulation
+              -- https://github.com/nvim-treesitter/nvim-treesitter
+              -- https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
+              require('nvim-treesitter.configs').setup {
+                  highlight = {
+                      enable = true,
+                      -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+                      -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+                      -- Using this option may slow down your editor, and you may see some duplicate highlights.
+                      -- Instead of true it can also be a list of languages
+                      additional_vim_regex_highlighting = false,
+                  },
+                  indent = {
+                      enable = true
+                  },
+                  incremental_selection = {
+                      enable = true,
+                  },
+                  textobjects = {
+                      -- Define custom text objects for efficient code editing
+                      select = {
+                          enable = true,
+                          lookahead = true,                  -- Automatically jump to the next text object
+                          keymaps = {
+                              ['af'] = '@function.outer',    -- Select around a function, including the entire function definition and body
+                              ['if'] = '@function.inner',    -- Select inside a function, i.e., only the body of the function
+                              ['ac'] = '@class.outer',       -- Select around a class, including the class definition and body
+                              ['ic'] = '@class.inner',       -- Select inside a class, i.e., only the body of the class
+                              ['aC'] = '@call.outer',        -- Select around a function call, including the function name and arguments
+                              ['iC'] = '@call.inner',        -- Select inside a function call, i.e., only the arguments of the function call
+                              ['a#'] = '@comment.outer',     -- Select around a comment block, including any comment delimiters
+                              ['i#'] = '@comment.outer',     -- (Note: '@comment.inner' is the same as '@comment.outer' since comments don't have inner structure)
+                              ['ai'] = '@conditional.outer', -- Select around a conditional statement, including the condition and body (e.g., if, else if, else)
+                              ['ii'] = '@conditional.outer', -- Select inside a conditional statement (since conditionals may not have an 'inner' text object defined)
+                              ['al'] = '@loop.outer',        -- Select around a loop, including the loop declaration and body (e.g., for, while loops)
+                              ['il'] = '@loop.inner',        -- Select inside a loop, i.e., only the body of the loop
+                              ['aP'] = '@parameter.outer',   -- Select around a parameter or argument, including surrounding punctuation or whitespace
+                              ['iP'] = '@parameter.inner',   -- Select inside a parameter, i.e., the parameter name or value without any surrounding characters
+                          },
+                          selection_modes = {
+                              ['@parameter.outer'] = 'v', -- Use character-wise visual mode for parameters
+                              ['@function.outer'] = 'V',  -- Use line-wise visual mode for functions
+                              ['@class.outer'] = '<c-v>', -- Use block-wise visual mode for classes
+                          },
+                      },
+                      swap = {
+                          enable = true,
+                          swap_next = {
+                              ['<leader>a'] = '@parameter.inner',
+                          },
+                          swap_previous = {
+                              ['<leader>A'] = '@parameter.inner',
+                          },
+                      },
+                      move = {
+                          enable = true,
+                          set_jumps = true,                -- Set jumps in the jumplist when navigating (allows you to jump back with <C-o>)
+                          goto_next_start = {
+                              [']m'] = '@function.outer',  -- Jump to the start of the next function
+                              [']P'] = '@parameter.outer', -- Jump to the start of the next parameter
+                          },
+                          goto_next_end = {
+                              [']m'] = '@function.outer',  -- Jump to the end of the next function
+                              [']P'] = '@parameter.outer', -- Jump to the end of the next parameter
+                          },
+                          goto_previous_start = {
+                              ['[m'] = '@function.outer',  -- Jump to the start of the previous function
+                              ['[P'] = '@parameter.outer', -- Jump to the start of the previous parameter
+                          },
+                          goto_previous_end = {
+                              ['[m'] = '@function.outer',  -- Jump to the end of the previous function
+                              ['[P'] = '@parameter.outer', -- Jump to the end of the previous parameter
+                          },
+                      },
+                      lsp_interop = {
+                          enable = true,
+                          border = 'none',
+                          peek_definition_code = {
+                              ["<leader>df"] = "@function.outer", -- Peek function definition under the cursor
+                              ["<leader>dF"] = "@class.outer",    -- Peek class definition under the cursor
+                          },
+                      },
+                  },
+              }
+              '';
+          }) # }}}
+          (usePlugin inlay-hint-nvim {
+            config = ''
+              require('inlay-hint').setup({
+              })
+            '';
+          })
+          nvim-treesitter-textobjects
+          undotree
           vim-airline
           {
             plugin = vim-airline-themes;
             config = "let g:airline_theme = 'papercolor'";
           }
-          vim-graphql
-          vim-jinja
           vim-desert256
-          # {
-          #   plugin = vim-desert256;
-          #   config = ''
-          #     colorscheme desert256
-          #   '';
-          # }
           {
             plugin = vim-lucius;
             config = ''
@@ -740,8 +943,6 @@ in
           if has("syntax")
               syntax on
           endif
-
-          lua vim.opt.titlestring = [[%{fnamemodify(getcwd(), ":t")}/%f %h%m%r%w]]
 
           au BufRead,BufNewFile *.blt,*.rtx,*.cw[sp] set ft=c
           au BufRead,BufNewFile *.ino set ft=cpp
@@ -813,11 +1014,9 @@ in
           nnoremap <silent> <C-b> :Buffers<CR>
         '';
         extraLuaConfig = ''
-          require'nvim-treesitter.configs'.setup {
-            highlight = {
-              enable = true,
-            },
-          }
+
+          vim.opt.titlestring = [[%{fnamemodify(getcwd(), ":t")}/%f %h%m%r%w]]
+          vim.opt.updatetime = 300
         '';
       }; # }}}
 
