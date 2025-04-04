@@ -86,8 +86,8 @@ in
           syncthing generate --config $out
           mv $out/key.pem $out/${userName}-key
           mv $out/cert.pem $out/${userName}-cert
-          grep -oP '(?<=<device id=")[^"]+' $out/config.xml | uniq > $out/${userName}-deviceId
-          grep -oP '<apikey>\K[^<]+' $out/config.xml | uniq > $out/${userName}-apiKey
+          grep -oP '(?<=<device id=")[^"]+' $out/config.xml | uniq | trim > $out/${userName}-deviceId
+          grep -oP '<apikey>\K[^<]+' $out/config.xml | uniq | trim > $out/${userName}-apiKey
           rm $out/config.xml
         '';
       in
@@ -98,7 +98,13 @@ in
           gnugrep
           syncthing
         ];
-        script = lib.concatLines (map mkScript cfg.createUserAccounts);
+        script = ''
+          trim() {
+            tr -d "\n"
+          }
+
+          ${lib.concatLines (map mkScript cfg.createUserAccounts)}
+        '';
       };
     })
     (lib.mkIf ((builtins.length cfg.createUserSystemInstances) > 0) {
