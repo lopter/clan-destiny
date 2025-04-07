@@ -561,7 +561,7 @@ in
           fetch = {
             prune = true;
             pruneTags = true;
-            all = true;
+            all = false;
           };
           help.autocorrect = "prompt";
           commit.verbose = true;
