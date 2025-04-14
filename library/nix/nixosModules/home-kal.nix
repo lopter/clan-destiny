@@ -16,6 +16,7 @@ let
   inherit (destiny-core.lib) attrsToEnvironmentString;
   inherit (config.lib.clan-destiny) ports usergroups;
   inherit (pkgs.stdenv.hostPlatform) system;
+  inherit (config.networking) hostName;
 
   user = "kal";
   userAuthorizedSSHKey = config.clan-destiny.typed-tags.knownSshKeys.louisGPGAuthKey;
@@ -1466,19 +1467,25 @@ in
         key = syncthingKey;
         overrideDevices = true;
         overrideFolders = true;
-        settings = {
+        settings =
+        let
+          devices = {
+            hoover.id = "XOBNDBJ-KD274HZ-7EX6I4D-KKCP7KH-IA5O5QV-YRXVIAW-DWQOZE5-VW7HCA3";
+            lady-3jane.id = "A5TM755-VG4NGSO-5DN6TTB-WSFOQJX-AEUKYT6-2GLJFV2-BXTSP3M-LUTWKAL";
+            syncthing-kal-sfo-ashpool.id = "NSDD5RA-GNXQEOX-ISYW2ZE-TLUY7M7-HJ676HN-H3B6JGQ-TS5B4ZF-HZLJMQH";
+            wks-sfo-wintermute.id = "SUACJFD-NSB5R67-GSTXENV-G5AQNKD-WPGHO2I-GPYRGLZ-FT4P46C-MYFYOAR";
+            wormhole.id = "CHU2SHO-PBS4NHY-736434W-FI4WUQP-4JIHLD5-S5TS5UE-4H6N6SM-VAUJ5QH";
+          };
+        in
+        {
+          inherit devices;
           defaults.ignores.lines = [
             "#include ignore-patterns.txt"
           ];
-          devices.syncthing-kal-sfo-ashpool.id = "NSDD5RA-GNXQEOX-ISYW2ZE-TLUY7M7-HJ676HN-H3B6JGQ-TS5B4ZF-HZLJMQH";
-          devices.wks-sfo-wintermute.id = "SUACJFD-NSB5R67-GSTXENV-G5AQNKD-WPGHO2I-GPYRGLZ-FT4P46C-MYFYOAR";
           folders.syncthing = {
             path = "/stash/home/kal/syncthing";
             label = "syncthing";
-            devices = [
-              "syncthing-kal-sfo-ashpool"
-              "wks-sfo-wintermute"
-            ];
+            devices = builtins.filter (name: name != hostName) (builtins.attrNames devices);
             autoNormalize = false;
             caseSensitiveFS = true;
           };
