@@ -230,14 +230,14 @@
                 ])
                 ++ (with pkgs; [
                   age
-                  flyctl
-                  skopeo
                   sops
                   ssh-to-age
-                  python3Packages.ipython
-
                   fd
                   entr
+
+                  # TODO: make a pop dev shell
+                  flyctl
+                  skopeo
 
                   (writeShellApplication {
                     name = "watchloop-build-host";
@@ -249,16 +249,13 @@
                       printf "→ Press space to start a build manually and q to exit\n"
                       fd '.+\.(nix|py)$' | entr -p nix build --show-trace ".#nixosConfigurations.$1.config.system.build.toplevel" "$@"
                     '';
-                    runtimeInputs = [
-                      fd
-                      entr
-                    ];
                   })
 
                   (writeShellScriptBin "build-live-cd" ''
                     ${lib.getExe nix} build .#nixosConfigurations.nixos-installer-x86_64-linux.config.system.build.isoImage "$@"
                   '')
 
+                  # TODO move to pop dev shell
                   (writeShellScriptBin "fly-pop" ''
                     if [ ! -f config/fly.toml ]; then
                       echo >&2 "config/fly.toml not found, make sure you are at the repo's root."

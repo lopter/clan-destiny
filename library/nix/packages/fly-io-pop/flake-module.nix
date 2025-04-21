@@ -33,6 +33,24 @@ in
             doCheck = false;
           });
           nginx = pkgs.nginxMainline;
+          process-compose = pkgs.process-compose.overrideAttrs (prev: {
+            src = pkgs.fetchFromGitHub {
+              owner = "lopter";
+              repo = prev.pname;
+              rev = "05f4a48656640825a7631aa76e0734f10e304e57";
+              hash = "sha256-m9PG5xpgmREOBrVMASj/WkXQVlQaknHi7YKfxrgQcIA=";
+              # populate values that require us to use git. By doing this in postFetch we
+              # can delete .git afterwards and maintain better reproducibility of the src.
+              leaveDotGit = true;
+              postFetch = ''
+                cd "$out"
+                git rev-parse --short HEAD > $out/COMMIT
+                # in format of 0000-00-00T00:00:00Z
+                date -u -d "@$(git log -1 --pretty=%ct)" "+%Y-%m-%dT%H:%M:%SZ" > $out/SOURCE_DATE_EPOCH
+                find "$out" -name .git -print0 | xargs -0 rm -rf
+              '';
+            };
+          });
           basePkgs =
             [
               procps
@@ -72,7 +90,6 @@ in
               netcat-openbsd
               openssh
               openssl
-              process-compose
               psmisc
               ripgrep
               rsync
@@ -111,6 +128,9 @@ in
           };
           processComposeConfig = pkgs.writeTextFile {
             name = "process-compose.yaml";
+            checkPhase = ''
+              ${process-compose}/bin/process-compose --config "$out" config check
+            '';
             text =
               let
                 log_rotate_cfg = rec {
@@ -225,9 +245,6 @@ in
                   }
                 );
               };
-            # Add something to process-compose to properly do this:
-            #
-            # checkPhase = ''${pkgs.process-compose}/bin/process-compose up --config "$out" --namespace ""'';
           };
           sshdConfig = pkgs.writeTextFile {
             name = "sshd_config";
@@ -388,6 +405,10 @@ in
                   include ${nginx}/conf/uwsgi_params;
                   default_type application/octet-stream;
                   log_subrequest on;
+                  log_format proxy_proto_combined '$proxy_protocol_addr - $remote_user [$time_local] '
+                                                  '"$request" $status $body_bytes_sent '
+                                                  '"$http_referer" "$http_user_agent"';
+                  access_log /var/log/nginx/access.log proxy_proto_combined;
                   sendfile on;
                   tcp_nopush on;
                   tcp_nodelay on;
@@ -425,11 +446,12 @@ in
                   # https://www.nginx.com/blog/avoiding-top-10-nginx-configuration-mistakes/#no-keepalives
                   proxy_set_header        "Connection" "";
                   proxy_set_header        Host $host;
-                  proxy_set_header        X-Real-IP $remote_addr;
-                  proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header        X-Real-IP $proxy_protocol_addr;
+                  proxy_set_header        X-Forwarded-For $proxy_protocol_addr;
                   proxy_set_header        X-Forwarded-Proto $scheme;
                   proxy_set_header        X-Forwarded-Host $host;
                   proxy_set_header        X-Forwarded-Server $host;
+                  set_real_ip_from        172.16.0.0/12; # this cidr seems to be what fly.io uses
                   # $connection_upgrade is used for websocket proxying
                   map $http_upgrade $connection_upgrade {
                           default upgrade;
@@ -445,6 +467,7 @@ in
                   resolver 127.0.0.1:${ports.unbound};
               ''
               + (destiny-config.lib.popNginxConfig { inherit destiny-core ports; })
+              # + (destiny-config.lib.popNginxConfig { inherit destiny-core destiny-config ports; })
               + "}";
           };
           # Only one volume per machine:
@@ -669,7 +692,7 @@ in
                   })
 
                   (pkgs.writeShellScriptBin "pc" ''
-                    exec ${pkgs.process-compose}/bin/process-compose attach -u /run/process-compose.sock
+                    exec ${process-compose}/bin/process-compose attach -u /run/process-compose.sock
                   '')
 
                   (pkgs.writeShellScriptBin "test-nginx-config" ''
@@ -700,7 +723,7 @@ in
               "VAULT_CACERT=/run/secrets/vaultTLSCACert"
             ];
             cmd = [
-              "${pkgs.process-compose}/bin/process-compose"
+              "${process-compose}/bin/process-compose"
               "up"
               "--config=${processComposeConfig}"
               "--tui=false"
