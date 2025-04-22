@@ -28,16 +28,11 @@ min_machines_running = 2
   handlers = ["proxy_proto"]
   proxy_proto_options = { version = "v2" }
   port = 443
-  [[services.http_checks]]
-  interval = 10000 # ms
-  grace_period = "30s"
-  timeout = 500 # ms
-  method = "get"
-  path = "/"
-  protocol = "https"
-  # check atelierpentosaurus.com since it's directly served from the pop:
-  tls_server_name = "www.atelierpentosaurus.com"
-  tls_skip_verify = false
+  [[services.machine_checks]]
+  entrypoint = ["/bin/bash", "-c"]
+  # Check atelierpentosaurus.com since it's directly served from the pop:
+  command = [ "curl -s --haproxy-protocol --cacert /etc/ssl/certs/ca-bundle.crt --resolve atelierpentosaurus.com:1102:[$FLY_TEST_MACHINE_IP] --retry 10 --retry-delay 10 --retry-all-errors -H Host:atelierpentosaurus.com https://atelierpentosaurus.com:1102/" ]
+  kill_timeout = "120s"
 
 [[services]]
 internal_port = 41641
