@@ -325,6 +325,7 @@ in
             vault = [
               {
                 address = "https://${destiny-config.lib.vault.fqdn}:${toString destiny-config.lib.ports.vault}";
+                ca_cert = "/run/secrets/vaultTLSCACert";
               }
             ];
             template =
@@ -741,7 +742,6 @@ in
           config = {
             env = [
               "PATH=/bin"
-              "VAULT_CACERT=/run/secrets/vaultTLSCACert"
             ];
             cmd = [
               "${process-compose}/bin/process-compose"
