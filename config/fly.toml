@@ -37,6 +37,17 @@ min_machines_running = 2
   [[services.ports]]
   port = 41641
 
+[[services.http_checks]]
+interval = 10000 # ms
+grace_period = "30s"
+timeout = 500 # ms
+method = "get"
+path = "/"
+protocol = "https"
+# check atelierpentosaurus.com since it's directly served from the pop:
+tls_server_name = "www.atelierpentosaurus.com"
+tls_skip_verify = false
+
 [[vm]]
 size = "shared-cpu-1x"
 memory = "512m"

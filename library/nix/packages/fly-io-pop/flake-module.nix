@@ -162,7 +162,28 @@ in
                       availability.restart = "exit_on_failure";
                     };
                     nginx = {
-                      command = "runas nginx ${nginx}/bin/nginx -c ${nginxConfig}";
+                      # We cannot have the loop to check for the certificates
+                      # in a different process because if it was to fail then
+                      # process-compose would just skip running nginx, instead
+                      # of waiting for that process to be healthy and then
+                      # start nginx.
+                      command = pkgs.writeShellScript "wait-for-certificates-and-start-nginx" ''
+                        domains=(${lib.concatStringsSep " " (map lib.escapeShellArg certbotDomains)})
+                        status=0
+                        for each in "''${domains[@]}" ; do
+                          if [ ! -f "/var/lib/nginx/certs/$each/chain.pem" ] || [ ! -f "/var/lib/nginx/certs/$each/key.pem" ]; then
+                            printf >&2 "Missing certificate for: %s.\n" "$each"
+                            status=1
+                          fi
+                        done
+
+                        if [ $status -ne 0 ] ; then
+                          printf >&2 "Cannot start Nginx due to missing certificates.\n"
+                          exit $status
+                        fi
+
+                        exec runas nginx ${nginx}/bin/nginx -c ${nginxConfig}
+                      '';
                       namespace = "nginx";
                       depends_on =
                         {
@@ -172,7 +193,6 @@ in
                         }
                         // lib.optionalAttrs (builtins.length certbotDomains > 0) {
                           nginx-vault-agent.condition = "process_healthy";
-                          nginx-wait-for-certificates.condition = "process_completed_successfully";
                         };
                       availability.restart = "always";
                     };
@@ -219,28 +239,6 @@ in
                       # This is obviously not a good check, since it will return true
                       # even if vault-agent is not properly initialized yet.
                       readiness_probe.exec.command = ''[ "$(pgrep -c vault)" -gt 0 ]'';
-                    };
-                    nginx-wait-for-certificates = {
-                      availability.restart = "on_failure";
-                      availability.backoff_seconds = 10;
-                      command = pkgs.writeShellScript "nginx-wait-for-certificates" ''
-                        domains=(${lib.concatStringsSep " " (map lib.escapeShellArg certbotDomains)})
-                        status=0
-                        for each in ''${domains[@]} ; do
-                          if [ ! -f "/var/lib/nginx/certs/$each/chain.pem" ] || [ ! -f "/var/lib/nginx/certs/$each/key.pem" ]; then
-                            printf >&2 "Missing certificate for: %s.\n" "$each"
-                            status=1
-                          fi
-                        done
-
-                        if [ $status -ne 0 ] ; then
-                          printf >&2 "Cannot start Nginx due to missing certificates.\n"
-                        fi
-
-                        exit $status
-                      '';
-                      namespace = "nginx";
-                      depends_on.postInit.condition = "process_completed_successfully";
                     };
                   }
                 );
@@ -451,7 +449,7 @@ in
                   proxy_set_header        X-Forwarded-Proto $scheme;
                   proxy_set_header        X-Forwarded-Host $host;
                   proxy_set_header        X-Forwarded-Server $host;
-                  set_real_ip_from        172.16.0.0/12; # this cidr seems to be what fly.io uses
+                  set_real_ip_from        172.16.0.0/16; # https://community.fly.io/t/nginx-proxy-protocol-and-set-real-ip-from/24648/3
                   # $connection_upgrade is used for websocket proxying
                   map $http_upgrade $connection_upgrade {
                           default upgrade;
@@ -490,10 +488,11 @@ in
             runtimeInputs = with pkgs; [ coreutils ];
             text =
               let
-                nginxUid = builtins.toString destiny-config.lib.usergroups.users.nginx.uid;
-                nginxGid = builtins.toString destiny-config.lib.usergroups.users.nginx.gid;
-                unboundUid = builtins.toString destiny-config.lib.usergroups.users.unbound.uid;
-                unboundGid = builtins.toString destiny-config.lib.usergroups.users.unbound.gid;
+                inherit (destiny-config.lib.usergroups.users) nginx unbound;
+                nginxUid = builtins.toString nginx.uid;
+                nginxGid = builtins.toString nginx.gid;
+                unboundUid = builtins.toString unbound.uid;
+                unboundGid = builtins.toString unbound.gid;
               in
               ''
                 install -d -o ${nginxUid} -g ${nginxGid} /run/nginx
@@ -626,14 +625,29 @@ in
                     version = "0.1";
                     src = pkgs.writeTextDir "src/runas.c" ''
                       #include <sys/types.h>
+                      #include <errno.h>
+                      #include <grp.h>
                       #include <stdlib.h>
                       #include <pwd.h>
                       #include <stdio.h>
+                      #include <string.h>
                       #include <unistd.h>
 
                       extern char **environ;
 
-                      int main(int argc, char *argv[]) {
+                      void
+                      xsetenv(const char *name, const char *value)
+                      {
+                        const int overwrite = 1;
+                        if (setenv(name, value, overwrite) != 0) {
+                          fprintf(stderr, "setenv %s failed: %s\n", name, strerror(errno));
+                          exit(1);
+                        }
+                      }
+
+                      int
+                      main(int argc, char *argv[])
+                      {
                         if (argc < 3) {
                           fprintf(stderr, "Usage: %s user cmd ...\n", argv[0]);
                           exit(1);
@@ -642,6 +656,11 @@ in
                         struct passwd *entry = getpwnam(argv[1]);
                         if (entry == NULL) {
                           perror("getpwnam failed");
+                          exit(1);
+                        }
+
+                        if (initgroups(entry->pw_name, entry->pw_gid) != 0) {
+                          perror("initgroups failed");
                           exit(1);
                         }
 
@@ -655,12 +674,14 @@ in
                           exit(1);
                         }
 
-                        char home_env[256];
-                        snprintf(home_env, sizeof(home_env), "HOME=%s", entry->pw_dir);
-                        if (putenv(home_env) != 0) {
-                          perror("putenv failed");
+                        if (clearenv() != 0) {
+                          perror("clearenv failed");
                           exit(1);
                         }
+
+                        xsetenv("HOME", entry->pw_dir);
+                        xsetenv("USER", entry->pw_name);
+                        xsetenv("PATH", "/bin");
 
                         execvpe(argv[2], &argv[2], environ);
                         perror("execvpe failed");
@@ -668,7 +689,7 @@ in
                       }
                     '';
                     buildPhase = ''
-                      gcc -Wall -Wextra -O2 -D _GNU_SOURCE=1 -o runas src/runas.c
+                      gcc -Wall -Wextra -Werror -O2 -D _GNU_SOURCE=1 -o runas src/runas.c
                     '';
                     installPhase = ''
                       mkdir -p $out/bin
