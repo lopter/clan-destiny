@@ -386,89 +386,85 @@ in
                 server-key-file: /var/lib/unbound/unbound_server.key
             '';
           };
-          nginxConfig = pkgs.writeTextFile {
-            name = "nginx.conf";
-            text =
-              ''
-                pid ${nginxPidFile};
-                error_log stderr;
-                daemon off;
-                events {
-                }
-                http {
-                  http2 on;
-                  # Load mime types and configure maximum size of the types hash tables.
-                  include ${pkgs.mailcap}/etc/nginx/mime.types;
-                  types_hash_max_size 2688;
-                  include ${nginx}/conf/fastcgi.conf;
-                  include ${nginx}/conf/uwsgi_params;
-                  default_type application/octet-stream;
-                  log_subrequest on;
-                  log_format proxy_proto_combined '$proxy_protocol_addr - $remote_user [$time_local] '
-                                                  '"$request" $status $body_bytes_sent '
-                                                  '"$http_referer" "$http_user_agent"';
-                  access_log /var/log/nginx/access.log proxy_proto_combined;
-                  sendfile on;
-                  tcp_nopush on;
-                  tcp_nodelay on;
-                  keepalive_timeout 65;
-                  ssl_protocols TLSv1.2 TLSv1.3;
-                  ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305;
-                  ssl_dhparam /var/lib/dhparams/nginx.pem;
-                  # Keep in sync with https://ssl-config.mozilla.org/#server=nginx&config=intermediate
-                  ssl_session_timeout 1d;
-                  ssl_session_cache shared:SSL:10m;
-                  # Breaks forward secrecy: https://github.com/mozilla/server-side-tls/issues/135
-                  ssl_session_tickets off;
-                  # We don't enable insecure ciphers by default, so this allows
-                  # clients to pick the most performant, per https://github.com/mozilla/server-side-tls/issues/260
-                  ssl_prefer_server_ciphers off;
-                  # OCSP stapling
-                  ssl_stapling on;
-                  ssl_stapling_verify on;
-                  gzip on;
-                  gzip_static on;
-                  gzip_vary on;
-                  gzip_comp_level 5;
-                  gzip_min_length 256;
-                  gzip_proxied expired no-cache no-store private auth;
-                  gzip_types application/atom+xml application/geo+json application/javascript application/json application/ld+json application/manifest+json application/rdf+xml application/vnd.ms-fontobject application/wasm application/x-rss+xml application/x-web-app-manifest+json application/xhtml+xml application/xliff+xml application/xml font/collection font/otf font/ttf image/bmp image/svg+xml image/vnd.microsoft.icon text/cache-manifest text/calendar text/css text/csv text/javascript text/markdown text/plain text/vcard text/vnd.rim.location.xloc text/vtt text/x-component text/xml;
-                  proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=pop-cache:100m max_size=1g inactive=182d use_temp_path=off;
-                  proxy_cache_key $scheme$host$request_uri;
-                  proxy_cache pop-cache;
-                  proxy_redirect          off;
-                  proxy_connect_timeout   3s;
-                  proxy_send_timeout      3s;
-                  proxy_read_timeout      3s;
-                  proxy_http_version      1.1;
-                  # don't let clients close the keep-alive connection to upstream. See the nginx blog for details:
-                  # https://www.nginx.com/blog/avoiding-top-10-nginx-configuration-mistakes/#no-keepalives
-                  proxy_set_header        "Connection" "";
-                  proxy_set_header        Host $host;
-                  proxy_set_header        X-Real-IP $proxy_protocol_addr;
-                  proxy_set_header        X-Forwarded-For $proxy_protocol_addr;
-                  proxy_set_header        X-Forwarded-Proto $scheme;
-                  proxy_set_header        X-Forwarded-Host $host;
-                  proxy_set_header        X-Forwarded-Server $host;
-                  set_real_ip_from        172.16.0.0/16; # https://community.fly.io/t/nginx-proxy-protocol-and-set-real-ip-from/24648/3
-                  # $connection_upgrade is used for websocket proxying
-                  map $http_upgrade $connection_upgrade {
-                          default upgrade;
-                          '''      close;
-                  }
-                  client_max_body_size 10m;
-                  client_body_temp_path /run/nginx/client_body;
-                  proxy_temp_path /run/nginx/proxy;
-                  fastcgi_temp_path /run/nginx/fastcgi;
-                  uwsgi_temp_path /run/nginx/uwsgi;
-                  scgi_temp_path /run/nginx/scgi;
-                  server_tokens off;
-                  resolver 127.0.0.1:${ports.unbound};
-              ''
-              + (destiny-config.lib.popNginxConfig { inherit destiny-core ports; })
-              # + (destiny-config.lib.popNginxConfig { inherit destiny-core destiny-config ports; })
-              + "}";
-          };
+          nginxConfig = pkgs.writers.writeNginxConfig "nginx.conf" (''
+            pid ${nginxPidFile};
+            error_log stderr;
+            daemon off;
+            events {
+            }
+            http {
+              http2 on;
+              # Load mime types and configure maximum size of the types hash tables.
+              include ${pkgs.mailcap}/etc/nginx/mime.types;
+              types_hash_max_size 2688;
+              include ${nginx}/conf/fastcgi.conf;
+              include ${nginx}/conf/uwsgi_params;
+              default_type application/octet-stream;
+              log_subrequest on;
+              log_format proxy_proto_combined '$proxy_protocol_addr - $remote_user [$time_local] '
+                                              '"$request" $status $body_bytes_sent '
+                                              '"$http_referer" "$http_user_agent"';
+              access_log /var/log/nginx/access.log proxy_proto_combined;
+              sendfile on;
+              tcp_nopush on;
+              tcp_nodelay on;
+              keepalive_timeout 65;
+              ssl_protocols TLSv1.2 TLSv1.3;
+              ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305;
+              ssl_dhparam /var/lib/dhparams/nginx.pem;
+              # Keep in sync with https://ssl-config.mozilla.org/#server=nginx&config=intermediate
+              ssl_session_timeout 1d;
+              ssl_session_cache shared:SSL:10m;
+              # Breaks forward secrecy: https://github.com/mozilla/server-side-tls/issues/135
+              ssl_session_tickets off;
+              # We don't enable insecure ciphers by default, so this allows
+              # clients to pick the most performant, per https://github.com/mozilla/server-side-tls/issues/260
+              ssl_prefer_server_ciphers off;
+              # OCSP stapling
+              ssl_stapling on;
+              ssl_stapling_verify on;
+              gzip on;
+              gzip_static on;
+              gzip_vary on;
+              gzip_comp_level 5;
+              gzip_min_length 256;
+              gzip_proxied expired no-cache no-store private auth;
+              gzip_types application/atom+xml application/geo+json application/javascript application/json application/ld+json application/manifest+json application/rdf+xml application/vnd.ms-fontobject application/wasm application/x-rss+xml application/x-web-app-manifest+json application/xhtml+xml application/xliff+xml application/xml font/collection font/otf font/ttf image/bmp image/svg+xml image/vnd.microsoft.icon text/cache-manifest text/calendar text/css text/csv text/javascript text/markdown text/plain text/vcard text/vnd.rim.location.xloc text/vtt text/x-component text/xml;
+              proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=pop-cache:100m max_size=1g inactive=182d use_temp_path=off;
+              proxy_cache_key $scheme$host$request_uri;
+              proxy_cache pop-cache;
+              proxy_redirect          off;
+              proxy_connect_timeout   3s;
+              proxy_send_timeout      3s;
+              proxy_read_timeout      3s;
+              proxy_http_version      1.1;
+              # don't let clients close the keep-alive connection to upstream. See the nginx blog for details:
+              # https://www.nginx.com/blog/avoiding-top-10-nginx-configuration-mistakes/#no-keepalives
+              proxy_set_header        "Connection" "";
+              proxy_set_header        Host $host;
+              proxy_set_header        X-Real-IP $proxy_protocol_addr;
+              proxy_set_header        X-Forwarded-For $proxy_protocol_addr;
+              proxy_set_header        X-Forwarded-Proto $scheme;
+              proxy_set_header        X-Forwarded-Host $host;
+              proxy_set_header        X-Forwarded-Server $host;
+              set_real_ip_from        172.16.0.0/16; # https://community.fly.io/t/nginx-proxy-protocol-and-set-real-ip-from/24648/3
+              # $connection_upgrade is used for websocket proxying
+              map $http_upgrade $connection_upgrade {
+                      default upgrade;
+                      '''      close;
+              }
+              client_max_body_size 10m;
+              client_body_temp_path /run/nginx/client_body;
+              proxy_temp_path /run/nginx/proxy;
+              fastcgi_temp_path /run/nginx/fastcgi;
+              uwsgi_temp_path /run/nginx/uwsgi;
+              scgi_temp_path /run/nginx/scgi;
+              server_tokens off;
+              resolver 127.0.0.1:${ports.unbound};
+          ''
+          + (destiny-config.lib.popNginxConfig { inherit destiny-core ports; })
+          # + (destiny-config.lib.popNginxConfig { inherit destiny-core destiny-config ports; })
+          + "}");
           # Only one volume per machine:
           derivationArgs = { };
           mkVarDir = pkgs.runCommand "mkVarDir" derivationArgs ''
