@@ -1,16 +1,15 @@
-# Configure certbot with Gandi for domain ownership verification and Vault to
-# store certificates.
+# Configure certbot with Gandi or OVH, and fwiw do domain ownership verification,
+# to issue certificates, and store them in Vault (or OpenBao).
 #
-# This module assumes you defined a `certbot` user and group. There is also a
-# couple files you'll need to setup with Gandi and Vault credentials, see
-# options `vaultCredentialsFile` and `gandiCredentialsFile` below. I maintain
-# those with sops-nix.
+# This module assumes you defined a `certbot` user and group somewhere else.
+# This module uses clan vars to prompt and store for all the required
+# credentials automatically (see https://docs.clan.lol/manual/vars-backend/).
 #
-# To issue TLS certificates for a new domain login to the machine that runs
+# To issue TLS certificates for a new domain, login to the machine that runs
 # this module, then:
 #
 # DOMAIN=example.com
-# sudo -u certbot -- certbot-vault -d $DOMAIN
+# sudo -u certbot -- certbot-$certbot_instance -d $DOMAIN
 { config, lib, pkgs, self, ... }:
 let
   inherit (self.inputs) destiny-core;

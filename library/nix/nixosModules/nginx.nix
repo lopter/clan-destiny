@@ -1,6 +1,6 @@
 # Set some common Nginx options and integrates with the certbot-vault-gandi
 # module by adding a vault-agent sidecar to pull TLS certificates from Vault.
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 let
   inherit (config.lib.clan-destiny) ports;
 
@@ -12,6 +12,7 @@ let
   nginxHome = config.users.users.${nginxUser}.home;
   nginxUser = config.services.nginx.user;
   nginxGroup = config.services.nginx.group;
+  nginxPidFile = "/run/nginx/nginx.pid"; # hardcoded in the NixOS nginx module
 
   proxyTimeout = "3s";
 in
@@ -71,6 +72,12 @@ in
       certsDirectory = cfg.certsDirectory;
       user = nginxUser;
       group = nginxGroup;
+      reloadCommand = pkgs.writeShellScript "vault-agent-reload-nginx" ''
+        if [ ! -f ${nginxPidFile} ]; then
+          exit 0
+        fi
+        exec ${lib.getExe' pkgs.procps "pkill"} -HUP --pidfile ${nginxPidFile}
+      '';
     };
 
     # This will reload nginx for each certificate update because I couldn't

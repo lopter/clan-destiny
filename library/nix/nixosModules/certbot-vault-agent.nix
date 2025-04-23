@@ -49,6 +49,13 @@ let
         type = with lib.types; listOf str;
         default = [ ];
       };
+      reloadCommand = lib.mkOption {
+        description = ''
+          Run this command whenever the certificate is updated on the disk.
+        '';
+        type = with lib.types; nullOr package;
+        default = null;
+      };
     };
   };
 
@@ -103,7 +110,8 @@ let
         pid_file = "/run/${name}-vault-agent/pid";
         template =
           let
-            mkTemplate = domain: field: {
+            mkTemplate = domain: field:
+            {
               contents = ''
                 {{ with secret "${certbotVaultCfg.mount}/${certbotVaultCfg.path}/${domain}" }}
                 {{ .Data.data.${field} }}
@@ -113,6 +121,9 @@ let
               error_on_missing_key = true;
               backup = false;
               destination = "${certsDirectory}/${domain}/${field}.pem";
+            }
+            // lib.optionalAttrs (reloadCommand != null) {
+              exec.command = [ reloadCommand ];
             };
             mkDomain = domain: [
               (mkTemplate domain "key")
