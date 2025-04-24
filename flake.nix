@@ -6,7 +6,6 @@
     catppuccin.inputs.nixpkgs.follows = "nixpkgs";
 
     clan-core.follows = "destiny-core/clan-core";
-    clan-core.inputs.nixpkgs.follows = "nixpkgs";
 
     destiny-core.url = "git+ssh://gitolite@gitolite.kalessin.fr/destiny-core?ref=main";
     # destiny-core.url = "git+file:///stash/home/kal/cu/projs/destiny-core";
@@ -16,8 +15,7 @@
     destiny-config.inputs.nixpkgs.follows = "nixpkgs";
     destiny-config.inputs.destiny-core.follows = "destiny-core";
 
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
+    flake-parts.follows = "destiny-core/flake-parts";
 
     # home-manager.url = "github:lopter/home-manager/kwriteconfig6";
     home-manager.url = "github:nix-community/home-manager";
@@ -25,15 +23,16 @@
 
     lanzaboote.url = "github:nix-community/lanzaboote";
     lanzaboote.inputs.nixpkgs.follows = "nixpkgs";
+    lanzaboote.inputs.crane.follows = "destiny-core/crane";
+    lanzaboote.inputs.flake-parts.follows = "destiny-core/flake-parts";
 
     nix2container.follows = "destiny-core/nix2container";
     nix2container.inputs.nixpkgs.follows = "nixpkgs";
 
     nixpkgs.follows = "destiny-core/nixpkgs";
     nixpkgs-unfree.follows = "destiny-core/nixpkgs-unfree";
-    nixpkgs-unfree.inputs.nixpkgs.follows = "nixpkgs";
 
-    nixos-hardware.url = "github:lopter/nixos-hardware?ref=lo-aoostar-r1-n100";
+    nixos-hardware.url = "github:NixOS/nixos-hardware";
 
     plasma-manager = {
       url = "github:nix-community/plasma-manager";
