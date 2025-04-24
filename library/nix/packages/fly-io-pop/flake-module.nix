@@ -64,10 +64,9 @@ in
               alacritty.terminfo
               attr
               bashInteractive
-              ((bind.override (_prev: {
+              (bind.override (_prev: {
                 enableGSSAPI = false;
               })).dnsutils
-              )
               cacert
               coreutils
               curl
@@ -580,6 +579,9 @@ in
               ./sops-nix.nix
               "${self.inputs.nixpkgs}/nixos/modules/misc/assertions.nix"
               {
+                # If you don't use any of `config`, `options`, or `imports`,
+                # at the root of your module, then `evalModules` assumes
+                # everything was under `config`.
                 sops.age.sshKeyPaths = [ "/var/ssh/ssh_host_ed25519_key" ];
                 sops.defaultSopsFile = ./secrets.yaml;
                 sops.secrets.tailscaleAuthKey = { };
