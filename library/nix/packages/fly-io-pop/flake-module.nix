@@ -12,6 +12,15 @@ in
       ...
     }:
     {
+      packages.fly-pop-cli = pkgs.writeShellScriptBin "fly-pop" ''
+        CONFIG="${self + "/config/fly.toml"}"
+        if [ ! -f "$CONFIG" ]; then
+          echo >&2 "$CONFIG not found."
+          exit 1
+        fi
+        exec fly -c "$CONFIG" -a clan-destiny-pop "$@"
+      '';
+      # The OCI image used on fly.io:
       packages.fly-io-pop =
         let
           inherit (inputs'.nix2container.packages) nix2container;
@@ -116,6 +125,10 @@ in
                 ];
               })
             ];
+          };
+          inherit (destiny-core.packages.${system}) blogon;
+          blogonLayer = {
+            deps = [ blogon ];
           };
           ports = {
             process-compose = "1100";
@@ -224,6 +237,12 @@ in
                         tailscaled.condition = "process_started";
                       };
                     };
+                    blogon = {
+                      command = "runas blogon ${blogon}/bin/blogon";
+                      environment = [ "RUST_LOG=info" ];
+                      depends_on.postInit.condition = "process_completed_successfully";
+                      availability.restart = "always";
+                    };
                   }
                   // lib.optionalAttrs (builtins.length certbotDomains > 0) {
                     nginx-vault-agent = {
@@ -272,9 +291,9 @@ in
               HostKey /var/ssh/ssh_host_ed25519_key
             '';
           };
-          rootAuthorizedSshKey = pkgs.writeTextFile rec {
-            name = "root";
-            destination = "/etc/ssh/authorized_keys.d/${name}";
+          setupSshAuthorizedKey = username: pkgs.writeTextFile {
+            name = username;
+            destination = "/etc/ssh/authorized_keys.d/${username}";
             text = destiny-config.lib.knownSshKeys.louisGPGAuthKey;
           };
           certbotDomains =
@@ -389,6 +408,7 @@ in
             pid ${nginxPidFile};
             error_log stderr;
             daemon off;
+            worker_processes 2;
             events {
             }
             http {
@@ -484,7 +504,7 @@ in
             runtimeInputs = with pkgs; [ coreutils ];
             text =
               let
-                inherit (destiny-config.lib.usergroups.users) nginx unbound;
+                inherit (destiny-config.lib.usergroups.users) blogon nginx unbound;
                 nginxUid = builtins.toString nginx.uid;
                 nginxGid = builtins.toString nginx.gid;
                 unboundUid = builtins.toString unbound.uid;
@@ -505,6 +525,7 @@ in
                 install -d -o ${nginxUid} -g ${nginxGid} -m 700 /var/lib/nginx
                 install -d -o ${nginxUid} -g ${nginxGid} -m 700 /var/lib/nginx/certs
                 install -d -o ${unboundUid} -g ${unboundGid} -m 700 /var/lib/unbound
+                install -d -o ${toString blogon.uid} -g ${toString blogon.gid} -m 755 /var/lib/blogon
                 install -d -m 700 /var/lib/tailscale
                 install -d /var/lib/dhparams
 
@@ -719,7 +740,8 @@ in
                     exec ${nginx}/bin/nginx -t -c ${nginxConfig}
                   '')
 
-                  rootAuthorizedSshKey
+                  (setupSshAuthorizedKey "blogon")
+                  (setupSshAuthorizedKey "root")
                 ];
                 pathsToLink = [
                   "/bin"
@@ -755,7 +777,68 @@ in
             shellLayer
             mountPointLayer
             configLayer
+            blogonLayer
           ];
         };
+        packages.pop-console = pkgs.writeShellScriptBin "pop-console" ''
+          set -e
+          if [ $# -eq 1 ] ; then
+            MACHINE_ID="$1"
+          else
+            machines="$(fly-pop machines list -j | jq -r '.[]["id"]')"
+            printf -- "--> Found %d machines:\n%s\n" "$(echo "$machines" | wc -l)" "$machines"
+            MACHINE_ID="$(echo "$machines" | shuf -n 1)"
+          fi
+          printf -- "--> Connecting to %s…\n" "$MACHINE_ID"
+          exec fly-pop console --machine "$MACHINE_ID"
+        '';
+        packages.pop-deploy = pkgs.writeShellScriptBin "pop-deploy" ''
+          set -e
+          if [ $# -eq 1 ] ; then
+            IMAGE_REPO="$1"
+            printf -- "--> Redeploying image %s\n" "$IMAGE_REPO"
+          else
+            IMAGE_TAG="$(nix eval --raw '.#packages.${system}.fly-io-pop.imageTag')"
+            IMAGE_REPO="registry.fly.io/clan-destiny-pop:$IMAGE_TAG"
+            nix run -L '.#fly-io-pop.copyToRegistry'
+          fi
+          exec fly-pop deploy --image "$IMAGE_REPO"
+        '';
+        packages.pop-releases = pkgs.writeShellScriptBin "pop-releases" ''
+          exec fly-pop releases --image
+        '';
+        packages.pop-sops = pkgs.writeShellScriptBin "pop-sops" ''
+          set -e
+          if [ ! -f config/fly.toml ]; then
+            echo >&2 "config/fly.toml not found, make sure you are at the repo's root."
+            exit 1
+          fi
+          sops_config="$(mktemp sops-XXXXXXXXXX.yaml)"
+          cleanup() {
+            rm -rf "$sops_config"
+          }
+          trap cleanup EXIT INT QUIT TERM
+          cat >"$sops_config" <<EOF
+          creation_rules:
+            - key_groups:
+              - pgp:
+                - $SOPS_PGP_FP
+              - age:
+                - age1zps7k9czhty4leyjfph8z3fd3lrl9j08aw0z7xctmp2jys2gdcesvnh7lx
+                - age105x37pue8hlm33dkmml946l4f74x6dpeq0yh38pw7zjc2gvsy5gspaykya
+          EOF
+          secrets_file=library/nix/packages/fly-io-pop/secrets.yaml
+          operation="$1"
+          set +e
+          set -x
+          if [[ "$operation" = "decrypt" || "$operation" = "rotate" ]]; then
+            sops "$@" "$secrets_file"
+          else
+            sops --config "$sops_config" "$@" "$secrets_file"
+          fi
+          rv=$?
+          set +x
+          exit $rv
+        '';
     };
 }

@@ -43,5 +43,5 @@ min_machines_running = 2
   port = 41641
 
 [[vm]]
-size = "shared-cpu-1x"
+size = "shared-cpu-2x"
 memory = "512m"

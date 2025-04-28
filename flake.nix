@@ -186,7 +186,7 @@
         );
 
         perSystem =
-          { pkgs, inputs', system, ... }:
+          { pkgs, inputs', self', ... }:
           {
             packages.nginxWithPamSupport =
             let
@@ -217,26 +217,29 @@
                 setBuildFlagsAttrsOverride
               ];
 
-            devShells.default = pkgs.mkShell {
-              packages =
-                (with inputs'.clan-core.packages; [
+            devShells =
+            let
+              mkShell = attrs: pkgs.mkShell (attrs // {
+                packages = (attrs.packages or [])
+                  ++ (with inputs'.clan-core.packages; [
                   clan-cli
-                ])
-                ++ (with inputs'.destiny-core.packages; [
-                  git-fetch-and-checkout
-                  toolbelt
-                  n
-                ])
-                ++ (with pkgs; [
-                  age
-                  sops
-                  ssh-to-age
+                  ])
+                  ++ (with inputs'.destiny-core.packages; [
+                    git-fetch-and-checkout
+                    toolbelt
+                    n
+                  ]);
+                shellHook = ''
+                  export SOPS_PGP_FP=587982779FC79ED146018F8C4E65D33603D146A6
+                '';
+
+              });
+            in
+            {
+              default = mkShell {
+                packages = with pkgs; [
                   fd
                   entr
-
-                  # TODO: make a pop dev shell
-                  flyctl
-                  skopeo
 
                   (writeShellApplication {
                     name = "watchloop-build-host";
@@ -253,84 +256,25 @@
                   (writeShellScriptBin "build-live-cd" ''
                     ${lib.getExe nix} build .#nixosConfigurations.nixos-installer-x86_64-linux.config.system.build.isoImage "$@"
                   '')
+                ];
+              };
 
-                  # TODO move to pop dev shell
-                  (writeShellScriptBin "fly-pop" ''
-                    if [ ! -f config/fly.toml ]; then
-                      echo >&2 "config/fly.toml not found, make sure you are at the repo's root."
-                      exit 1
-                    fi
-                    exec fly -c config/fly.toml -a clan-destiny-pop "$@"
-                  '')
-
-                  (writeShellScriptBin "pop-deploy" ''
-                    set -e
-                    if [ $# -eq 1 ] ; then
-                      IMAGE_REPO="$1"
-                      printf -- "--> Redeploying image %s\n" "$IMAGE_REPO"
-                    else
-                      IMAGE_TAG="$(nix eval --raw '.#packages.${system}.fly-io-pop.imageTag')"
-                      IMAGE_REPO="registry.fly.io/clan-destiny-pop:$IMAGE_TAG"
-                      nix run -L '.#fly-io-pop.copyToRegistry'
-                    fi
-                    exec fly-pop deploy --image "$IMAGE_REPO"
-                  '')
-
-                  (writeShellScriptBin "pop-releases" ''
-                    exec fly-pop releases --image
-                  '')
-
-                  (writeShellScriptBin "pop-console" ''
-                    set -e
-                    if [ $# -eq 1 ] ; then
-                      MACHINE_ID="$1"
-                    else
-                      machines="$(fly-pop machines list -j | jq -r '.[]["id"]')"
-                      printf -- "--> Found %d machines:\n%s\n" "$(echo "$machines" | wc -l)" "$machines"
-                      MACHINE_ID="$(echo "$machines" | shuf -n 1)"
-                    fi
-                    printf -- "--> Connecting to %s…\n" "$MACHINE_ID"
-                    exec fly-pop console --machine "$MACHINE_ID"
-                  '')
-
-                  (writeShellScriptBin "pop-sops" ''
-                    set -e
-                    if [ ! -f config/fly.toml ]; then
-                      echo >&2 "config/fly.toml not found, make sure you are at the repo's root."
-                      exit 1
-                    fi
-                    sops_config="$(mktemp sops-XXXXXXXXXX.yaml)"
-                    cleanup() {
-                      rm -rf "$sops_config"
-                    }
-                    trap cleanup EXIT INT QUIT TERM
-                    cat >"$sops_config" <<EOF
-                    creation_rules:
-                      - key_groups:
-                        - pgp:
-                          - $SOPS_PGP_FP
-                        - age:
-                          - age1zps7k9czhty4leyjfph8z3fd3lrl9j08aw0z7xctmp2jys2gdcesvnh7lx
-                          - age105x37pue8hlm33dkmml946l4f74x6dpeq0yh38pw7zjc2gvsy5gspaykya
-                    EOF
-                    secrets_file=library/nix/packages/fly-io-pop/secrets.yaml
-                    operation="$1"
-                    set +e
-                    set -x
-                    if [[ "$operation" = "decrypt" || "$operation" = "rotate" ]]; then
-                      sops "$@" "$secrets_file"
-                    else
-                      sops --config "$sops_config" "$@" "$secrets_file"
-                    fi
-                    rv=$?
-                    set +x
-                    exit $rv
-                  '')
+              fly-io-pop = mkShell {
+                packages = (with pkgs; [
+                  age
+                  sops
+                  ssh-to-age
+                  flyctl
+                  skopeo
+                ])
+                ++ (with self'.packages; [
+                  fly-pop-cli
+                  pop-console
+                  pop-deploy
+                  pop-releases
+                  pop-sops
                 ]);
-
-              shellHook = ''
-                export SOPS_PGP_FP=587982779FC79ED146018F8C4E65D33603D146A6
-              '';
+              };
             };
           };
       }
