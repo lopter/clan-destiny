@@ -202,9 +202,6 @@ in
                           postInit.condition = "process_completed_successfully";
                           tailscaled.condition = "process_healthy";
                           unbound.condition = "process_healthy";
-                        }
-                        // lib.optionalAttrs (builtins.length certbotDomains > 0) {
-                          nginx-vault-agent.condition = "process_healthy";
                         };
                       availability.restart = "always";
                     };
@@ -259,9 +256,6 @@ in
                         tailscaled-autoconnect.condition = "process_completed_successfully";
                       };
                       availability.restart = "always";
-                      # This is obviously not a good check, since it will return true
-                      # even if vault-agent is not properly initialized yet.
-                      readiness_probe.exec.command = ''[ "$(pgrep -c vault)" -gt 0 ]'';
                     };
                   }
                 );
@@ -384,7 +378,6 @@ in
             name = "unbound.conf";
             text = ''
               server:
-
                 access-control: 127.0.0.0/8 allow
                 access-control: ::1/128 allow
                 auto-trust-anchor-file: /var/lib/unbound/root.key
