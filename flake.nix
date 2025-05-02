@@ -192,7 +192,6 @@
             let
               modulesArgsOverride = nginxMainline: nginxMainline.override(prev: {
                 modules = with pkgs.nginxModules; [ brotli dav moreheaders pam ];
-                withDebug = true;
               });
               setBuildFlagsAttrsOverride = nginxMainline: nginxMainline.overrideAttrs(prev: {
                 CFLAGS = lib.concatStringsSep " " [
