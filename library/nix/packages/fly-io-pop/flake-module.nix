@@ -238,8 +238,13 @@ in
                       };
                     };
                     blogon = {
-                      command = "runas blogon ${blogon}/bin/blogon";
-                      environment = [ "RUST_LOG=info" ];
+                      # We could teach `runas` a way to passthrough some environment variables instead:
+                      command = "runas blogon ${pkgs.writeShellScript "start-blogon" ''
+                        export RUST_LOG=info
+                        export LEPTOS_ENV=prod
+                        export LEPTOS_SITE_PKG_DIR=blog-pkg
+                        exec ${blogon}/bin/blogon
+                      ''}";
                       depends_on.postInit.condition = "process_completed_successfully";
                       availability.restart = "always";
                     };
