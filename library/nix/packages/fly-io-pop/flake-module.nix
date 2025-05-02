@@ -787,6 +787,7 @@ in
           config = {
             env = [
               "PATH=/bin"
+              "PS1=fly-io-pop-\${FLY_REGION}# "
             ];
             cmd = [
               "${process-compose}/bin/process-compose"
