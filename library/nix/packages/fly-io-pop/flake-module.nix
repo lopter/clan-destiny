@@ -497,6 +497,33 @@ in
               }
             ];
           };
+          debugLayer = {
+            copyToRoot = [
+              (pkgs.buildEnv {
+                name = "debug";
+                paths = [
+                  pkgs.gdb
+                  ((nginx.override (_prev: { withDebug = true; })).overrideAttrs (_prev: {
+                    dontStrip = true;
+                    CFLAGS = lib.concatStringsSep " " [
+                      "-Og"
+                      "-ggdb"
+                      "-pipe"
+                      "-Wall"
+                      "-Wextra"
+                      "-Wstrict-prototypes"
+                      "-Werror=format-security"
+                      "-fno-omit-frame-pointer"
+                      "-mno-omit-leaf-frame-pointer"
+                    ];
+                  }))
+                ];
+                pathsToLink = [
+                  "/bin"
+                ];
+              })
+            ];
+          };
           postInit = pkgs.writeShellApplication {
             name = "postInit";
             runtimeInputs = with pkgs; [ coreutils ];
@@ -776,6 +803,7 @@ in
             mountPointLayer
             configLayer
             blogonLayer
+            # debugLayer
           ];
         };
         packages.pop-console = pkgs.writeShellScriptBin "pop-console" ''
