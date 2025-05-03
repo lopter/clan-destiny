@@ -214,41 +214,6 @@ in
         };
       };
 
-      programs.kitty = {
-        enable = false;
-        font.name = "Inconsolata";
-        font.size = 12;
-        settings = {
-          #       color0  = "#000000"; # black
-          #       color1  = "#9f4343"; # red
-          #       color2  = "#00aa00"; # green
-          #       color3  = "#aa5500"; # yellow
-          #       color4  = "#2828e5"; # blue
-          #       color5  = "#a742a7"; # magenta
-          #       color6  = "#60aaaa"; # cyan
-          #       color7  = "#ffffff"; # white
-          #       color8  = "#555555"; # bright black
-          #       color9  = "#ff5555"; # bright red
-          #       color10 = "#55ff55"; # bright green
-          #       color11 = "#ffff55"; # bright yellow
-          #       color12 = "#6464e5"; # bright blue
-          #       color13 = "#a768a7"; # bright magenta
-          #       color14 = "#55ffff"; # bright cyan
-          #       color15 = "#a7a7a7"; # bright white
-          #       foreground = "#000000";
-          #       background = "#ffffff";
-          scrollback_lines = 10000;
-          wheel_scroll_min_lines = 1;
-          window_padding_width = 4;
-          confirm_os_window_close = 0;
-          show_hyperlink_targets = true;
-          enable_audio_bell = false;
-          copy_on_select = true;
-          cursor_shape = "block";
-          cursor_blink_interval = 0;
-        };
-      };
-
       programs.konsole = {
         enable = true;
         defaultProfile = "Catppuccin";
@@ -528,8 +493,8 @@ in
         ignores = [
           # directories
           "debug/"
-          ".devenv/"
-          ".direnv/"
+          "**/.devenv/"
+          "**/.direnv/"
           "*.egg-info/"
           ".mypy_cache/"
           "node_modules/"
@@ -849,6 +814,9 @@ in
           }
         '';
       }; # }}}
+
+      programs.nix-index.enable = true;
+
       programs.plasma = { # {{{
         enable = true;
 
@@ -959,23 +927,6 @@ in
               # of usage, one where we add a digital clock, setting 12h time and
               # first day of the week to Sunday and another adding a systray with
               # some modifications in which entries to show.
-              {
-                systemMonitor = {
-                  displayStyle = "org.kde.ksysguard.barchart";
-                  sensors = [
-                    {
-                      name = "cpu/all/usage";
-                      color = "233,196,61";
-                      label = "CPU %";
-                    }
-                    {
-                      name = "memory/physical/usedPercent";
-                      color = "233,61,187";
-                      label = "MEM %";
-                    }
-                  ];
-                };
-              }
               {
                 digitalClock = {
                   calendar.firstDayOfWeek = "sunday";
