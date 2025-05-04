@@ -32,6 +32,7 @@ in
 
   clan-destiny = {
     nixpkgs.unfreePredicates = [
+      "castlabs-electron"
       "discord"
       "vault"
     ];
@@ -45,7 +46,7 @@ in
   documentation.man.generateCaches = config.documentation.man.enable;
 
   home-manager.sharedModules = [
-    catppuccin.homeManagerModules.catppuccin
+    catppuccin.homeModules.catppuccin
     plasma-manager.homeManagerModules.plasma-manager
   ];
 
@@ -294,12 +295,12 @@ in
                 Amazon = {
                   urls = [ { template = "https://www.amazon.com/s?k={searchTerms}"; } ];
                   definedAliases = [ "az" ];
-                  iconUpdateURL = "https://www.amazon.com/favicon.ico";
+                  icon = "https://www.amazon.com/favicon.ico";
                 };
                 "Amazon FR" = {
                   urls = [ { template = "https://www.amazon.fr/s?k={searchTerms}"; } ];
                   definedAliases = [ "azf" ];
-                  iconUpdateURL = "https://www.amazon.fr/favicon.ico";
+                  icon = "https://www.amazon.fr/favicon.ico";
                 };
                 "Arch Linux" = {
                   urls = [ { template = "https://wiki.archlinux.org/index.php?search={searchTerms}"; } ];
@@ -308,7 +309,7 @@ in
                 "Bandcamp" = {
                   urls = [ { template = "https://bandcamp.com/search?q={searchTerms}"; } ];
                   definedAliases = [ "bc" ];
-                  iconUpdateURL = "https://s4.bcbits.com/img/favicon/favicon-32x32.png";
+                  icon = "https://s4.bcbits.com/img/favicon/favicon-32x32.png";
                 };
                 "Click" = {
                   urls = [ { template = "https://click.palletsprojects.com/en/latest/search/?q={searchTerms}"; } ];
@@ -316,17 +317,17 @@ in
                     "click"
                     "pc"
                   ];
-                  iconUpdateURL = "https://click.palletsprojects.com/en/latest/_static/click-icon.png";
+                  icon = "https://click.palletsprojects.com/en/latest/_static/click-icon.png";
                 };
                 "CTAN" = {
                   urls = [ { template = "https://ctan.org/search?phrase={searchTerms}"; } ];
                   definedAliases = [ "ctan" ];
-                  iconUpdateURL = "http://www.ctan.org/images/favicon.ico";
+                  icon = "http://www.ctan.org/images/favicon.ico";
                 };
-                "DuckDuckGo" = {
+                "ddg" = {
                   urls = [ { template = "https://duckduckgo.com/?q={searchTerms}"; } ];
                   definedAliases = [ "ddg" ];
-                  iconUpdateURL = "https://duckduckgo.com/favicon.ico";
+                  icon = "https://duckduckgo.com/favicon.ico";
                 };
                 Discogs = {
                   urls = [ { template = "https://www.discogs.com/search?q={searchTerms}&type=all"; } ];
@@ -347,23 +348,23 @@ in
                 };
                 "IETF" = {
                   urls = [ { template = "https://datatracker.ietf.org/doc/search?name={searchTerms}&sort=&rfcs=on&activedrafts=on&by=group&group="; } ];
-                  iconUpdateURL = "https://static.ietf.org/dt/12.34.0/ietf/images/ietf-logo-nor-180.png";
+                  icon = "https://static.ietf.org/dt/12.34.0/ietf/images/ietf-logo-nor-180.png";
                   definedAliases = [ "ietf" ];
                 };
                 "Kagi" = {
                   urls = [ { template = "https://kagi.com/search?q={searchTerms}"; } ];
                   definedAliases = [ "k" ];
-                  iconUpdateURL = "https://search-cdn.kagi.com/v1/favicon-32x32.png";
+                  icon = "https://search-cdn.kagi.com/v1/favicon-32x32.png";
                 };
                 "Kagi FR" = {
                   urls = [ { template = "https://kagi.com/search?q={searchTerms}&r=fr"; } ];
                   definedAliases = [ "kf" ];
-                  iconUpdateURL = "https://search-cdn.kagi.com/v1/favicon-32x32.png";
+                  icon = "https://search-cdn.kagi.com/v1/favicon-32x32.png";
                 };
                 "Home-assistant discourse" = {
                   urls = [ { template = "https://community.home-assistant.io/search?&q={searchTerms}"; } ];
                   definedAliases = [ "hd" ];
-                  iconUpdateURL = "https://www.home-assistant.io/images/favicon-192x192.png";
+                  icon = "https://www.home-assistant.io/images/favicon-192x192.png";
                 };
                 "Home-Manager options" = {
                   urls = [ { template = "https://home-manager-options.extranix.com/?query={searchTerms}"; } ];
@@ -406,17 +407,17 @@ in
                 };
                 "NixOS Wiki" = {
                   urls = [ { template = "https://nixos.wiki/index.php?title=Special:Search&search={searchTerms}"; } ];
-                  iconUpdateURL = "https://nixos.wiki/favicon.png";
+                  icon = "https://nixos.wiki/favicon.png";
                   definedAliases = [ "nw" ];
                 };
                 "Python" = {
                   urls = [ { template = "https://docs.python.org/3/search.html?q={searchTerms}"; } ];
-                  iconUpdateURL = "https://docs.python.org/3/_static/py.svg";
+                  icon = "https://docs.python.org/3/_static/py.svg";
                   definedAliases = [ "py" ];
                 };
                 "PyPI" = {
                   urls = [ { template = "https://pypi.org/search/?q={searchTerms}"; } ];
-                  iconUpdateURL = "https://docs.python.org/3/_static/py.svg";
+                  icon = "https://docs.python.org/3/_static/py.svg";
                   definedAliases = [
                     "pp"
                     "pypi"
@@ -424,37 +425,37 @@ in
                 };
                 "RFC" = {
                   urls = [ { template = "https://datatracker.ietf.org/doc/html/rfc{searchTerms}"; } ];
-                  iconUpdateURL = "https://static.ietf.org/dt/12.34.0/ietf/images/ietf-logo-nor-180.png";
+                  icon = "https://static.ietf.org/dt/12.34.0/ietf/images/ietf-logo-nor-180.png";
                   definedAliases = [ "rfc" ];
                 };
                 "Rust docs" = {
                   urls = [ { template = "https://docs.rs/releases/search?query={searchTerms}"; } ];
-                  iconUpdateURL = "https://www.rust-lang.org/static/images/favicon.svg";
+                  icon = "https://www.rust-lang.org/static/images/favicon.svg";
                   definedAliases = [ "rd" ];
                 };
                 "Rust packages" = {
                   urls = [ { template = "https://crates.io/search?q={searchTerms}"; } ];
-                  iconUpdateURL = "https://www.rust-lang.org/static/images/favicon.svg";
+                  icon = "https://www.rust-lang.org/static/images/favicon.svg";
                   definedAliases = [ "rp" ];
                 };
                 "Rust stdlib" = {
                   urls = [ { template = "https://doc.rust-lang.org/std/index.html?search={searchTerms}"; } ];
-                  iconUpdateURL = "https://www.rust-lang.org/static/images/favicon.svg";
+                  icon = "https://www.rust-lang.org/static/images/favicon.svg";
                   definedAliases = [ "rs" ];
                 };
                 "Sphinx" = {
                   urls = [ { template = "https://www.sphinx-doc.org/en/master/search.html?q={searchTerms}"; } ];
-                  iconUpdateURL = "	https://www.sphinx-doc.org/en/master/_static/favicon.svg";
+                  icon = "	https://www.sphinx-doc.org/en/master/_static/favicon.svg";
                   definedAliases = [ "sphinx" ];
                 };
                 "Wikipedia FR" = {
                   urls = [ { template = "https://fr.wikipedia.org/w/index.php?search={searchTerms}"; } ];
-                  iconUpdateURL = "https://fr.wikipedia.org/static/favicon/wikipedia.png";
+                  icon = "https://fr.wikipedia.org/static/favicon/wikipedia.png";
                   definedAliases = [ "wf" ];
                 };
                 "Wikipedia EN" = {
                   urls = [ { template = "https://en.wikipedia.org/w/index.php?search={searchTerms}"; } ];
-                  iconUpdateURL = "https://en.wikipedia.org/static/favicon/wikipedia.png";
+                  icon = "https://en.wikipedia.org/static/favicon/wikipedia.png";
                   definedAliases = [ "w" ];
                 };
                 "Wiktionary EN" = {
@@ -467,15 +468,15 @@ in
                 };
                 "WordReference EN → FR" = {
                   urls = [ { template = "https://www.wordreference.com/enfr/{searchTerms}"; } ];
-                  iconUpdateURL = "https://www.wordreference.com/icon.svg";
+                  icon = "https://www.wordreference.com/icon.svg";
                   definedAliases = [ "wef" ];
                 };
                 "WordReference FR → EN" = {
                   urls = [ { template = "https://www.wordreference.com/fren/{searchTerms}"; } ];
-                  iconUpdateURL = "https://www.wordreference.com/icon.svg";
+                  icon = "https://www.wordreference.com/icon.svg";
                   definedAliases = [ "wfe" ];
                 };
-                "YouTube" = {
+                "youtube" = {
                   urls = [ { template = "https://www.youtube.com/results?search_query={searchTerms}"; } ];
                   icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
                   definedAliases = [ "yt" ];
@@ -1251,7 +1252,7 @@ in
             size = 1000;
             save = 10000;
           };
-          initExtra = ''
+          initContent = ''
             setopt EXTENDED_GLOB
 
             ulimit -c unlimited
