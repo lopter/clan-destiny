@@ -613,6 +613,8 @@ in
           coc-go
           coc-pyright
           coc-rust-analyzer
+          coc-sh
+          coc-tsserver
           direnv-vim
           fzf-vim
           (nvim-treesitter.withPlugins (
@@ -816,7 +818,13 @@ in
         '';
       }; # }}}
 
-      programs.nix-index.enable = true;
+      programs.nix-index = {
+        enable = true;
+        # I don't need nix-index's advice every time I mistype a command:
+        enableBashIntegration = false;
+        enableFishIntegration = false;
+        enableZshIntegration = false;
+      };
 
       programs.plasma = { # {{{
         enable = true;
@@ -1283,6 +1291,7 @@ in
 
             if [ -z "''${SSH_CONNECTION}" ]; then
               export EDITOR="nvim-qt --nofork"
+              export SSH_AUTH_SOCK="$(fd -1 -o $USER:$USER -p '.+ssh.+agent' /tmp)"
             else
               export EDITOR="nvim"
             fi
@@ -1291,6 +1300,13 @@ in
             alias pu="pushd"
             alias po="popd"
             alias d="dirs -v"
+
+            dirs \
+              ~/src/nix/{clan-core,nixpkgs} \
+              ~/projs/clan-destiny \
+              ~/projs/clan-destiny/library/nix/packages/fly-io-pop \
+              ~/projs/destiny-{core,config} \
+              ~/projs/destiny-core/library/rust/blogon
 
             chelp() { cmake --help-command $1 | rst2html.py -q | lynx -stdin }
 
@@ -1339,6 +1355,15 @@ in
             firefox-dev() {
               mkdir -p "$MY_BUILD/firefox"
               firefox --new-instance --devtools --profile "$MY_BUILD/firefox"
+            }
+
+            http-server() {
+              (
+                iptables -I INPUT -p tcp --dport 8000 -j ACCEPT
+                trap "iptables -D INPUT -p tcp --dport 8000 -j ACCEPT" EXIT
+                python -m http.server
+                exit $?
+              )
             }
 
             nix-prefetch-github() {
