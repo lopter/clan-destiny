@@ -1,6 +1,7 @@
 { self, ... }:
 let
   inherit (self.inputs) clan-core destiny-config destiny-core;
+  clan-destiny = self;
 in
 {
   perSystem =
@@ -481,7 +482,7 @@ in
               server_tokens off;
               resolver 127.0.0.1:${ports.unbound};
           ''
-          + (destiny-config.lib.popNginxConfig { inherit destiny-core ports; })
+          + (destiny-config.lib.popNginxConfig { inherit clan-destiny destiny-core ports; })
           # + (destiny-config.lib.popNginxConfig { inherit destiny-core destiny-config ports; })
           + "}");
           # Only one volume per machine:
