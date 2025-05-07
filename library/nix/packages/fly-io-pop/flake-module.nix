@@ -43,11 +43,13 @@ in
           });
           nginx = pkgs.nginxMainline;
           process-compose = pkgs.process-compose.overrideAttrs (prev: {
+            version = "1.63.0";
+            vendorHash = "sha256-NEKHTSLEF8jBSmAnHq/q+kyV8vPz3DTNj4Jquf5rnso=";
             src = pkgs.fetchFromGitHub {
-              owner = "lopter";
+              owner = "F1bonacc1";
               repo = prev.pname;
-              rev = "05f4a48656640825a7631aa76e0734f10e304e57";
-              hash = "sha256-m9PG5xpgmREOBrVMASj/WkXQVlQaknHi7YKfxrgQcIA=";
+              rev = "fc52776109240ddb5aefd075b288f33fb88a2fac";
+              hash = "sha256-ClXXrX/Nk7Q5RXT0vPavAc+P9Ge7zmYtOE1VOIzwfFU=";
               # populate values that require us to use git. By doing this in postFetch we
               # can delete .git afterwards and maintain better reproducibility of the src.
               leaveDotGit = true;
@@ -141,7 +143,7 @@ in
           processComposeConfig = pkgs.writeTextFile {
             name = "process-compose.yaml";
             checkPhase = ''
-              ${process-compose}/bin/process-compose --config "$out" config check
+              ${process-compose}/bin/process-compose --config "$out" --dry-run
             '';
             text =
               let
