@@ -1464,7 +1464,7 @@ in
             "#include ignore-patterns.txt"
           ];
           folders.syncthing = {
-            path = "/stash/home/kal/syncthing";
+            path = "${config.home.homeDirectory}/syncthing";
             label = "syncthing";
             devices = builtins.filter (name: name != hostName) (builtins.attrNames devices);
             autoNormalize = false;
