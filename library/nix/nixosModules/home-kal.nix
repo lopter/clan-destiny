@@ -151,6 +151,9 @@ in
         ])
         ++ (with clan-core.packages.${system}; [
             clan-cli
+        ])
+        ++ (with destiny-core.packages.${system}; [
+            toolbelt
         ]);
 
       nixpkgs.config = nixpkgsCfg;
@@ -1291,9 +1294,10 @@ in
 
             if [ -z "''${SSH_CONNECTION}" ]; then
               export EDITOR="nvim-qt --nofork"
-              export SSH_AUTH_SOCK="$(fd -1 -o $USER:$USER -p '.+ssh.+agent' /tmp)"
+              export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
             else
               export EDITOR="nvim"
+              export SSH_AUTH_SOCK="$(fd -1 -o $USER:$USER -p '.+ssh.+agent' /tmp)"
             fi
 
             alias p="ipython"

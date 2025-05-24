@@ -1,10 +1,13 @@
 {
+  config,
   lib,
   self,
   ...
 }:
 let
   inherit (self.inputs) nixos-hardware;
+
+  enableSecureBoot = true;
 in
 {
   imports = [
@@ -16,8 +19,8 @@ in
   nixpkgs.hostPlatform = lib.mkForce "x86_64-linux";
 
   boot.loader.efi.canTouchEfiVariables = true;
-  # Secure boot using lanzaboote (replaces `boot.loader.systemd-boot`):
-  boot.lanzaboote.enable = true;
+  boot.loader.systemd-boot.enable = !enableSecureBoot;
+  boot.lanzaboote.enable = enableSecureBoot;
 
   clan-destiny = {
     usergroups.createNormalUsers = true;

@@ -11,6 +11,7 @@
       bridge-utils
       btop
       curl
+      e2fsprogs # chattr
       fd
       file
       findutils # xargs

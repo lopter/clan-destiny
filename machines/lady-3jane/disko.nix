@@ -55,13 +55,57 @@ in
             luks = {
               priority = 3;
               size = "100%";
+              label = "lady-3jane-luks-system";
               content = {
                 name = "lady-3jane-system";
                 type = "luks";
                 settings = luksSettings;
                 content = {
-                  type = "lvm_pv";
-                  vg = "vgLady3JaneSystem";
+                  type = "btrfs";
+                  extraArgs = [
+                    "--metadata" "single"
+                    "--checksum" "xxhash"
+                    "--features" "${lib.concatStringsSep "," [ "block-group-tree" ]}"
+                    "--force"
+                  ];
+                  subvolumes = {
+                    "root" = {
+                      mountpoint = "/";
+                      mountOptions = lib.optionals allowDiscards [ "discard=async" ];
+                    };
+                    "var" = {
+                      mountpoint = "/var";
+                      mountOptions = [
+                        "nodev"
+                        "nosuid"
+                        "noatime"
+                      ] ++ lib.optionals allowDiscards [ "discard=async" ];
+                    };
+                    "stash" = {
+                      mountpoint = "/stash";
+                      mountOptions = [
+                        "nodev"
+                        "nosuid"
+                        "noatime"
+                      ] ++ lib.optionals allowDiscards [ "discard=async" ];
+                    };
+                    "nix" = {
+                      mountpoint = "/nix";
+                      mountOptions = [
+                        "noatime"
+                        "nodev"
+                        "nosuid"
+                      ] ++ lib.optionals allowDiscards [ "discard=async" ];
+                    };
+                    "tmp" = {
+                      mountpoint = "/tmp";
+                      mountOptions = [
+                        "nodev"
+                        "nosuid"
+                        "noatime"
+                      ] ++ lib.optionals allowDiscards [ "discard=async" ];
+                    };
+                  };
                 };
               };
             };
@@ -69,131 +113,50 @@ in
         };
       };
     };
-    lvm_vg = {
-      vgLady3JaneSystem = {
-        type = "lvm_vg";
-        lvs = {
-          lvRoot = {
-            size = "1G";
-            content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/";
-              mountOptions = [
-                "nodev"
-                "nosuid"
-              ] ++ lib.optionals allowDiscards [ "discard" ];
-            };
-          };
-          # Having different volumes imposes some hard quotas:
-          lvVar = {
-            size = "20G";
-            content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/var";
-              mountOptions = [
-                "nodev"
-                "nosuid"
-              ] ++ lib.optionals allowDiscards [ "discard" ];
-            };
-          };
-          lvStash = {
-            size = "300G";
-            content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/stash";
-              mountOptions = [
-                "nodev"
-                "nosuid"
-              ] ++ lib.optionals allowDiscards [ "discard" ];
-            };
-          };
-          lvNix = {
-            size = "100G";
-            content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/nix";
-              mountOptions = [
-                "noatime"
-                "nodev"
-                "nosuid"
-              ] ++ lib.optionals allowDiscards [ "discard" ];
-            };
-          };
-          lvTmp = {
-            size = "20G";
-            content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/tmp";
-              mountOptions = [
-                "nodev"
-                "nosuid"
-              ] ++ lib.optionals allowDiscards [ "discard" ];
-            };
-          };
-        };
-      };
+  };
+
+  boot.initrd = {
+    luks.devices."lady-3jane-system" = luksSettings // {
+      device = "${nvmeSSD}-part3";
     };
+    supportedFilesystems.btrfs = true;
   };
 
-  boot.initrd.luks.devices."lady-3jane-system" = luksSettings // {
-    device = "${nvmeSSD}-part3";
-  };
-
-  fileSystems = {
-    "/" =
-      let
-        maybeOptions = if allowDiscards then { options = [ "discard" ]; } else { };
-      in
-      {
-        device = "/dev/vgLady3JaneSystem/lvRoot";
-        fsType = "ext4";
-      }
-      // maybeOptions;
+  fileSystems =
+  let
+    lady3JaneSystemVolume = { name, options ? [ ] }: {
+      device = "/dev/mapper/lady-3jane-system";
+      fsType = "btrfs";
+      options =
+        [ "subvol=${name}" ]
+        ++ options
+        ++ lib.optionals allowDiscards [ "discard=async" ];
+    };
+  in
+  {
+    "/" = lady3JaneSystemVolume {
+      name = "root";
+    };
     "/boot" = {
       device = "${nvmeSSD}-part1";
       fsType = "vfat";
       options = [ "umask=077" ] ++ lib.optionals allowDiscards [ "discard" ];
     };
-    "/var" = {
-      device = "/dev/vgLady3JaneSystem/lvVar";
-      fsType = "ext4";
-      options = [
-        "relatime"
-        "nodev"
-        "nosuid"
-      ] ++ lib.optionals allowDiscards [ "discard" ];
+    "/var" = lady3JaneSystemVolume {
+      name = "var";
+      options = [ "nodev" "nosuid" ];
     };
-    "/stash" = {
-      device = "/dev/vgLady3JaneSystem/lvStash";
-      fsType = "ext4";
-      options = [
-        "relatime"
-        "nodev"
-        "nosuid"
-      ] ++ lib.optionals allowDiscards [ "discard" ];
+    "/stash" = lady3JaneSystemVolume {
+      name = "stash";
+      options = [ "nodev" "nosuid" ];
     };
-    "/nix" = {
-      device = "/dev/vgLady3JaneSystem/lvNix";
-      fsType = "ext4";
-      options = [
-        "noatime"
-        "nodev"
-        "nosuid"
-      ] ++ lib.optionals allowDiscards [ "discard" ];
+    "/nix" = lady3JaneSystemVolume {
+      name = "nix";
+      options = [ "noatime" "nodev" "nosuid" ];
     };
-    "/tmp" = {
-      device = "/dev/vgLady3JaneSystem/lvTmp";
-      fsType = "ext4";
-      options = [
-        "strictatime"
-        "nodev"
-        "nosuid"
-      ] ++ lib.optionals allowDiscards [ "discard" ];
+    "/tmp" = lady3JaneSystemVolume {
+      name = "tmp";
+      options = [ "nodev" "nosuid" ];
     };
   };
 
@@ -202,13 +165,14 @@ in
   ];
 
   swapDevices = [
-    {
+    ({
       device = "${nvmeSSD}-part2";
       randomEncryption = {
         inherit allowDiscards;
         enable = true;
       };
-      discardPolicy = null;
-    }
+    } // lib.optionalAttrs allowDiscards {
+      discardPolicy = "both";
+    })
   ];
 }
