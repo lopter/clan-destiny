@@ -3,6 +3,7 @@
   # note: kmag does not work on wayland (kwin has a builtin zoom feature).
   # see: https://bugs.kde.org/show_bug.cgi?id=438912
   environment.systemPackages = with pkgs.kdePackages; [
+    akregator
     filelight
     kcolorchooser
     kruler

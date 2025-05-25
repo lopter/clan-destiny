@@ -1637,7 +1637,7 @@ in
         enableSshSupport = true;
         enableScDaemon = true;
         enableZshIntegration = true;
-        pinentryPackage = pkgs.pinentry-qt;
+        pinentry.package = pkgs.pinentry-qt;
       };
 
       services.syncthing =
