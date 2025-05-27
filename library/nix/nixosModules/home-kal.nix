@@ -875,7 +875,18 @@ in
             plugin = vim-airline-themes;
             config = "let g:airline_theme = 'papercolor'";
           }
-          vim-desert256
+          {
+            plugin = vim-desert256;
+            /*
+            config = ''
+              colorscheme desert256
+
+              " Fix status line color since ~April 2025:
+              " See https://github.com/neovim/neovim/pull/29976
+              hi StatusLine gui=nocombine
+            '';
+            */
+          }
           {
             plugin = vim-lucius;
             config = ''
