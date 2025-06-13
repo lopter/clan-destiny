@@ -64,7 +64,7 @@ in
           #   nginx: [emerg] host not found in upstream "upstream.example.com"
           # when the upstream host is not reachable for a short time when
           # nginx is started.
-          set $upstream_endpoint http://cache.nixos.org;
+          set $upstream_endpoint https://cache.nixos.org;
         '';
 
         locations."/" = {
@@ -74,6 +74,11 @@ in
             proxy_cache ${cacheName};
             proxy_cache_valid  200 302  60d;
             proxy_set_header Host "cache.nixos.org";
+            proxy_ssl_name                cache.nixos.org;
+            proxy_ssl_server_name         on;
+            proxy_ssl_verify              on;
+            proxy_ssl_verify_depth        5;
+            proxy_ssl_trusted_certificate /etc/ssl/certs/ca-bundle.crt;
             expires max;
             add_header Cache-Control  $nixos_proxy_cache_control always;
             add_header X-Cache-Status $upstream_cache_status;
