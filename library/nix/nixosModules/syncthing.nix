@@ -111,7 +111,7 @@ in
       assertions = [
         {
           assertion = config.clan-destiny.usergroups.createNormalUsers;
-          description = ''
+          message = ''
             family users and groups must be created (see option
             `clan-destiny.usergroups.createNormalUsers`) in order
             to create their syncthing accounts.
