@@ -1661,6 +1661,7 @@ in
         settings =
         let
           devices = {
+            genie.id = "C2GWMOE-U7G6END-Y2PP6VO-JUYRMT4-ON3SQBE-KPKDOWW-UN44IOR-G3K54QH";
             hoover.id = "XOBNDBJ-KD274HZ-7EX6I4D-KKCP7KH-IA5O5QV-YRXVIAW-DWQOZE5-VW7HCA3";
             lady-3jane.id = "A5TM755-VG4NGSO-5DN6TTB-WSFOQJX-AEUKYT6-2GLJFV2-BXTSP3M-LUTWKAL";
             syncthing-kal-sfo-ashpool.id = "NSDD5RA-GNXQEOX-ISYW2ZE-TLUY7M7-HJ676HN-H3B6JGQ-TS5B4ZF-HZLJMQH";
