@@ -414,6 +414,11 @@ in
                   icon = "https://nixos.wiki/favicon.png";
                   definedAliases = [ "nw" ];
                 };
+                "Noogles" = {
+                  urls = [ { template = "https://noogle.dev/q?term={searchTerms}"; } ];
+                  icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+                  definedAliases = [ "nf" ];
+                };
                 "Python" = {
                   urls = [ { template = "https://docs.python.org/3/search.html?q={searchTerms}"; } ];
                   icon = "https://docs.python.org/3/_static/py.svg";
