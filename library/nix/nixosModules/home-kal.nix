@@ -52,9 +52,9 @@ in
 
   home-manager.users."${user}" =
   let
-    syncthingVars = config.clan.core.vars.generators.clan-destiny-syncthing-accounts;
-    syncthingCert = syncthingVars.files."${user}-cert".path;
-    syncthingKey = syncthingVars.files."${user}-key".path;
+    syncthingVars = config.clan.core.vars.generators."clan-destiny-syncthing-account-${user}";
+    syncthingCert = syncthingVars.files.cert.path;
+    syncthingKey = syncthingVars.files.key.path;
   in
     {
       config,

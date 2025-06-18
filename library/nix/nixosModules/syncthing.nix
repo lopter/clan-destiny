@@ -73,39 +73,39 @@ in
 
   config = lib.mkMerge [
     (lib.mkIf ((builtins.length cfg.createUserAccounts) > 0) {
-      clan.core.vars.generators.clan-destiny-syncthing-accounts =
+      clan.core.vars.generators =
       let
-        mkFiles = userName: [
-          (lib.nameValuePair "${userName}-cert" { owner = userName; group = userName; })
-          (lib.nameValuePair "${userName}-key" { owner = userName; group = userName; })
-          (lib.nameValuePair "${userName}-apiKey" { owner = userName; group = userName; })
-          (lib.nameValuePair "${userName}-deviceId" { secret = false; })
-        ];
-        # Credit to clan-core for the script:
-        mkScript = userName: ''
-          syncthing generate --config $out
-          mv $out/key.pem $out/${userName}-key
-          mv $out/cert.pem $out/${userName}-cert
-          grep -oP '(?<=<device id=")[^"]+' $out/config.xml | uniq | trim > $out/${userName}-deviceId
-          grep -oP '<apikey>\K[^<]+' $out/config.xml | uniq | trim > $out/${userName}-apiKey
-          rm $out/config.xml
-        '';
-      in
-      {
-        files = builtins.listToAttrs (builtins.concatMap mkFiles cfg.createUserAccounts);
-        runtimeInputs = with pkgs; [
-          coreutils
-          gnugrep
-          syncthing
-        ];
-        script = ''
-          trim() {
-            tr -d "\n"
-          }
+        mkUserVarGenerator = userName: {
+          files = {
+            cert = { owner = userName; group = userName; };
+            # Has to be owned by root since non-secret files are placed
+            # in the nix store (and it will be world readable anyway).
+            deviceId = { secret = false; };
+            key = { owner = userName; group = userName; };
+            apiKey = { owner = userName; group = userName; };
+          };
+          runtimeInputs = with pkgs; [
+            coreutils
+            gnugrep
+            syncthing
+          ];
+          script = ''
+            trim() {
+              tr -d "\n"
+            }
 
-          ${lib.concatLines (map mkScript cfg.createUserAccounts)}
-        '';
-      };
+            syncthing generate --config $out
+            mv $out/key.pem $out/key
+            mv $out/cert.pem $out/cert
+            grep -oP '(?<=<device id=")[^"]+' $out/config.xml | uniq | trim > $out/deviceId
+            grep -oP '<apikey>\K[^<]+' $out/config.xml | uniq | trim > $out/apiKey
+            rm $out/config.xml
+          '';
+        };
+        mkGeneratorName = userName: "clan-destiny-syncthing-account-${userName}";
+        mkPair = userName: lib.nameValuePair (mkGeneratorName userName) (mkUserVarGenerator userName);
+      in
+        builtins.listToAttrs (map mkPair cfg.createUserAccounts);
     })
     (lib.mkIf ((builtins.length cfg.createUserSystemInstances) > 0) {
       assertions = [
@@ -125,7 +125,6 @@ in
       containers =
       let
         inherit (config.lib.clan-destiny) mkContainer;
-        syncthingVars = config.clan.core.vars.generators.clan-destiny-syncthing-accounts;
         certContainerPath = "/run/secrets/syncthing-cert.pem";
         keyContainerPath = "/run/secrets/syncthing-key.pem";
         apiKeyContainerPath = "/run/secrets/syncthing-apiKey.pem";
@@ -133,6 +132,8 @@ in
           name = mkContainerHostnameForUser name;
           value =
           let
+            varGeneratorName = "clan-destiny-syncthing-account-${name}";
+            syncthingVars = config.clan.core.vars.generators.${varGeneratorName};
             veth = vethsByUser.${name};
             syncthingUserFolder = "/stash/home/${name}/syncthing";
             syncthingUserVolume = "/stash/volumes/syncthing/${name}";
@@ -144,9 +145,9 @@ in
             };
             privateNetwork = true;
             bindMounts = {
-              ${certContainerPath}.hostPath = syncthingVars.files."${name}-cert".path;
-              ${keyContainerPath}.hostPath = syncthingVars.files."${name}-key".path;
-              ${apiKeyContainerPath}.hostPath = syncthingVars.files."${name}-apiKey".path;
+              ${certContainerPath}.hostPath = syncthingVars.files.cert.path;
+              ${keyContainerPath}.hostPath = syncthingVars.files.key.path;
+              ${apiKeyContainerPath}.hostPath = syncthingVars.files.apiKey.path;
               ${syncthingUserVolume} = {
                 hostPath = syncthingUserVolume;
                 isReadOnly = false;
@@ -327,6 +328,7 @@ in
         mkDirsForUser = name: [
           "d /stash/volumes/syncthing 0755 root root -"
           "d /stash/volumes/syncthing/${name} 0700 ${name} ${name} -"
+          "d /stash/volumes/syncthing/${name}/db 0700 ${name} ${name} -"
           "d /stash/home/${name}/syncthing 0700 ${name} ${name} - -"
         ];
       in
