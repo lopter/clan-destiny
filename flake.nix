@@ -272,6 +272,7 @@
                   pop-deploy
                   pop-releases
                   pop-sops
+                  pop-ssh
                 ]);
               };
             };

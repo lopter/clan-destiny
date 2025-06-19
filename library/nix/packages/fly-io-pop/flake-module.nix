@@ -2,6 +2,15 @@
 let
   inherit (self.inputs) clan-core destiny-config destiny-core;
   clan-destiny = self;
+
+  ports = {
+    process-compose = "1100";
+    nginx = "1101";
+    nginx-https = "1102";
+    ssh = "1103";
+    tailscaled = "41641";
+    unbound = "1104";
+  };
 in
 {
   perSystem =
@@ -132,14 +141,6 @@ in
           inherit (destiny-core.packages.${system}) blogon;
           blogonLayer = {
             deps = [ blogon ];
-          };
-          ports = {
-            process-compose = "1100";
-            nginx = "1101";
-            nginx-https = "1102";
-            ssh = "1103";
-            tailscaled = "41641";
-            unbound = "1104";
           };
           processComposeConfig = pkgs.writeTextFile {
             name = "process-compose.yaml";
@@ -870,5 +871,19 @@ in
           set +x
           exit $rv
         '';
+      packages.pop-ssh = pkgs.writeShellScriptBin "pop-ssh" ''
+        if [ $# -ne 1 ]
+        then
+          printf >&2 "Usage: %s ZONE" "$0"
+          exit 1
+        fi
+
+        ZONE="$1"
+        HOSTNAME="fly-io-pop-$ZONE.lightsd.io"
+        PORT="${ports.ssh}"
+
+        printf -- "--> ssh root@%s:%d\n" "$HOSTNAME" "$PORT"
+        ssh -o Port="$PORT" -o User=root -o ConnectTimeout=3 "$HOSTNAME"
+      '';
     };
 }
