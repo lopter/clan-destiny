@@ -1,15 +1,13 @@
-#!/usr/bin/env bash
-
 if [ $# -ne 1 ]
 then
-  printf 2>&1 "Usage: $0 USERNAME"
+  printf 2>&1 "Usage: %s USERNAME" "$0"
   exit 1
 fi
 
 USERNAME="$1"
 CONFIG_PATH="/stash/volumes/syncthing/$USERNAME/config/config.xml"
 
-# Copid from the NixOS syncthing module:
+# Copied from the NixOS syncthing module:
 curl() {
   while
     ! xmllint --xpath 'string(configuration/gui/apikey)' "$CONFIG_PATH" \
@@ -22,11 +20,12 @@ curl() {
     printf "X-API-Key: ";
     cat "$RUNTIME_DIRECTORY/api_key";
   } >"$RUNTIME_DIRECTORY/headers"
-  curl -sSLk -H "@$RUNTIME_DIRECTORY/headers" \
+
+  command curl -sSLk -H "@$RUNTIME_DIRECTORY/headers" \
     --retry 1000 --retry-delay 1 --retry-all-errors \
     "$@"
-
-  command curl "$@"
 }
 
 curl -X DELETE http://127.0.0.1:8384/rest/config/folders/default
+
+# vim: set ft=bash:

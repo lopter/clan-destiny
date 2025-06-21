@@ -1,0 +1,33 @@
+if [ $# -ne 1 ]
+then
+  printf >&2 "Usage: %s USER_NAME\n" "$0"
+  exit 1
+fi
+
+username="$1"
+stignore="/stash/home/$username/syncthing/.stignore"
+ignore_patterns="/stash/home/$username/syncthing/ignore-patterns.txt"
+
+umask 0077
+
+if ! [ -f "$stignore" ]
+then
+  printf "#include ignore-patterns.txt\n" >"$stignore"
+  chown "$username:$username" "$stignore"
+fi
+
+if ! [ -f "$ignore_patterns" ]
+then
+  f="$(mktemp syncthing-ignores.XXXXXXXXXX)"
+  cat >"$f" <<'EOF'
+// Vous pouvez ajouter vos propres modèles de fichiers à ignorer (ne pas synchroniser) ci-dessous.
+// Pour prendre effet, cette liste doit être importée depuis le fichier .stignore avec la directive : #include ignore-patterns.txt
+// Pour en savoir plus : https://docs.syncthing.net/users/ignoring.html
+(?d).DS_Store
+EOF
+  chown "$username:$username" "$f"
+  touch --date "1970-01-01T00:00:00Z" "$f"
+  mv "$f" "$ignore_patterns"
+fi
+
+# vim: set ft=bash:
