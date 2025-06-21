@@ -82,6 +82,7 @@ in
           aspellDicts.en
           aspellDicts.fr
           basedpyright
+          bash-language-server
           binutils
           direnv
           easytag
@@ -141,6 +142,7 @@ in
           (vault.overrideAttrs (_prev: {
             doCheck = false;
           }))
+          vscode-langservers-extracted
           wl-clipboard
           xkcdpass
           yt-dlp
@@ -655,11 +657,11 @@ in
             config = ''
               vim.lsp.enable({
                 'basedpyright',
+                'bashls',
                 'clangd',
                 'gopls',
+                'jsonls',
                 'nixd',
-                'kotlin_language_server',
-                'ts_ls',
                 'rust_analyzer',
               })
 
