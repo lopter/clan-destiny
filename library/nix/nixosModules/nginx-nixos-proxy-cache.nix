@@ -31,8 +31,8 @@ in
         by this period of time from the cache.
       '';
     };
-    serverName = lib.mkOption {
-      type = lib.types.nonEmptyStr;
+    serverNames = lib.mkOption {
+      type = with lib.types; nonEmptyListOf nonEmptyStr;
       description = "Name of the http virtual host for the cache.";
     };
   };
@@ -54,7 +54,7 @@ in
         }
       '';
 
-      virtualHosts."${cfg.serverName}" = {
+      virtualHosts = lib.genAttrs cfg.serverNames (name: {
         extraConfig = ''
           # Using a variable for the upstream endpoint to ensure that it is
           # resolved at runtime as opposed to once when the config file is loaded
@@ -84,7 +84,7 @@ in
             add_header X-Cache-Status $upstream_cache_status;
           '';
         };
-      };
+      });
     };
 
     systemd = {
