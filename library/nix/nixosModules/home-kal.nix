@@ -522,20 +522,21 @@ in
         userEmail = "louis@opter.org";
         ignores = [
           # directories
-          "debug/"
+          "**/debug/"
           "**/.devenv/"
           "**/.direnv/"
-          "*.egg-info/"
-          ".mypy_cache/"
-          "node_modules/"
-          "__pycache__/"
-          "target/"
+          "**/*.egg-info/"
+          "**/.mypy_cache/"
+          "**/node_modules/"
+          "**/__pycache__/"
+          "**/target/"
 
           # files
           "bazel-*"
           "result*"
           "Session.vim"
           ".ycm_extra_conf.py"
+          ".devenv.flake.nix"
         ];
         # See: https://blog.gitbutler.com/how-git-core-devs-configure-git/
         extraConfig = {
