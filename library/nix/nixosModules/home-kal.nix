@@ -1724,6 +1724,7 @@ in
     };
 
   nix.gc.automatic = lib.mkForce false;
+  nix.settings.allowed-users = [ user ];
 
   security.sudo.extraConfig = ''
     ${user}   ALL=(ALL) ALL

@@ -13,6 +13,7 @@
       nixpkgs.flake = self.inputs.nixpkgs;
     };
     settings = {
+      allowed-users = [ "root" ];
       experimental-features = [
         "nix-command"
         "flakes"
