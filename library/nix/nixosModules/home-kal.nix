@@ -678,7 +678,9 @@ in
                 'basedpyright',
                 'bashls',
                 'clangd',
+                'cssls',
                 'gopls',
+                'html',
                 'jsonls',
                 'nixd',
                 'rust_analyzer',
@@ -746,7 +748,7 @@ in
               -- Extend LSP capabilities for autocompletion
               -- https://github.com/hrsh7th/nvim-cmp
               -- https://github.com/hrsh7th/cmp-nvim-lsp
-              capabilities = require('cmp_nvim_lsp').default_capabilities()
+              local capabilities = require('cmp_nvim_lsp').default_capabilities()
               vim.lsp.config('*', {
                 capabilities = capabilities
               })
