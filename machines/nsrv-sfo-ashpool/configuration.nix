@@ -13,6 +13,8 @@ let
       isSystemUser = true;
     };
   };
+
+  familyUserNames = builtins.attrNames usergroups.familyUsers;
 in
 {
   boot.loader.systemd-boot.enable = true;
@@ -31,7 +33,7 @@ in
       ];
       containerHostnameSuffix = "ashpool";
     };
-    usergroups.createNormalUsers = true;
+    usergroups.createNormalUsers = familyUserNames;
     vault-server.enable = true;
     vault-client.enable = true;
   };

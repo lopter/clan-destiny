@@ -1,5 +1,7 @@
-{ config, lib, ... }:
+{ config, lib, self, ... }:
 let
+  inherit (self.inputs.destiny-config.lib) usergroups;
+
   cfg = config.clan-destiny.containers;
 in
 {
@@ -8,14 +10,13 @@ in
   # meant to be used on the host-side, while this module is only imported in
   # containers.
   options.clan-destiny.usergroups = {
-    createNormalUsers = lib.mkEnableOption {
+    createNormalUsers = lib.mkOption {
+      type = with lib.types; listOf (enum (builtins.attrNames usergroups.familyUsers));
       description = ''
         Enable the creation of non-system users and groups defined in the
         destiny-config flake.
-
-        This option is meant to be set on the container side.
       '';
-      default = false;
+      default = [ ];
     };
   };
 

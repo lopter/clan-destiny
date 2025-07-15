@@ -11,6 +11,8 @@ let
   hassDir = "/stash/volumes/hass";
 
   hass-pam-authenticate = destiny-core.packages.${system}.hass-pam-authenticate;
+
+  familyUserNames = builtins.attrNames usergroups.familyUsers;
 in
 {
   clan-destiny = {
@@ -19,7 +21,7 @@ in
       lan = lanInterfaces;
       tailnet-lopter-github = [ config.services.tailscale.interfaceName ];
     };
-    usergroups.createNormalUsers = true;
+    usergroups.createNormalUsers = familyUserNames;
   };
 
   networking.firewall.interfaces =

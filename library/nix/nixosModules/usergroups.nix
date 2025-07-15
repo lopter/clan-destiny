@@ -3,18 +3,17 @@ let
   cfg = config.clan-destiny.usergroups;
   cfg' = self.inputs.destiny-config.lib.usergroups;
   vars = config.clan.core.vars.generators.clan-destiny-user-passwords;
-
-  userNames = builtins.attrNames cfg'.familyUsers;
 in
 {
   # This is option is for use by our `destiny-config` input.
   options.clan-destiny.usergroups = {
-    createNormalUsers = lib.mkEnableOption {
+    createNormalUsers = lib.mkOption {
+      type = with lib.types; listOf (enum (builtins.attrNames cfg'.familyUsers));
       description = ''
         Enable the creation of non-system users and groups defined in the
         destiny-config flake.
       '';
-      default = false;
+      default = [ ];
     };
   };
 
@@ -27,7 +26,7 @@ in
       users.mutableUsers = false;
     }
 
-    (lib.mkIf cfg.createNormalUsers {
+    (lib.mkIf (builtins.length cfg.createNormalUsers > 0) {
       clan.core.vars.generators.clan-destiny-user-passwords =
       let
         mkFiles = acc: userName: acc ++ [
@@ -50,8 +49,8 @@ in
       in
       {
         share = true;
-        files = builtins.listToAttrs (builtins.foldl' mkFiles [ ] userNames);
-        prompts = builtins.listToAttrs (map mkPrompt userNames);
+        files = builtins.listToAttrs (builtins.foldl' mkFiles [ ] cfg.createNormalUsers);
+        prompts = builtins.listToAttrs (map mkPrompt cfg.createNormalUsers);
         runtimeInputs = with pkgs; [
           coreutils
           xkcdpass
@@ -62,7 +61,7 @@ in
             tr -d "\n"
           }
 
-          ${lib.concatLines (map mkScript userNames)}
+          ${lib.concatLines (map mkScript cfg.createNormalUsers)}
         '';
       };
 
@@ -72,7 +71,7 @@ in
           hashedPasswordFile = vars.files."${userName}-password-hash".path;
         };
       in
-        lib.genAttrs userNames setUserPassword;
+        lib.genAttrs cfg.createNormalUsers setUserPassword;
     })
   ];
 }

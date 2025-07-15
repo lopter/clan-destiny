@@ -1,13 +1,14 @@
 {
-  config,
   lib,
   self,
   ...
 }:
 let
-  inherit (self.inputs) nixos-hardware;
+  inherit (self.inputs) destiny-config nixos-hardware;
 
   enableSecureBoot = true;
+
+  familyUserNames = builtins.attrNames destiny-config.lib.usergroups.familyUsers;
 in
 {
   imports = [
@@ -23,7 +24,7 @@ in
   boot.lanzaboote.enable = enableSecureBoot;
 
   clan-destiny = {
-    usergroups.createNormalUsers = true;
+    usergroups.createNormalUsers = familyUserNames;
     vault-client.enable = true;
   };
 

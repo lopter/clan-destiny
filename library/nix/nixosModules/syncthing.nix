@@ -115,7 +115,7 @@ in
     (lib.mkIf ((builtins.length cfg.createUserSystemInstances) > 0) {
       assertions = [
         {
-          assertion = config.clan-destiny.usergroups.createNormalUsers;
+          assertion = builtins.length config.clan-destiny.usergroups.createNormalUsers > 0;
           message = ''
             family users and groups must be created (see option
             `clan-destiny.usergroups.createNormalUsers`) in order
@@ -165,7 +165,11 @@ in
             config =
               { ... }:
               {
-                clan-destiny.usergroups.createNormalUsers = true;
+                # louis@(2025-07-14): should we create all users? Not sure if
+                # that makes sense considering this is really only gonna be
+                # used by one user and uid/gid will be remapped on the client
+                # side.
+                clan-destiny.usergroups.createNormalUsers = [ name ];
 
                 services.syncthing =
                 {
