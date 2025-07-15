@@ -82,7 +82,28 @@
               ;
           };
           # inventory.services = { };
-
+          inventory.instances = {
+            sshd = {
+              module = {
+                name = "sshd";
+                input = "clan-core";
+              };
+              roles.server.tags.all = { };
+              roles.client.tags.all = { };
+            };
+            # user-root = {
+            #   module = {
+            #     name = "users";
+            #     input = "clan-core";
+            #   };
+            #   roles.default.tags.all = { };
+            #   roles.default.settings = {
+            #     user = "root";
+            #     prompt = false;
+            #     regularUser = false;
+            #   };
+            # };
+          };
           machines =
             let
               names = [
