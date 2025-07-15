@@ -253,6 +253,7 @@ in
 
       programs.firefox = {
         enable = true;
+        languagePacks = [ "fr" "en-US" ];
         profiles =
           let
             mkContainer =
@@ -310,6 +311,11 @@ in
                   definedAliases = [ "azf" ];
                   icon = "https://www.amazon.fr/favicon.ico";
                 };
+                "Apple Developer" = {
+                  urls = [ { template = "https://developer.apple.com/search/?q={searchTerms}&type=documentation"; } ];
+                  definedAliases = [ "ad" ];
+                  icon = "https://developer.apple.com/favicon.ico";
+                };
                 "Arch Linux" = {
                   urls = [ { template = "https://wiki.archlinux.org/index.php?search={searchTerms}"; } ];
                   definedAliases = [ "aw" ];
@@ -318,6 +324,11 @@ in
                   urls = [ { template = "https://bandcamp.com/search?q={searchTerms}"; } ];
                   definedAliases = [ "bc" ];
                   icon = "https://s4.bcbits.com/img/favicon/favicon-32x32.png";
+                };
+                "Bazel Central Registry" = {
+                  urls = [ { template = "https://registry.bazel.build/search?q={searchTerms}"; } ];
+                  definedAliases = [ "bcr" ];
+                  icon = "https://registry.bazel.build/favicon.png";
                 };
                 "Click" = {
                   urls = [ { template = "https://click.palletsprojects.com/en/latest/search/?q={searchTerms}"; } ];
@@ -354,6 +365,11 @@ in
                   icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
                   definedAliases = [ "maps" ];
                 };
+                "Go Packages" = {
+                  urls = [ { template = "https://pkg.go.dev/search?q={searchTerms}"; } ];
+                  icon = "https://pkg.go.dev/static/shared/icon/favicon.ico";
+                  definedAliases = [ "gp" ];
+                };
                 "IETF" = {
                   urls = [ { template = "https://datatracker.ietf.org/doc/search?name={searchTerms}&sort=&rfcs=on&activedrafts=on&by=group&group="; } ];
                   icon = "https://static.ietf.org/dt/12.34.0/ietf/images/ietf-logo-nor-180.png";
@@ -380,12 +396,12 @@ in
                   definedAliases = [ "nh" ];
                 };
                 "Manpages" = {
-                  urls = [ { template = "https://man.archlinux.org/search?q={searchTerms}"; } ];
+                  urls = [ { template = "https://man.archlinux.org/search?q={searchTerms}&lang=en"; } ];
                   definedAliases = [ "man" ];
                 };
                 "MDN" = {
                   urls = [ { template = "https://developer.mozilla.org/en-US/search?q={searchTerms}"; } ];
-                  icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+                  icon = "https://developer.mozilla.org/favicon.svg";
                   definedAliases = [ "mdn" ];
                 };
                 "MusicBrainz Artists" = searchMusicBrainz { type = "artist"; alias = "mba"; };
