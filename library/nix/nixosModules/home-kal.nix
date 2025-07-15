@@ -1283,6 +1283,7 @@ in
           }
         ]; # }}}
 
+        /*
         window-rules = [
           {
             description = "Dolphin";
@@ -1304,6 +1305,7 @@ in
             };
           }
         ];
+        */
 
         powerdevil =
           let
