@@ -70,8 +70,10 @@ in
       #   extra-substituters = https://devenv.cachix.org
       # '';
 
-      catppuccin.flavor = "latte";
       catppuccin.enable = true;
+      catppuccin.flavor = "latte";
+      # louis@(2025-07-13): See https://github.com/catppuccin/nix/issues/602
+      catppuccin.firefox.profiles.default.enable = false;
 
       home.homeDirectory = "/stash/home/${user}/cu";
 
