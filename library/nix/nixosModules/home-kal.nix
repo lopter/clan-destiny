@@ -91,6 +91,7 @@ in
           entr
           # discord
           # fzf
+          gh
           gnucash
           grim
           gv # replace with nix-visualize
@@ -122,6 +123,7 @@ in
           (pass.override { waylandSupport = true; })
           picard
           pngcrush
+          protols
           pv
           pwgen
           (python3.withPackages (
@@ -132,13 +134,16 @@ in
             ]
           ))
           qalculate-qt
+          regal
           shellcheck
           signal-desktop
+          sourcekit-lsp
           slurp
           telegram-desktop
           tidal-hifi
           tig
           tldr
+          typescript-language-server
           ungoogled-chromium
           unoconv
           (vault.overrideAttrs (_prev: {
@@ -276,6 +281,11 @@ in
                 id = 2;
                 icon = "circle";
                 color = "blue";
+              };
+              containers.personal = mkContainer {
+                id = 4;
+                icon = "fingerprint";
+                color = "purple";
               };
               containers.social = mkContainer {
                 id = 3;
@@ -677,13 +687,26 @@ in
               vim.lsp.enable({
                 'basedpyright',
                 'bashls',
-                'clangd',
+                -- 'clangd',
                 'cssls',
                 'gopls',
                 'html',
                 'jsonls',
+                'kotlin_language_server',
                 'nixd',
+                'protols',
                 'rust_analyzer',
+                'sourcekit',
+                'ts_ls',
+              })
+
+              vim.lsp.config('clangd', {
+                settings = {
+                  ['clangd'] = {
+                    -- still loads for proto files for some reason…
+                    filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' },
+                  },
+                },
               })
 
               vim.lsp.config('gopls', {
@@ -724,6 +747,13 @@ in
                     procMacro = {
                         enable = true
                     },
+                  },
+                },
+              })
+              vim.lsp.config('sourcekit', {
+                settings = {
+                  ['sourcekit'] = {
+                    filetypes = { "swift", "objc", "objcpp" },
                   },
                 },
               })
@@ -796,6 +826,7 @@ in
                 };
                 meta.homepage = "https://nvim-orgmode.github.io/";
               })
+              proto
               python
               rust
               rst
