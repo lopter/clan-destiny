@@ -1739,7 +1739,16 @@ in
     "f /stash/home/${user}/syncthing/.stignore 0600 ${user} ${user} - #include ignore-patterns.txt\\x0a"
   ];
 
-  systemd.user.services."syncthing-init-ignores-kal" = self.lib.mkSyncthingInitIgnoreService pkgs "kal";
+  systemd.user.services."syncthing-init-ignores-${user}" = {
+    description = "Syncthing ignores files setup";
+    before = [ "syncthing.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      RemainAfterExit = true;
+      Type = "oneshot";
+      ExecStart = "${lib.getExe self.packages.${system}.syncthing-init-ignore-service} ${lib.escapeShellArg user}";
+    };
+  };
 
   users.users."${user}" = {
     openssh.authorizedKeys.keys = [
