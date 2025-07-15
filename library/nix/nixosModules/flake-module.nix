@@ -18,6 +18,7 @@
     nix-settings = ./nix-settings.nix;
     nixpkgs = ./nixpkgs.nix;
     postfix-relay = ./postfix-relay.nix;
+    r8125 = ./r8125.nix;
     shared = ./shared.nix;
     ssh = ./ssh.nix;
     starrs-gate = ./starrs-gate.nix;

@@ -86,6 +86,7 @@
           machines =
             let
               names = [
+                "trifle-nebula"
                 "lady-3jane"
                 "nsrv-sfo-ashpool"
                 "nsrv-cdg-jellicent"
@@ -154,6 +155,7 @@
                   destiny-core'.mount-mnt
                 ];
                 networking.hostName = "clan-destiny-rescue";
+                services.tailscale.enable = true;
                 systemd.services.sshd.wantedBy = pkgs.lib.mkForce [ "multi-user.target" ];
                 time.timeZone = "UTC";
                 warnings = lib.optional (builtins.length rootSshAuthorizedKeys == 0) (
@@ -181,6 +183,7 @@
               self.nixosModules.base-pkgs
               self.nixosModules.linux
               self.nixosModules.nix-settings
+              self.nixosModules.r8125 # trifle-nebula
               self.nixosModules.ssh
               self.nixosModules.typed-tags
             ];
