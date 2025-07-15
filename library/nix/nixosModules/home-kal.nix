@@ -1701,7 +1701,7 @@ in
             "#include ignore-patterns.txt"
           ];
           folders.syncthing = {
-            path = "${config.home.homeDirectory}/syncthing";
+            path = "/stash/home/${user}/syncthing";
             label = "syncthing";
             devices = builtins.filter (name: name != hostName) (builtins.attrNames devices);
             autoNormalize = false;
