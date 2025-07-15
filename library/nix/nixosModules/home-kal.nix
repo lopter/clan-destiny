@@ -1133,6 +1133,15 @@ in
           };
         };
 
+        input.keyboard = {
+          repeatDelay = 180; # delay in ms
+          repeatRate = 60; # repeat per sec
+          options = [
+            "compose:ralt"
+            "compose:rwin"
+          ];
+        };
+
         panels = [
           # {{{
           # Windows-like panel at the bottom
