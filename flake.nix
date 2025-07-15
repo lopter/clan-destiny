@@ -60,6 +60,8 @@
         imports = [
           inputs.clan-core.flakeModules.default
 
+          ./library/bash/flake-module.nix
+
           ./library/nix/flake-module.nix
           ./library/nix/nixosModules/flake-module.nix
           ./library/nix/packages/fly-io-pop/flake-module.nix
