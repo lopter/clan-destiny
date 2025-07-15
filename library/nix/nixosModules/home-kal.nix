@@ -1691,12 +1691,8 @@ in
         settings =
         let
           devices = {
-            genie.id = "C2GWMOE-U7G6END-Y2PP6VO-JUYRMT4-ON3SQBE-KPKDOWW-UN44IOR-G3K54QH";
-            hoover.id = "XOBNDBJ-KD274HZ-7EX6I4D-KKCP7KH-IA5O5QV-YRXVIAW-DWQOZE5-VW7HCA3";
-            lady-3jane.id = "A5TM755-VG4NGSO-5DN6TTB-WSFOQJX-AEUKYT6-2GLJFV2-BXTSP3M-LUTWKAL";
+            syncthing-kal-cdg-jellicent.id = "6QXNLTA-ZX5OXFX-AFSJ6NR-2UTAU4U-AESLK63-2X2S3XN-ZJRL7YP-4B4L2QM";
             syncthing-kal-sfo-ashpool.id = "NSDD5RA-GNXQEOX-ISYW2ZE-TLUY7M7-HJ676HN-H3B6JGQ-TS5B4ZF-HZLJMQH";
-            wks-sfo-wintermute.id = "SUACJFD-NSB5R67-GSTXENV-G5AQNKD-WPGHO2I-GPYRGLZ-FT4P46C-MYFYOAR";
-            wormhole.id = "CHU2SHO-PBS4NHY-736434W-FI4WUQP-4JIHLD5-S5TS5UE-4H6N6SM-VAUJ5QH";
           };
         in
         {
