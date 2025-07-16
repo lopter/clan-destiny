@@ -86,6 +86,7 @@ in
           basedpyright
           bash-language-server
           binutils
+          devenv
           direnv
           easytag
           entr
@@ -173,7 +174,7 @@ in
         settings = {
           mouse.hide_when_typing = true;
           font = {
-            size = 12;
+            size = 13;
             normal = {
               family = "Inconsolata";
               style = "Regular";
@@ -233,8 +234,16 @@ in
         defaultProfile = "Catppuccin";
         profiles.Catppuccin = {
           font.name = "Inconsolata";
-          font.size = 12;
+          font.size = 13;
           colorScheme = "Catppuccin-Late";
+        };
+      };
+
+      programs.btop = {
+        enable = true;
+        settings = {
+          cpu_single_graph = true;
+          show_disks = false; # See: https://github.com/aristocratos/btop/pull/869
         };
       };
 
@@ -246,8 +255,6 @@ in
       programs.bash = {
         enable = false;
       };
-
-      programs.btop.enable = true;
 
       programs.fzf = {
         enable = true;
@@ -526,6 +533,8 @@ in
           };
       };
 
+      programs.gh.enable = true;
+
       programs.git = { # {{{
         enable = true;
         userName = "Louis Opter";
@@ -549,6 +558,7 @@ in
           ".devenv.flake.nix"
         ];
         # See: https://blog.gitbutler.com/how-git-core-devs-configure-git/
+
         extraConfig = {
           column.ui = "auto";
           branch.sort = "-committerdate";
@@ -1014,6 +1024,11 @@ in
               syntax on
           endif
 
+          if exists(':GuiFont')
+              " Use GuiFont! to ignore font errors
+              GuiFont Inconsolata Medium:h13
+          endif
+
           au BufRead,BufNewFile *.blt,*.rtx,*.cw[sp] set ft=c
           au BufRead,BufNewFile *.ino set ft=cpp
           au BufRead,BufNewFile *.rb set ts=2 sts=2 sw=2
@@ -1125,11 +1140,11 @@ in
         fonts = {
           general = {
             family = "JetBrains Mono";
-            pointSize = 12;
+            pointSize = 13;
           };
           fixedWidth = {
             family = "Inconsolata";
-            pointSize = 12;
+            pointSize = 13;
           };
         };
 
@@ -1139,6 +1154,7 @@ in
           options = [
             "compose:ralt"
             "compose:rwin"
+            "caps:escape"
           ];
         };
 
