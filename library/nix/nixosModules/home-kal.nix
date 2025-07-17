@@ -1444,6 +1444,7 @@ in
               "Lock Session" = [
                 "Favorites"
                 "Eject"
+                "ScrollLock"
               ];
             };
             kwin = {
