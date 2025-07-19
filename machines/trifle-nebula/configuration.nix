@@ -23,4 +23,3 @@ in
     fwupd.enable = true;
   };
 }
-

@@ -1,4 +1,4 @@
-{ lib, self, ... }:
+{ lib, pkgs, self, ... }:
 let
   lanInterfaces = [ "enp6s0" ];
 in
@@ -11,5 +11,19 @@ in
 
   clan-destiny.typed-tags.interfacesByRole = {
     lan = lanInterfaces;
+  };
+
+  systemd.services.reset-usb-dac = {
+    enable = true;
+    wantedBy = [ "sleep.target" ];
+    unitConfig = {
+      Description = "Reset my USB DAC after suspend";
+      After = "sleep.target";
+    };
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = "yes";
+      ExecStart = "${pkgs.usbutils}/bin/usbreset 4852:0003";
+    };
   };
 }
