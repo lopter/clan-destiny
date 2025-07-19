@@ -1582,10 +1582,10 @@ in
               local cur_dir="''${HIST_ARCHIVE_DIR}/''${year_month}"
               mkdir -p "''${cur_dir}"
 
-              if [ $(print -rn "''${histline}" | grep -c "^[[:space:]]*$") -eq 0 ]; then
+              if [ $(print -rn -- "''${histline}" | grep -c "^[[:space:]]*$") -eq 0 ]; then
                   local cur_time=$(date "+%H:%M:%S%z")
                   local cur_file="''${year_month}-$(date "+%d")_''${USER}_''${HIST_HOSTNAME}.log"
-                  print -rn "''${cur_time} ''${histline}" >> "''${cur_dir}/''${cur_file}"
+                  print -rn -- "''${cur_time} ''${histline}" >> "''${cur_dir}/''${cur_file}"
               fi
             }
 
