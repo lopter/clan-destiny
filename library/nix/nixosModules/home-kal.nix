@@ -1455,6 +1455,8 @@ in
               "Switch Window Left" = "Meta+H";
               "Switch Window Right" = "Meta+L";
               "Switch Window Up" = "Meta+K";
+              "Switch to Screen 0" = "Ctrl+1";
+              "Switch to Screen 1" = "Ctrl+2";
               "Window to Desktop 1" = "Meta+!";
               "Window to Desktop 2" = "Meta+@";
               "Window to Desktop 3" = "Meta+#";
@@ -1472,7 +1474,7 @@ in
 
             plasmashell = {
               "activate application launcher" = "Meta+O";
-            } // (repeat "Activate Task Manager Entry" "Ctrl" 9);
+            }; # // (repeat "Activate Task Manager Entry" "Ctrl" 9);
           };
 
         #
