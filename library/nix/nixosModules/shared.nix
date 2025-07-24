@@ -94,7 +94,7 @@ in
     };
 
     powerManagement = lib.mkIf pkgs.stdenv.hostPlatform.isx86 {
-      powertop.enable = true;
+      powertop.enable = lib.mkDefault true;
       cpuFreqGovernor = lib.mkDefault "ondemand";
     };
 
