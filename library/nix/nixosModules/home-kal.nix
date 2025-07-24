@@ -237,6 +237,7 @@ in
           font.name = "Inconsolata";
           font.size = 13;
           colorScheme = "Catppuccin-Late";
+          extraConfig.Scrolling.HistorySize = lib.mkDefault 10000;
         };
       };
 
