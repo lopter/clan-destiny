@@ -551,6 +551,7 @@ in
           "**/node_modules/"
           "**/__pycache__/"
           "**/target/"
+          "**/.idea/"
 
           # files
           "bazel-*"
@@ -588,7 +589,6 @@ in
             enabled = true;
             autoupdate = true;
           };
-          core.excludesfile = "~/.gitignore";
           rebase = {
             autoStash = true;
             updateRefs = true;
