@@ -150,6 +150,7 @@ in
           (vault.overrideAttrs (_prev: {
             doCheck = false;
           }))
+          vscode-extensions.vadimcn.vscode-lldb
           vscode-langservers-extracted
           wl-clipboard
           xkcdpass
@@ -690,7 +691,28 @@ in
                   }),
               })
             ''; # }}}
-            })
+          })
+          (usePlugin nvim-dap {
+            config = ''
+              local dap = require('dap')
+              dap.adapters.codelldb = {
+                type = "executable",
+                command = "${pkgs.vscode-extensions.vadimcn.vscode-lldb}/share/vscode/extensions/vadimcn.vscode-lldb/adapter/codelldb",
+              }
+              dap.configurations.rust = {
+                {
+                  name = "Cargo CodeLLDB (Launch)",
+                  type = "codelldb",
+                  request = "launch",
+                  program = function()
+                    return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+                  end,
+                  cwd = "''${workspaceFolder}",
+                  stopOnEntry = false,
+                },
+              }
+            '';
+          })
           cmp-nvim-lsp
           (usePlugin nvim-lspconfig { # {{{
             config = ''
