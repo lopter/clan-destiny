@@ -661,8 +661,12 @@ in
         defaultEditor = true;
         vimAlias = true;
         plugins = with pkgs.vimPlugins; [
+          (usePlugin fzf-lua {
+            config = ''
+              require('fzf-lua')
+            '';
+          })
           direnv-vim
-          fzf-vim
           (usePlugin lsp-format-nvim { # {{{
             config = ''
               require("lsp-format").setup({})
@@ -775,6 +779,12 @@ in
                     cargo = {
                         buildScripts = {
                             enable = true,
+                        },
+                        features = "all",
+                    },
+                    completion = {
+                        autoimport = {
+                            enable = false,
                         },
                     },
                     procMacro = {
@@ -1087,8 +1097,9 @@ in
             " Make the file path relative to the git repository root
             let relative_file_path = substitute(current_file, '^' . git_root . '/', ''', ''')
 
-            " Get the GitHub URL of the current repository
-            let github_url = system("git remote -v | awk '/github.com/ { print(\"https://github.com/\" gensub(/^git@github.com:(.+).git$/, \"\\\\1\", \"g\", $2) \"/\"); }' | tail -n1")
+            " Get the GitHub URL of the current repository, fwiw I have tried
+            " and failed to split this on multiple lines:
+            let github_url = system("git remote -v | awk '/github.com/ { if ($2 ~ /^https/) { print(substr($2, 0, length($2) - 4) \"/\"); } else { print(\"https://github.com/\" gensub(/^git@github.com:(.+).git$/, \"\\\\1\", \"g\", $2) \"/\"); } }' | tail -n1")
             let github_url = substitute(github_url, '\n\+$', ''', ''')
 
             " Get the commit SHA for origin/main
@@ -1118,8 +1129,9 @@ in
           vmap <silent> <Leader>s :'<,'>!sort<CR>
           nnoremap <silent> <C-j> :tabnext<CR>
           nnoremap <silent> <C-k> :tabprevious<CR>
-          nnoremap <silent> <C-p> :Files<CR>
-          nnoremap <silent> <C-b> :Buffers<CR>
+
+          nnoremap <silent> <C-p> :FzfLua files<CR>
+          nnoremap <silent> <C-b> :FzfLua buffers<CR>
         '';
         extraLuaConfig = ''
 
