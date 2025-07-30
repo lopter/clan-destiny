@@ -375,13 +375,18 @@ in
                   urls = [ { template = "https://emojipedia.org/search?q={searchTerms}"; } ];
                   definedAliases = [ "emoji" ];
                 };
+                FedEx = {
+                  urls = [ { template = "https://www.fedex.com/fedextrack/?trknbr={searchTerms}"; } ];
+                  icon = "https://www.fedex.com/images/c/s1/fx-favicon.ico";
+                  definedAliases = [ "fedex" ];
+                };
                 GitHub = {
                   urls = [ { template = "https://github.com/search?q={searchTerms}&type=repositories"; } ];
                   definedAliases = [ "gh" ];
                 };
                 "Google Maps" = {
                   urls = [ { template = "https://maps.google.com/?q={searchTerms}"; } ];
-                  icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+                  icon = "https://www.google.com/images/branding/product/ico/maps15_bnuw3a_32dp.ico";
                   definedAliases = [ "maps" ];
                 };
                 "Go Packages" = {
@@ -1527,7 +1532,7 @@ in
             Greeter.WallpaperPlugin = "org.kde.potd";
             # To use nested groups use / as a separator. In the below example,
             # Provider will be added to [Greeter][Wallpaper][org.kde.potd][General].
-            "Greeter/Wallpaper/org.kde.potd/General".Provider = "bing";
+            "Greeter/Wallpaper/org.kde.potd/General".Provider = lib.mkDefault "wcpotd";
           };
         };
       }; # }}}

@@ -15,9 +15,6 @@ let
 in
 {
   imports = [
-    # Enables the OpenSSH server for remote access
-    clan-core.clanModules.root-password
-
     home-manager.nixosModules.home-manager
 
     self.nixosModules.acl-watcher

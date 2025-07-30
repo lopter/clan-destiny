@@ -48,6 +48,7 @@ in
 
   users = hassUser;
 
+  /*
   containers =
   let
     inherit (config.lib.clan-destiny) mkContainer;
@@ -103,4 +104,5 @@ in
         };
     };
   };
+  */
 }
