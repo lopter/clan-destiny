@@ -91,6 +91,7 @@ in
           # discord
           # fzf
           gh
+          git-spice
           gnucash
           grim
           gv # replace with nix-visualize
@@ -119,6 +120,7 @@ in
           nix-prefetch-github
           nix-tree
           okteta
+          opentofu-ls
           (pass.override { waylandSupport = true; })
           picard
           pngcrush
@@ -133,7 +135,6 @@ in
             ]
           ))
           qalculate-qt
-          regal
           shellcheck
           signal-desktop
           sourcekit-lsp
@@ -160,10 +161,10 @@ in
           rc2nix
         ])
         ++ (with clan-core.packages.${system}; [
-            clan-cli
+          clan-cli
         ])
         ++ (with destiny-core.packages.${system}; [
-            toolbelt
+          toolbelt
         ]);
 
       nixpkgs.config = nixpkgsCfg;
@@ -620,6 +621,9 @@ in
       programs.home-manager.enable = true;
       programs.mpv = {
         enable = true;
+        scripts = [
+          pkgs.mpvScripts.mpris
+        ];
         scriptOpts = {
           ytdl_hook.ytdl_path = "${pkgs.yt-dlp}/bin/yt-dlp";
         };
