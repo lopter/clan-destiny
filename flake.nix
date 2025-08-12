@@ -91,18 +91,17 @@
               roles.server.tags.all = { };
               roles.client.tags.all = { };
             };
-            # user-root = {
-            #   module = {
-            #     name = "users";
-            #     input = "clan-core";
-            #   };
-            #   roles.default.tags.all = { };
-            #   roles.default.settings = {
-            #     user = "root";
-            #     prompt = false;
-            #     regularUser = false;
-            #   };
-            # };
+            user-root = {
+              module = {
+                name = "users";
+                input = "clan-core";
+              };
+              roles.default.tags.all = { };
+              roles.default.settings = {
+                user = "root";
+                prompt = false;
+              };
+            };
           };
           machines =
             let

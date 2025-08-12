@@ -1669,12 +1669,16 @@ in
             alias po="popd"
             alias d="dirs -v"
 
-            dirs \
-              ~/src/nix/{clan-core,nixpkgs} \
-              ~/projs/clan-destiny \
-              ~/projs/clan-destiny/library/nix/packages/fly-io-pop \
-              ~/projs/destiny-{core,config} \
-              ~/projs/destiny-core/library/rust/blogon
+            if [ -f ~/.config/dirstack.zsh ]; then
+              . ~/.config/dirstack.zsh
+            else
+              dirs \
+                ~/src/nix/{clan-core,nixpkgs} \
+                ~/projs/clan-destiny \
+                ~/projs/clan-destiny/library/nix/packages/fly-io-pop \
+                ~/projs/destiny-{core,config} \
+                ~/projs/destiny-core/library/rust/blogon
+            fi
 
             chelp() { cmake --help-command $1 | rst2html.py -q | lynx -stdin }
 
