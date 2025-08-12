@@ -60,7 +60,7 @@ in
   config.environment = {
     etc."mailutils.conf".text = ''
       address {
-        email-domain "${config.services.postfix.domain}";
+        email-domain "${config.services.postfix.settings.main.mydomain}";
       }
     '';
     systemPackages = [ pkgs.mailutils ];
@@ -71,25 +71,34 @@ in
       relayCredentialsFilename = "relayCredentials";
     in
     {
-      inherit (cfg) domain;
-      hostname = "${config.networking.hostName}.${cfg.domain}";
       enable = true;
       mapFiles = {
         ${relayCredentialsFilename} = vars.files.credentials.path;
       };
-      relayHost = cfg.relayHost;
-      relayPort = cfg.relayPort;
-      config = {
-        smtpd_banner = "\$myhostname ESMTP \$mail_name";
+      settings.main = {
+        append_dot_mydomain = false; # appending .domain is the MUA's job.
         biff = false;
-
-        # appending .domain is the MUA's job.
-        append_dot_mydomain = false;
-
-        readme_directory = false;
-
+        inet_interfaces = "loopback-only";
+        mailbox_size_limit = "0";
+        mydestination = [
+          "$myhostname"
+          "localhost"
+          "localhost.$mydomain"
+        ];
+        mydomain = cfg.domain;
+        myhostname = "${config.networking.hostName}.${cfg.domain}";
+        mynetworks = [
+          "127.0.0.0/8"
+          "[::ffff:127.0.0.0]/104"
+          "[::1]/128"
+        ];
+        myorigin = "$mydomain";
+        recipient_delimiter = "+";
+        relay_domains = [ "$mydomain" ];
+        relayhost = [ "[${cfg.relayHost}]:${toString cfg.relayPort}" ];
+        smtpd_banner = "$myhostname ESMTP $mail_name";
         # TLS parameters;
-        smtpd_use_tls = false;
+        smtpd_tls_security_level = "none";
         smtp_tls_security_level = "secure";
         smtp_tls_verify_cert_match = "nexthop";
         smtp_tls_session_cache_database = "btree:\${data_directory}/smtp_scache";
@@ -97,14 +106,6 @@ in
         smtp_sasl_auth_enable = true;
         smtp_sasl_password_maps = "hash:/var/lib/postfix/conf/${relayCredentialsFilename}";
         smtp_sasl_security_options = "noanonymous";
-
-        mydestination = "\$myhostname, localhost, localhost.\$mydomain";
-        myorigin = "\$mydomain";
-        relay_domains = "\$mydomain";
-        mynetworks = "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128";
-        mailbox_size_limit = "0";
-        recipient_delimiter = "+";
-        inet_interfaces = "loopback-only";
       };
     };
 }
