@@ -63,17 +63,15 @@ in
       ...
     }:
     {
-      # nix.extraConfig = ''
-      #   experimental-features = nix-command flakes
-      #   build-users-group = nixbld
-      #   trusted-public-keys = devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=
-      #   extra-substituters = https://devenv.cachix.org
-      # '';
-
       catppuccin.enable = true;
       catppuccin.flavor = "latte";
-      # louis@(2025-07-13): See https://github.com/catppuccin/nix/issues/602
       catppuccin.firefox.profiles.default.enable = false;
+
+      # Disable catppuccin for firefox because it would require managing all
+      # extensions configurationn from home-manager, and I am not ready for
+      # that. This causes some evaluation warning that can safely be ignored.
+      # See also: https://github.com/catppuccin/nix/issues/602
+      catppuccin.firefox.profiles."s2nt6rj0.main".enable = false;
 
       home.homeDirectory = "/stash/home/${user}/cu";
 
