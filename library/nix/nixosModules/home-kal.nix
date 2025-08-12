@@ -120,7 +120,6 @@ in
           nix-prefetch-github
           nix-tree
           okteta
-          opentofu-ls
           (pass.override { waylandSupport = true; })
           picard
           pngcrush
@@ -143,6 +142,7 @@ in
           tidal-hifi
           tig
           tldr
+          tofu-ls
           typescript-language-server
           ungoogled-chromium
           unoconv
