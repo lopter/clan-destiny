@@ -725,6 +725,24 @@ in
               }
             '';
           })
+          (usePlugin nvim-dap-ui {
+            config = ''
+              local dapui = require("dapui")
+              dapui.setup()
+              dap.listeners.before.attach.dapui_config = function()
+                dapui.open()
+              end
+              dap.listeners.before.launch.dapui_config = function()
+                dapui.open()
+              end
+              dap.listeners.before.event_terminated.dapui_config = function()
+                dapui.close()
+              end
+              dap.listeners.before.event_exited.dapui_config = function()
+                dapui.close()
+              end
+            '';
+          })
           cmp-nvim-lsp
           (usePlugin nvim-lspconfig { # {{{
             config = ''
@@ -741,6 +759,7 @@ in
                 'protols',
                 'rust_analyzer',
                 'sourcekit',
+                'tofu_ls',
                 'ts_ls',
               })
 
@@ -1069,18 +1088,19 @@ in
               GuiFont Inconsolata Medium:h13
           endif
 
-          au BufRead,BufNewFile *.blt,*.rtx,*.cw[sp] set ft=c
-          au BufRead,BufNewFile *.ino set ft=cpp
-          au BufRead,BufNewFile *.rb set ts=2 sts=2 sw=2
-          au BufRead,BufNewFile *.pp set ft=puppet
-          au BufRead,BufNewFile *.go set ts=8 sts=8 sw=8 expandtab ft=go
-          au BufRead,BufNewFile *.coffee set ts=2 sts=2 sw=2 ft=coffee
-          au BufRead,BufNewFile *.jade set ts=2 sts=2 sw=2 ft=jade
-          au BufRead,BufNewFile *.avsc set ts=2 sts=2 sw=2 ft=json
-          au BufRead,BufNewFile *.nix set ts=2 sts=2 sw=2 ft=nix
-          au BufRead,BufNewFile *.html,*.css set ts=2 sts=2 sw=2
-          au BufRead,BufNewFile *.smali set ft=smali
-          au BufRead,BufNewFile *.thrift set ft=thrift
+          au BufRead,BufNewFile *.blt,*.rtx,*.cw[sp] setl ft=c
+          au BufRead,BufNewFile *.ino setl ft=cpp
+          au BufRead,BufNewFile *.rb setl ts=2 sts=2 sw=2
+          au BufRead,BufNewFile *.pp setl ft=puppet
+          au BufRead,BufNewFile *.go setl ts=8 sts=8 sw=8 expandtab ft=go
+          au BufRead,BufNewFile *.coffee setl ts=2 sts=2 sw=2 ft=coffee
+          au BufRead,BufNewFile *.jade setl ts=2 sts=2 sw=2 ft=jade
+          au BufRead,BufNewFile *.avsc setl ts=2 sts=2 sw=2 ft=json
+          au BufRead,BufNewFile *.nix setl ts=2 sts=2 sw=2 ft=nix
+          au BufRead,BufNewFile *.html,*.css setl ts=2 sts=2 sw=2
+          au BufRead,BufNewFile *.smali setl ft=smali
+          au BufRead,BufNewFile *.thrift setl ft=thrift
+          au BufRead,BufNewFile *.rs setl foldmethod=expr foldexpr=getline(v:lnum)=~'^\\s*//'
 
           """ Functions
 
@@ -1110,7 +1130,7 @@ in
             let github_url = substitute(github_url, '\n\+$', ''', ''')
 
             " Get the commit SHA for origin/main
-            let commit_sha = system("for each in {upstream,origin}/{master,main}; do { git rev-parse --quiet --verify --revs-only $each && break; }; done ")
+            let commit_sha = system("for each in {upstream,origin}/{main,master}; do { git rev-parse --quiet --verify --revs-only $each && break; }; done ")
             let commit_sha = substitute(commit_sha, '\n\+$', ''', ''')
 
             " Construct the GitHub permalink
@@ -1125,17 +1145,20 @@ in
 
           """ Mappings
 
-          map Q gq
-          map <Leader>t "*
-          map <Leader>d "+
-          map <silent> <Leader>n :call ToggleLineNumbers()<CR>
-          map <silent> <Leader>l :call CopyGithubPermalink()<CR>
-          map <silent> <Leader>h :set invhlsearch<CR>
-          map <silent> <Leader>w :set invwrap<CR>
-          map <silent> <Leader>c :set invcursorcolumn<CR>
-          vmap <silent> <Leader>s :'<,'>!sort<CR>
-          nnoremap <silent> <C-j> :tabnext<CR>
-          nnoremap <silent> <C-k> :tabprevious<CR>
+          noremap Q gq
+          noremap <Leader>t "*
+          noremap <Leader>d "+
+          noremap <silent> <Leader>n :call ToggleLineNumbers()<CR>
+          noremap <silent> <Leader>l :call CopyGithubPermalink()<CR>
+          noremap <silent> <Leader>h :set invhlsearch<CR>
+          noremap <silent> <Leader>w :set invwrap<CR>
+          noremap <silent> <Leader>c :set invcursorcolumn<CR>
+          vnoremap <silent> <Leader>s :'<,'>!sort<CR>
+
+          nnoremap <silent> <Leader>b :DapToggleBreakpoint<CR>
+          vnoremap <silent> <Leader>de <Cmd>lua require("dapui").eval()<CR>
+          nnoremap <silent> <Leader>fr :FzfLua lsp_references<CR>
+          nnoremap <silent> <Leader>fg :FzfLua grep<CR>
 
           nnoremap <silent> <C-p> :FzfLua files<CR>
           nnoremap <silent> <C-b> :FzfLua buffers<CR>
