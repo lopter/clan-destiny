@@ -826,6 +826,13 @@ in
                   },
                 },
               })
+              vim.lsp.config('tofu_ls', {
+                settings = {
+                  ['tofu_ls'] = {
+                    filetypes = { 'opentofu', 'opentofu-vars', 'terraform', 'terraform-vars' },
+                  },
+                },
+              })
 
               vim.api.nvim_create_autocmd('LspAttach', {
                 callback = function(args)
@@ -907,6 +914,8 @@ in
               -- Treesitter configuration for better syntax highlighting and code manipulation
               -- https://github.com/nvim-treesitter/nvim-treesitter
               -- https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
+              vim.treesitter.language.register("hcl", "opentofu")
+
               require('nvim-treesitter.configs').setup {
                   highlight = {
                       enable = true,
@@ -1101,6 +1110,7 @@ in
           au BufRead,BufNewFile *.smali setl ft=smali
           au BufRead,BufNewFile *.thrift setl ft=thrift
           au BufRead,BufNewFile *.rs setl foldmethod=expr foldexpr=getline(v:lnum)=~'^\\s*//'
+          au BufRead,BufNewFile *.tofu,*.tf setl ts=2 sts=2 sw=2 ft=opentofu
 
           """ Functions
 
@@ -1154,6 +1164,8 @@ in
           noremap <silent> <Leader>w :set invwrap<CR>
           noremap <silent> <Leader>c :set invcursorcolumn<CR>
           vnoremap <silent> <Leader>s :'<,'>!sort<CR>
+          nnoremap <silent> <C-j> :tabnext<CR>
+          nnoremap <silent> <C-k> :tabprevious<CR>
 
           nnoremap <silent> <Leader>b :DapToggleBreakpoint<CR>
           vnoremap <silent> <Leader>de <Cmd>lua require("dapui").eval()<CR>
