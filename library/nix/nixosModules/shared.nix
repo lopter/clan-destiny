@@ -98,6 +98,8 @@ in
     # Locale service discovery and mDNS
     services.avahi.enable = true;
 
+    services.tailscale.disableTaildrop = true;
+
     networking.domain = "kalessin.fr";
     networking.firewall.enable = true;
 
