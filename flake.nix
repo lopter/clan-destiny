@@ -7,11 +7,11 @@
 
     clan-core.follows = "destiny-core/clan-core";
 
-    destiny-core.url = "git+ssh://gitolite@gitolite.kalessin.fr/destiny-core?ref=main";
-    # destiny-core.url = "git+file:///stash/home/kal/cu/projs/destiny-core";
+    # destiny-core.url = "git+ssh://gitolite@gitolite.kalessin.fr/destiny-core?ref=main";
+    destiny-core.url = "git+file:///stash/home/kal/cu/projs/destiny-core";
 
-    destiny-config.url = "git+ssh://gitolite@gitolite.kalessin.fr/louis/destiny-config?ref=main";
-    # destiny-config.url = "git+file:///stash/home/kal/cu/projs/destiny-config";
+    # destiny-config.url = "git+ssh://gitolite@gitolite.kalessin.fr/louis/destiny-config?ref=main";
+    destiny-config.url = "git+file:///stash/home/kal/cu/projs/destiny-config";
     destiny-config.inputs.nixpkgs.follows = "nixpkgs";
     destiny-config.inputs.destiny-core.follows = "destiny-core";
 
