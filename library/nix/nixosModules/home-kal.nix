@@ -173,6 +173,7 @@ in
         enable = false;
         settings = {
           mouse.hide_when_typing = true;
+          selection.save_to_clipboard = true;
           font = {
             size = 13;
             normal = {
