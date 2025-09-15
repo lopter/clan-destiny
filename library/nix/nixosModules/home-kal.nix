@@ -361,7 +361,7 @@ in
                   definedAliases = [ "ctan" ];
                   icon = "http://www.ctan.org/images/favicon.ico";
                 };
-                "ddg" = {
+                "ddg" = { # evaluation warning: Search engines are now referenced by id instead of by name, use 'ddg' instead of 'DuckDuckGo'
                   urls = [ { template = "https://duckduckgo.com/?q={searchTerms}"; } ];
                   definedAliases = [ "ddg" ];
                   icon = "https://duckduckgo.com/favicon.ico";
@@ -378,6 +378,11 @@ in
                   urls = [ { template = "https://www.fedex.com/fedextrack/?trknbr={searchTerms}"; } ];
                   icon = "https://www.fedex.com/images/c/s1/fx-favicon.ico";
                   definedAliases = [ "fedex" ];
+                };
+                "google" = { # evaluation warning: Search engines are now referenced by id instead of by name, use 'google' instead of 'Google'
+                  urls = [ { template = "https://www.google.com/search?q={searchTerms}"; } ];
+                  definedAliases = [ "g" ];
+                  icon = "https://www.gstatic.com/images/branding/searchlogo/ico/favicon.ico";
                 };
                 GitHub = {
                   urls = [ { template = "https://github.com/search?q={searchTerms}&type=repositories"; } ];
@@ -528,10 +533,15 @@ in
                   icon = "https://www.wordreference.com/icon.svg";
                   definedAliases = [ "wfe" ];
                 };
-                "youtube" = {
+                "youtube" = { # evaluation warning: Search engines are now referenced by id instead of by name, use 'youtube' instead of 'YouTube'
                   urls = [ { template = "https://www.youtube.com/results?search_query={searchTerms}"; } ];
-                  icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+                  icon = "https://www.youtube.com/img/favicon_144.png";
                   definedAliases = [ "yt" ];
+                };
+                "YouTube Music" = {
+                  urls = [ { template = "https://music.youtube.com/search?q={searchTerms}"; } ];
+                  icon = "https://music.youtube.com/img/favicon_144.png";
+                  definedAliases = [ "ytm" ];
                 };
               }; # }}}
               search.force = true;
