@@ -3,15 +3,24 @@ let
   cfg = config.clan-destiny.usergroups;
   cfg' = self.inputs.destiny-config.lib.usergroups;
   vars = config.clan.core.vars.generators.clan-destiny-user-passwords;
+
+  userNames = builtins.attrNames cfg'.familyUsers;
 in
 {
   # This is option is for use by our `destiny-config` input.
   options.clan-destiny.usergroups = {
     createNormalUsers = lib.mkOption {
-      type = with lib.types; listOf (enum (builtins.attrNames cfg'.familyUsers));
+      type = with lib.types; listOf (enum userNames);
       description = ''
         Enable the creation of non-system users and groups defined in the
         destiny-config flake.
+
+        Note: This will generate passwords for all users in the destiny-config
+        flake but only set/use passwords in the NixOS config for the users
+        specified with this option. We need to do this in order to keep the
+        vars generator the same accross machines, see [#5253].
+
+        [#5253]: https://git.clan.lol/clan/clan-core/issues/5253
       '';
       default = [ ];
     };
@@ -49,8 +58,8 @@ in
       in
       {
         share = true;
-        files = builtins.listToAttrs (builtins.foldl' mkFiles [ ] cfg.createNormalUsers);
-        prompts = builtins.listToAttrs (map mkPrompt cfg.createNormalUsers);
+        files = builtins.listToAttrs (builtins.foldl' mkFiles [ ] userNames);
+        prompts = builtins.listToAttrs (map mkPrompt userNames);
         runtimeInputs = with pkgs; [
           coreutils
           xkcdpass
@@ -61,7 +70,7 @@ in
             tr -d "\n"
           }
 
-          ${lib.concatLines (map mkScript cfg.createNormalUsers)}
+          ${lib.concatLines (map mkScript userNames)}
         '';
       };
 
