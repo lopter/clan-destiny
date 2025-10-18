@@ -26,6 +26,9 @@
     lanzaboote.inputs.crane.follows = "destiny-core/crane";
     lanzaboote.inputs.flake-parts.follows = "destiny-core/flake-parts";
 
+    nix-auth.url = "github:numtide/nix-auth";
+    nix-auth.inputs.nixpkgs.follows = "nixpkgs";
+
     nix2container.follows = "destiny-core/nix2container";
     nix2container.inputs.nixpkgs.follows = "nixpkgs";
 

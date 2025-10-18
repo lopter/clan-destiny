@@ -5,6 +5,7 @@
   environment.systemPackages = with pkgs.kdePackages; [
     akregator
     filelight
+    plasma-browser-integration
     kcolorchooser
     kruler
   ];

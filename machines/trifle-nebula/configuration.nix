@@ -1,8 +1,10 @@
 {
   self,
+  pkgs,
   ...
 }:
 let
+  inherit (pkgs.stdenv.hostPlatform) system;
   enableSecureBoot = false;
 in
 {
@@ -18,6 +20,10 @@ in
   clan-destiny = {
     usergroups.createNormalUsers = [ "kal" ];
   };
+
+  environment.systemPackages = [
+    self.inputs.nix-auth.packages.${system}.default
+  ];
 
   services = {
     tailscale.enable = true;

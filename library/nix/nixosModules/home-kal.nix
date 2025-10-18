@@ -47,7 +47,7 @@ in
 
   home-manager.sharedModules = [
     catppuccin.homeModules.catppuccin
-    plasma-manager.homeManagerModules.plasma-manager
+    plasma-manager.homeModules.plasma-manager
   ];
 
   home-manager.users."${user}" =
@@ -413,6 +413,11 @@ in
                   urls = [ { template = "https://kagi.com/search?q={searchTerms}&r=fr"; } ];
                   definedAliases = [ "kf" ];
                   icon = "https://search-cdn.kagi.com/v1/favicon-32x32.png";
+                };
+                "Kubernetes" = {
+                  urls = [ { template = "https://kubernetes.io/search/?q={searchTerms}"; } ];
+                  definedAliases = [ "k8s" ];
+                  icon = "https://kubernetes.io/icons/icon-128x128.png";
                 };
                 "Home-assistant discourse" = {
                   urls = [ { template = "https://community.home-assistant.io/search?&q={searchTerms}"; } ];
@@ -1789,17 +1794,33 @@ in
 
             restart-agent() { gpgconf --kill gpg-agent; reload-agent }
 
+            # Those -untrusted helpers need to be turned into programs
+            # so that they can be wrapped up in other applications:
+
             ssh-untrusted() {
               ssh -a                                  \
                   -o UserKnownHostsFile=/dev/null     \
+                  -o StrictHostKeyChecking=no         \
                   -o GlobalKnownHostsFile=/dev/null   \
                   "$@"
             }
 
             scp-untrusted() {
               scp -o UserKnownHostsFile=/dev/null     \
+                  -o StrictHostKeyChecking=no         \
+                  -o ForwardAgent=no                  \
                   -o GlobalKnownHostsFile=/dev/null   \
                   "$@"
+            }
+
+            rsync-untrusted() {
+              local ssh_opts=(
+                -o ForwardAgent=no
+                -o UserKnownHostsFile=/dev/null
+                -o StrictHostKeyChecking=no
+                -o GlobalKnownHostsFile=/dev/null
+              )
+              rsync -e "ssh ''${ssh_opts[*]} $SSH_OPTS" "$@"
             }
 
             mosh() {
