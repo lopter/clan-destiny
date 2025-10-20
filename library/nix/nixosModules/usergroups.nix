@@ -46,12 +46,13 @@ in
           name = "${userName}-password";
           value.description = "The password for the user ${userName}";
           value.type = "hidden";
+          value.persist = true;
         };
+        # louis@2025-10-19: can you do write out to `${userName}-password` while using `persist = true`?
+        # (It feels like you should be able to, meaning persist takes the auto-generate value).
         mkScript = userName: ''
-          if [ -n "$(cat $prompts/${userName}-password)" ]; then
-            trim < $prompts/${userName}-password > $out/${userName}-password
-          else
-            xkcdpass --numwords 3 --delimiter - --count 1 | trim > $out/${userName}-password
+          if [ -z "$(cat $prompts/${userName}-password)" ]; then
+            xkcdpass --numwords 4 --count 1 | trim > $out/${userName}-password
           fi
           mkpasswd -s -m sha-512 < $prompts/${userName}-password | trim > $out/${userName}-password-hash
         '';
