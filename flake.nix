@@ -6,18 +6,21 @@
     catppuccin.inputs.nixpkgs.follows = "nixpkgs";
 
     clan-core.follows = "destiny-core/clan-core";
+    # clan-core.url = "git+file:///stash/home/kal/cu/src/nix/clan-core?ref=lo-vars-recall-prompts";
+    clan-core.inputs.nixpkgs.follows = "nixpkgs";
+    clan-core.inputs.flake-parts.follows = "flake-parts";
 
-    # destiny-core.url = "git+ssh://gitolite@gitolite.kalessin.fr/destiny-core?ref=main";
-    destiny-core.url = "git+file:///stash/home/kal/cu/projs/destiny-core";
+    destiny-core.url = "git+ssh://gitolite@gitolite.kalessin.fr/destiny-core?ref=main";
+    # destiny-core.url = "git+file:///stash/home/kal/cu/projs/destiny-core";
 
-    # destiny-config.url = "git+ssh://gitolite@gitolite.kalessin.fr/louis/destiny-config?ref=main";
-    destiny-config.url = "git+file:///stash/home/kal/cu/projs/destiny-config";
+    destiny-config.url = "git+ssh://gitolite@gitolite.kalessin.fr/louis/destiny-config?ref=main";
+    # destiny-config.url = "git+file:///stash/home/kal/cu/projs/destiny-config";
     destiny-config.inputs.nixpkgs.follows = "nixpkgs";
     destiny-config.inputs.destiny-core.follows = "destiny-core";
 
     flake-parts.follows = "destiny-core/flake-parts";
 
-    # home-manager.url = "github:lopter/home-manager/kwriteconfig6";
+    # home-manager.url = "git+file:///stash/home/kal/cu/src/nix/home-manager";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -26,11 +29,11 @@
     lanzaboote.inputs.crane.follows = "destiny-core/crane";
     lanzaboote.inputs.flake-parts.follows = "destiny-core/flake-parts";
 
-    nix-auth.url = "github:numtide/nix-auth";
-    nix-auth.inputs.nixpkgs.follows = "nixpkgs";
-
     nix2container.follows = "destiny-core/nix2container";
     nix2container.inputs.nixpkgs.follows = "nixpkgs";
+
+    nix-auth.url = "github:numtide/nix-auth";
+    nix-auth.inputs.nixpkgs.follows = "nixpkgs";
 
     nixpkgs.follows = "destiny-core/nixpkgs";
     nixpkgs-unfree.follows = "destiny-core/nixpkgs-unfree";
@@ -84,7 +87,6 @@
               packages
               ;
           };
-          # inventory.services = { };
           inventory.instances = {
             sshd = {
               module = {
