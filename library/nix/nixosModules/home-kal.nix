@@ -20,7 +20,6 @@ let
 
   user = "kal";
   userAuthorizedSSHKey = config.clan-destiny.typed-tags.knownSshKeys.louisGPGAuthKey;
-  nixpkgsCfg = config.nixpkgs.config;
 in
 {
   imports = [
@@ -31,6 +30,9 @@ in
   ];
 
   clan-destiny = {
+    nixpkgs.insecurePackages = [
+      "qtwebengine"
+    ];
     nixpkgs.unfreePredicates = [
       "castlabs-electron"
       "discord"
@@ -52,6 +54,7 @@ in
 
   home-manager.users."${user}" =
   let
+    nixpkgsCfg = config.nixpkgs.config;
     syncthingVars = config.clan.core.vars.generators."clan-destiny-syncthing-account-${user}";
     syncthingCert = syncthingVars.files.cert.path;
     syncthingKey = syncthingVars.files.key.path;
@@ -1592,16 +1595,20 @@ in
 
       programs.ssh = {
         enable = true;
-        compression = true;
-        controlMaster = "auto";
-        controlPath = "/run/user/${toString usergroups.users."${user}".uid}/ssh/master-%r@%h:%p";
-        controlPersist = "10m";
-        forwardAgent = false;
-        serverAliveInterval = 180;
-        extraConfig = ''
-          VisualHostKey yes
-        '';
-        matchBlocks = destiny-config.lib.sshMatchBlocks;
+        enableDefaultConfig = false;
+        matchBlocks = destiny-config.lib.sshMatchBlocks // {
+          "*" = {
+            compression = true;
+            controlMaster = "auto";
+            controlPath = "/run/user/${toString usergroups.users.${user}.uid}/ssh/master-%r@%h:%p";
+            controlPersist = "10m";
+            forwardAgent = false;
+            serverAliveInterval = 180;
+            extraOptions = {
+              VisualHostKey = "yes";
+            };
+          };
+        };
       };
 
       programs.tmux = {
