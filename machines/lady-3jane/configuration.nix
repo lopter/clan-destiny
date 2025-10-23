@@ -1,6 +1,7 @@
 {
   lib,
   self,
+  pkgs,
   ...
 }:
 let
@@ -19,6 +20,7 @@ in
 
   nixpkgs.hostPlatform = lib.mkForce "x86_64-linux";
 
+  boot.kernelPackages = pkgs.linuxPackages_zen;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.enable = !enableSecureBoot;
   boot.lanzaboote.enable = enableSecureBoot;
