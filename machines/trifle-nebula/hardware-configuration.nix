@@ -1,6 +1,6 @@
 { lib, pkgs, self, ... }:
 let
-  lanInterfaces = [ "enp6s0" ];
+  lanInterfaces = [ "enp10s0" ];
 in
 {
   imports = [
