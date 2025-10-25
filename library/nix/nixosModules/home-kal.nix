@@ -89,6 +89,7 @@ in
           binutils
           devenv
           direnv
+          distrobox
           easytag
           entr
           # discord
@@ -369,6 +370,11 @@ in
                   urls = [ { template = "https://duckduckgo.com/?q={searchTerms}"; } ];
                   definedAliases = [ "ddg" ];
                   icon = "https://duckduckgo.com/favicon.ico";
+                };
+                "Debian Packages" = {
+                  urls = [ { template = "https://packages.debian.org/search?keywords={searchTerms}"; } ];
+                  definedAliases = [ "dpkg" ];
+                  icon = "https://packages.debian.org/favicon.ico";
                 };
                 Discogs = {
                   urls = [ { template = "https://www.discogs.com/search?q={searchTerms}&type=all"; } ];
@@ -1929,10 +1935,33 @@ in
     };
   };
 
-  users.users."${user}" = {
+  users.users."${user}" =
+  let
+    subIdRangeStart = lib.fromHexString "0x1000000";
+    subIdRangeSize = lib.fromHexString "0x100000"; # default of 0x10000 is not enough
+  in
+  {
+    extraGroups = lib.mkIf config.virtualisation.podman.enable [ "podman" ];
+    subUidRanges = [
+      {
+        startUid = subIdRangeStart;
+        count = subIdRangeSize;
+      }
+    ];
+    subGidRanges = [
+      {
+        startGid = subIdRangeStart;
+        count = subIdRangeSize;
+      }
+    ];
     openssh.authorizedKeys.keys = [
       userAuthorizedSSHKey
     ];
+  };
+
+  virtualisation.podman = {
+    enable = true;
+    dockerCompat = true;
   };
 
 }
