@@ -34,7 +34,7 @@ in
       #
       # sudo mkdir /etc/secureboot
       # sudo nix run 'nixpkgs#sbctl' create-keys
-      lanzaboote.pkiBundle = "/etc/secureboot";
+      lanzaboote.pkiBundle = "/var/lib/sbctl";
       loader.systemd-boot.enable = lib.mkForce false; # lanzaboote replaces it.
     };
 

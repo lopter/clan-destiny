@@ -5,7 +5,7 @@
 }:
 let
   inherit (pkgs.stdenv.hostPlatform) system;
-  enableSecureBoot = false;
+  enableSecureBoot = true;
 in
 {
   imports = [
