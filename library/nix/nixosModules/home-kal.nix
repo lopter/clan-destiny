@@ -156,6 +156,7 @@ in
           (vault.overrideAttrs (_prev: {
             doCheck = false;
           }))
+          unzip
           vscode-extensions.vadimcn.vscode-lldb
           vscode-langservers-extracted
           wl-clipboard
@@ -258,6 +259,7 @@ in
 
       programs.direnv = {
         enable = true;
+        nix-direnv.enable = true;
       };
 
       # TODO: configure bash to be usable interactively: shared env with zsh.
@@ -1913,6 +1915,8 @@ in
 
   nix.gc.automatic = lib.mkForce false;
   nix.settings.allowed-users = [ user ];
+
+  programs.nix-ld.enable = true;
 
   security.sudo.extraConfig = ''
     ${user}   ALL=(ALL) ALL
