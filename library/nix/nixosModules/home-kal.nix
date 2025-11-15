@@ -11,12 +11,15 @@ let
     clan-core
     destiny-core
     destiny-config
+    nixpkgs-stable
     plasma-manager
     ;
   inherit (destiny-core.lib) attrsToEnvironmentString;
   inherit (config.lib.clan-destiny) ports usergroups;
   inherit (pkgs.stdenv.hostPlatform) system;
   inherit (config.networking) hostName;
+
+  nixpkgs-stable' = nixpkgs-stable.legacyPackages.${system};
 
   user = "kal";
   userAuthorizedSSHKey = config.clan-destiny.typed-tags.knownSshKeys.louisGPGAuthKey;
@@ -108,7 +111,7 @@ in
           ipcalc
           kdePackages.krdc
           lazygit
-          libreoffice-qt
+          nixpkgs-stable'.libreoffice-qt
           man-pages
           man-pages-posix
           mercurial
@@ -149,7 +152,7 @@ in
           tofu-ls
           typescript-language-server
           ungoogled-chromium
-          unoconv
+          nixpkgs-stable'.unoconv
           (vault.overrideAttrs (_prev: {
             doCheck = false;
           }))

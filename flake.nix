@@ -38,6 +38,8 @@
     nixpkgs.follows = "destiny-core/nixpkgs";
     nixpkgs-unfree.follows = "destiny-core/nixpkgs-unfree";
 
+    nixpkgs-stable.url = "git+https://github.com/NixOS/nixpkgs?ref=nixos-25.05&shallow=1";
+
     nixos-hardware.url = "github:NixOS/nixos-hardware";
 
     plasma-manager = {
