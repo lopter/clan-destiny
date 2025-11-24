@@ -31,6 +31,7 @@ in
     self.nixosModules.nix-settings
     self.nixosModules.nixpkgs
     self.nixosModules.postfix-relay
+    self.nixosModules.remote-builder
     self.nixosModules.ssh
     self.nixosModules.starrs-gate
     self.nixosModules.syncthing
