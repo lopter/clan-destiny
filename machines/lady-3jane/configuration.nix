@@ -24,12 +24,21 @@ in
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.enable = !enableSecureBoot;
   boot.lanzaboote.enable = enableSecureBoot;
-  # TODO: move to new location see: https://github.com/nix-community/lanzaboote/issues/413#issuecomment-2618089667
-  boot.lanzaboote.pkiBundle = lib.mkForce "/etc/secureboot";
 
   clan-destiny = {
     usergroups.createNormalUsers = familyUserNames;
     vault-client.enable = true;
+    remote-builder-client = {
+      enable = true;
+      servers = {
+        wks-sfo-wintermute = {
+          # pull it from knownHosts.endpoint
+          sshHostname = "wks-sfo-wintermute.lightsd.io";
+          systems = [ "x86_64-linux" ];
+          supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
+        };
+      };
+    };
   };
 
   services = {
