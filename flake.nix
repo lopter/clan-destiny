@@ -27,7 +27,6 @@
     lanzaboote.url = "github:nix-community/lanzaboote";
     lanzaboote.inputs.nixpkgs.follows = "nixpkgs";
     lanzaboote.inputs.crane.follows = "destiny-core/crane";
-    lanzaboote.inputs.flake-parts.follows = "destiny-core/flake-parts";
 
     nix2container.follows = "destiny-core/nix2container";
     nix2container.inputs.nixpkgs.follows = "nixpkgs";

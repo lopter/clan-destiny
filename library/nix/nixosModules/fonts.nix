@@ -12,6 +12,6 @@
     nerd-fonts.fira-mono
     nerd-fonts.inconsolata
     nerd-fonts.monofur
-    vistafonts
+    vista-fonts
   ];
 }

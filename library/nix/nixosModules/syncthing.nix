@@ -77,7 +77,7 @@ in
   };
 
   config = lib.mkMerge [
-    (lib.mkIf ((builtins.length cfg.createUserAccounts) > 0) {
+    (lib.mkIf (builtins.length cfg.createUserAccounts > 0) {
       clan.core.vars.generators =
       let
         mkUserVarGenerator = userName: {
@@ -99,7 +99,9 @@ in
               tr -d "\n"
             }
 
-            syncthing generate --config $out
+            export TMPDIR=/tmp
+            TEMPORARY=$(mktemp -d)
+            syncthing generate --config $out --data "$TEMPORARY"
             mv $out/key.pem $out/key
             mv $out/cert.pem $out/cert
             grep -oP '(?<=<device id=")[^"]+' $out/config.xml | uniq | trim > $out/deviceId
@@ -112,7 +114,7 @@ in
       in
         builtins.listToAttrs (map mkPair cfg.createUserAccounts);
     })
-    (lib.mkIf ((builtins.length cfg.createUserSystemInstances) > 0) {
+    (lib.mkIf (builtins.length cfg.createUserSystemInstances > 0) {
       assertions = [
         {
           assertion = builtins.length config.clan-destiny.usergroups.createNormalUsers > 0;

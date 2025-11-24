@@ -111,12 +111,12 @@ in
           ipcalc
           kdePackages.krdc
           lazygit
-          nixpkgs-stable'.libreoffice-qt
+          libreoffice-qt
           man-pages
           man-pages-posix
           mercurial
           minicom
-          mindforger
+          nixpkgs-stable'.mindforger
           # Until @teto merges the correct stuff:
           # See https://discourse.nixos.org/t/plugins-for-neovim-are-not-installed-for-neovim-qt/29712/10
           (neovim-qt.override { neovim = config.programs.neovim.finalPackage; })
@@ -143,7 +143,7 @@ in
           qalculate-qt
           shellcheck
           signal-desktop
-          sourcekit-lsp
+          # sourcekit-lsp
           slurp
           telegram-desktop
           tidal-hifi
@@ -152,7 +152,7 @@ in
           tofu-ls
           typescript-language-server
           ungoogled-chromium
-          nixpkgs-stable'.unoconv
+          unoconv
           (vault.overrideAttrs (_prev: {
             doCheck = false;
           }))
