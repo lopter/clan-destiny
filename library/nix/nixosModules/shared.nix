@@ -47,7 +47,7 @@ in
         let
           usesZFS = builtins.any (e: e.fsType == "zfs") (builtins.attrValues config.fileSystems);
           # The hostId from the installer leaked into jellicent, let's not have that again in the future:
-          usesDefaultHostId = config.networking.hostId != "8425e349" && config.networking.hostName != "nsrv-cdg-jellicent";
+          usesDefaultHostId = config.networking.hostId == "8425e349" && config.networking.hostName != "nsrv-cdg-jellicent";
         in
             !usesZFS || !usesDefaultHostId;
         message = "config.networking.hostId must be set when ZFS is in use";

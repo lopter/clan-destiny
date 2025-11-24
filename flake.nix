@@ -118,6 +118,7 @@
                 "nsrv-cdg-jellicent"
                 "nsrv-cfr-scylla"
                 "rpi-cdg-hass"
+                "wks-sfo-wintermute"
               ];
               mkMachine =
                 hostname:

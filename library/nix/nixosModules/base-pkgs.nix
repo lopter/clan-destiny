@@ -28,6 +28,7 @@
       mtr
       neovim
       netcat-openbsd
+      nmap
       openssh
       openssl
       pciutils
