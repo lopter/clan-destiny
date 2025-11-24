@@ -23,6 +23,35 @@ let
 
   user = "kal";
   userAuthorizedSSHKey = config.clan-destiny.typed-tags.knownSshKeys.louisGPGAuthKey;
+
+  locale = "en_US.UTF-8";
+  environ = {
+    inherit locale;
+    LANG = locale;
+    LANGUAGE = locale;
+    LC_CTYPE = locale;
+    LC_NUMERIC = locale;
+    LC_TIME = locale;
+    LC_COLLATE = locale;
+    LC_MONETARY = locale;
+    LC_MESSAGES = locale;
+    LC_PAPER = locale;
+    LC_NAME = locale;
+    LC_ADDRESS = locale;
+    LC_TELEPHONE = locale;
+    LC_MEASUREMENT = locale;
+    LC_IDENTIFICATION = locale;
+
+    EMAIL = "louis@opter.org";
+    MANWIDTH = "80";
+    MY_TMP = "/tmp/${user}/tmp";
+    MY_BUILD = "/tmp/${user}/build";
+    PAGER = ''"less -FRX"'';
+    PASSWORD_STORE_X_SELECTION = "primary";
+    PGTZ = "UTC";
+    REPLYTO = "louis@opter.org";
+    WINEDEBUG = "-all";
+  };
 in
 {
   imports = [
@@ -262,9 +291,35 @@ in
         nix-direnv.enable = true;
       };
 
-      # TODO: configure bash to be usable interactively: shared env with zsh.
       programs.bash = {
-        enable = false;
+        enable = true;
+        sessionVariables = environ;
+        enableVteIntegration = true;
+        bashrcExtra = # bash
+          ''
+            . ${pkgs.bash-preexec}/share/bash/bash-preexec.sh
+
+            HISTCONTROL="ignorespace"
+            HISTFILE="$HOME/.histfile"
+            HISTSIZE=1000
+            HISTFILESIZE=10000
+            HIST_ARCHIVE_DIR="$HOME/archives/bash"
+            HIST_HOSTNAME="$(hostname -s)"
+            _archive_history() {
+                local histline="$1"
+
+                local year_month="$(date "+%Y-%m")"
+                local cur_dir="$HIST_ARCHIVE_DIR/$year_month"
+                mkdir -p "$cur_dir"
+
+                if [ $(echo -n "$histline" | ${lib.getExe pkgs.gnugrep} -c "^[[:space:]]*$") -eq 0 ]; then
+                    local cur_time=$(date "+%H:%M:%S%z")
+                    local cur_file="$year_month-$(date "+%d")_''${USER}_$HIST_HOSTNAME.log"
+                    echo "$cur_time $histline" >> "$cur_dir/$cur_file"
+                fi
+            }
+            preexec_functions+=(_archive_history)
+          '';
       };
 
       programs.fzf = {
@@ -1666,7 +1721,7 @@ in
         {
           defaultKeymap = "emacs";
           enable = true;
-          envExtra = attrsToEnvironmentString { attrs = zshenv; };
+          envExtra = attrsToEnvironmentString { attrs = environ; };
           history = {
             append = true;
             ignoreDups = true;
