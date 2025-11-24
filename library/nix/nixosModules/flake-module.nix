@@ -2,6 +2,7 @@
 {
   flake.nixosModules = {
     acl-watcher = ./acl-watcher.nix;
+    avahi = ./avahi.nix;
     backups = ./backups.nix;
     base-pkgs = ./base-pkgs.nix;
     certbot-vault = ./certbot-vault.nix;

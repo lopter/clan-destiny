@@ -18,6 +18,7 @@ in
     home-manager.nixosModules.home-manager
 
     self.nixosModules.acl-watcher
+    self.nixosModules.avahi
     self.nixosModules.backups
     self.nixosModules.base-pkgs
     self.nixosModules.certbot-vault
@@ -82,6 +83,8 @@ in
               imports = [
                 containerConfig.config
                 destiny-config.nixosModules.usergroups
+
+                self.nixosModules.avahi
                 self.nixosModules.containers
                 self.nixosModules.base-pkgs
               ];
@@ -94,9 +97,6 @@ in
       powertop.enable = lib.mkDefault true;
       cpuFreqGovernor = lib.mkDefault "ondemand";
     };
-
-    # Locale service discovery and mDNS
-    services.avahi.enable = true;
 
     services.tailscale.disableTaildrop = true;
 
