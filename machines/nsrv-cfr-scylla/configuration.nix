@@ -29,4 +29,5 @@
 
   nixpkgs.hostPlatform = lib.mkForce "x86_64-linux";
 
+  services.tailscale.enable = true;
 }
