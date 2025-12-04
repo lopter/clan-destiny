@@ -67,6 +67,7 @@ in
     ];
     nixpkgs.unfreePredicates = [
       "castlabs-electron"
+      "claude-code"
       "discord"
       "vault"
     ];
@@ -119,6 +120,7 @@ in
           basedpyright
           bash-language-server
           binutils
+          claude-code
           devenv
           direnv
           distrobox
@@ -456,6 +458,7 @@ in
                 };
                 GitHub = {
                   urls = [ { template = "https://github.com/search?q={searchTerms}&type=repositories"; } ];
+                  icon = "https://github.githubassets.com/favicons/favicon.svg";
                   definedAliases = [ "gh" ];
                 };
                 "Google Maps" = {
@@ -532,6 +535,11 @@ in
                   icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
                   definedAliases = [ "np" ];
                 };
+                "Nixpkgs PR tracker" = {
+                  urls = [ { template = "https://nixpkgs-tracker.ocfox.me/?pr={searchTerms}"; } ];
+                  icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+                  definedAliases = [ "nt" ];
+                };
                 "NixOS Wiki" = {
                   urls = [ { template = "https://nixos.wiki/index.php?title=Special:Search&search={searchTerms}"; } ];
                   icon = "https://nixos.wiki/favicon.png";
@@ -541,6 +549,10 @@ in
                   urls = [ { template = "https://noogle.dev/q?term={searchTerms}"; } ];
                   icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
                   definedAliases = [ "nf" ];
+                };
+                "NPM Package" = {
+                  urls = [ { template = "https://www.npmjs.com/search?q={searchTerms}"; } ];
+                  definedAliases = [ "npm" ];
                 };
                 "Python" = {
                   urls = [ { template = "https://docs.python.org/3/search.html?q={searchTerms}"; } ];
