@@ -91,12 +91,13 @@ in
           };
           runtimeInputs = with pkgs; [
             coreutils
+            gawk
             gnugrep
             syncthing
           ];
           script = ''
             trim() {
-              tr -d "\n"
+              awk '{ gsub(/^[[:space:]]+|[[:space:]]+$/, ""); print }'
             }
 
             export TMPDIR=/tmp

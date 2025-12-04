@@ -113,15 +113,13 @@ in
       # Credits to clan-core:
       script = ''
         trim() {
-          tr -d "\n"
+          awk '{ gsub(/^[[:space:]]+|[[:space:]]+$/, ""); print }'
         }
 
-        if [ -n "$(cat $prompts/userPassword)" ]; then
-          trim < $prompts/userPassword > $out/userPassword
-        else
-          xkcdpass --numwords 3 --delimiter - --count 1 | trim > $out/userPassword
+        if [ -z "$(trim < "$prompts/userPassword" | tee "$out/userPassword")" ]; then
+          xkcdpass --numwords 4 --delimiter - --count 1 | trim > $out/userPassword
         fi
-        cat $prompts/userPassword | mkpasswd -s -m sha-512 | trim > $out/userPasswordHash
+        mkpasswd -s -m sha-512 < "$out/userPassword" | trim > "$out/userPasswordHash"
       '';
     };
 
