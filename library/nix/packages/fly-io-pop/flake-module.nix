@@ -182,12 +182,12 @@ in
                         exec runas nginx ${nginx}/bin/nginx -c ${nginxConfig}
                       '';
                       namespace = "nginx";
-                      depends_on =
-                        {
-                          postInit.condition = "process_completed_successfully";
-                          tailscaled.condition = "process_healthy";
-                          unbound.condition = "process_healthy";
-                        };
+                      depends_on = {
+                        postInit.condition = "process_completed_successfully";
+                        tailscaled.condition = "process_healthy";
+                        # unbound.condition = "process_healthy";
+                        unbound.condition = "process_started";
+                      };
                       availability.restart = "always";
                     };
                     sshd = {
@@ -200,7 +200,12 @@ in
                       namespace = "nginx";
                       depends_on.postInit.condition = "process_completed_successfully";
                       availability.restart = "always";
-                      readiness_probe.exec.command = ''dig -p ${ports.unbound} nixos.org @127.0.0.1'';
+                      /*
+                      readiness_probe = {
+                        initial_delay_seconds = 2;
+                        exec.command = ''dig -p ${ports.unbound} nixos.org @127.0.0.1'';
+                      };
+                      */
                     };
                     tailscaled = {
                       command = "${tailscale}/bin/tailscaled --state=/var/lib/tailscale/tailscaled.state --port=${ports.tailscaled} --socket=/var/run/tailscale/tailscaled.sock";
@@ -209,7 +214,10 @@ in
                       depends_on = {
                         postInit.condition = "process_completed_successfully";
                       };
-                      readiness_probe.exec.command = ''[ "$(ip -oneline address show tailscale0 2>&- | rg --count inet)" -gt 0 ]'';
+                      readiness_probe = {
+                        initial_delay_seconds = 1;
+                        exec.command = ''[ "$(ip -oneline address show tailscale0 2>&- | rg --count inet)" -gt 0 ]'';
+                      };
                     };
                     tailscaled-autoconnect = {
                       command = "${tailscale}/bin/tailscale up --auth-key=file:/run/secrets/tailscaleAuthKey --hostname=fly-io-pop";
