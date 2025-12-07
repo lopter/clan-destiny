@@ -52,26 +52,7 @@ in
             doCheck = false;
           });
           nginx = pkgs.nginxMainline;
-          process-compose = pkgs.process-compose.overrideAttrs (prev: {
-            version = "1.63.0";
-            vendorHash = "sha256-NEKHTSLEF8jBSmAnHq/q+kyV8vPz3DTNj4Jquf5rnso=";
-            src = pkgs.fetchFromGitHub {
-              owner = "F1bonacc1";
-              repo = prev.pname;
-              rev = "fc52776109240ddb5aefd075b288f33fb88a2fac";
-              hash = "sha256-ClXXrX/Nk7Q5RXT0vPavAc+P9Ge7zmYtOE1VOIzwfFU=";
-              # populate values that require us to use git. By doing this in postFetch we
-              # can delete .git afterwards and maintain better reproducibility of the src.
-              leaveDotGit = true;
-              postFetch = ''
-                cd "$out"
-                git rev-parse --short HEAD > $out/COMMIT
-                # in format of 0000-00-00T00:00:00Z
-                date -u -d "@$(git log -1 --pretty=%ct)" "+%Y-%m-%dT%H:%M:%SZ" > $out/SOURCE_DATE_EPOCH
-                find "$out" -name .git -print0 | xargs -0 rm -rf
-              '';
-            };
-          });
+          process-compose = pkgs.process-compose;
           basePkgs =
             [
               procps
