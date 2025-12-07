@@ -529,6 +529,63 @@ in
                 unboundGid = builtins.toString unbound.gid;
               in
               ''
+                # Enable syn flood protection
+                sysctl -w net.ipv4.tcp_syncookies=1
+
+                # Ignore source-routed packets
+                sysctl -w net.ipv4.conf.all.accept_source_route=0
+                sysctl -w net.ipv4.conf.default.accept_source_route=0
+                sysctl -w net.ipv6.conf.all.accept_source_route=0
+                sysctl -w net.ipv6.conf.default.accept_source_route=0
+
+                # Ignore ICMP redirects
+                sysctl -w net.ipv4.conf.all.accept_redirects=0
+                sysctl -w net.ipv6.conf.all.accept_redirects=0
+                sysctl -w net.ipv4.conf.default.accept_redirects=0
+                sysctl -w net.ipv6.conf.default.accept_redirects=0
+
+                # Ignore ICMP redirects from non-GW hosts
+                sysctl -w net.ipv4.conf.all.secure_redirects=1
+                sysctl -w net.ipv4.conf.default.secure_redirects=1
+
+                # Don't allow traffic between networks or act as a router
+                sysctl -w net.ipv4.ip_forward=0
+                sysctl -w net.ipv4.conf.all.send_redirects=0
+                sysctl -w net.ipv4.conf.default.send_redirects=0
+
+                # Reverse path filtering/IP spoofing protection
+                sysctl -w net.ipv4.conf.all.rp_filter=1
+                sysctl -w net.ipv4.conf.default.rp_filter=1
+
+                # Ignore ICMP broadcasts to avoid participating in Smurf attacks
+                sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1
+
+                # Ignore bad ICMP errors
+                sysctl -w net.ipv4.icmp_ignore_bogus_error_responses=1
+
+                # Log spoofed, source-routed, and redirect packets
+                sysctl -w net.ipv4.conf.all.log_martians=1
+                sysctl -w net.ipv4.conf.default.log_martians=1
+
+                # Randomize addresses of mmap base, heap, stack and VDSO page
+                sysctl -w kernel.randomize_va_space=2
+
+                # Provide protection from ToCToU races
+                sysctl -w fs.protected_hardlinks=1
+                sysctl -w fs.protected_symlinks=1
+
+                # Make locating kernel addresses more difficult
+                sysctl -w kernel.kptr_restrict=1
+
+                # Set ptrace protections
+                sysctl -w kernel.yama.ptrace_scope=1 || :
+
+                # Set perf only available to root
+                sysctl -w kernel.perf_event_paranoid=2
+
+                sysctl -w net.core.rmem_max=7500000
+                sysctl -w net.core.wmem_max=7500000
+
                 install -d -o ${nginxUid} -g ${nginxGid} /run/nginx
                 install -d -o ${nginxUid} -g ${nginxGid} /run/nginx/{client_body,proxy,fastcgi,uwsgi,scgi}
                 install -d -o ${nginxUid} -g ${nginxGid} -m 700 /run/nginx-vault-agent
