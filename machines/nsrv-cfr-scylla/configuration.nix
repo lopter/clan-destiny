@@ -12,15 +12,15 @@
   hardware.fancontrol.enable = true;
   hardware.fancontrol.config = ''
     INTERVAL=10
-    DEVPATH=hwmon0=devices/platform/coretemp.0 hwmon1=devices/platform/nct6775.656
-    DEVNAME=hwmon0=coretemp hwmon1=nct6776
-    FCTEMPS= hwmon1/pwm2=hwmon0/temp1_input
-    FCFANS=hwmon1/pwm1=hwmon1/fan1_input  hwmon1/pwm2=hwmon1/fan1_input
-    MINTEMP= hwmon1/pwm2=55
-    MAXTEMP= hwmon1/pwm2=75
-    MINSTART= hwmon1/pwm2=200
-    MINSTOP= hwmon1/pwm2=0
-    MAXPWM=hwmon1/pwm2=255
+    DEVPATH=hwmon1=devices/platform/coretemp.0 hwmon0=devices/platform/nct6775.656
+    DEVNAME=hwmon1=coretemp hwmon0=nct6776
+    FCTEMPS= hwmon0/pwm2=hwmon1/temp1_input
+    FCFANS=hwmon0/pwm1=hwmon0/fan1_input  hwmon0/pwm2=hwmon0/fan1_input
+    MINTEMP= hwmon0/pwm2=55
+    MAXTEMP= hwmon0/pwm2=75
+    MINSTART= hwmon0/pwm2=200
+    MINSTOP= hwmon0/pwm2=0
+    MAXPWM=hwmon0/pwm2=255
   '';
 
   # ZFS uses `hostId` to identify to which machine a pool belongs to:
@@ -30,4 +30,5 @@
   nixpkgs.hostPlatform = lib.mkForce "x86_64-linux";
 
   services.tailscale.enable = true;
+
 }
