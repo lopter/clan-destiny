@@ -26,6 +26,7 @@ in
     self.nixosModules.hass-pam-authenticate
     self.nixosModules.lanzaboote
     self.nixosModules.linux
+    self.nixosModules.monfree
     self.nixosModules.nginx
     self.nixosModules.nginx-nixos-proxy-cache
     self.nixosModules.nix-settings

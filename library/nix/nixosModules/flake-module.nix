@@ -14,6 +14,7 @@
     kde = ./kde.nix;
     lanzaboote = ./lanzaboote.nix;
     linux = ./linux.nix;
+    monfree = ./monfree.nix;
     nginx = ./nginx.nix;
     nginx-nixos-proxy-cache = ./nginx-nixos-proxy-cache.nix;
     nix-settings = ./nix-settings.nix;
