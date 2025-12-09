@@ -348,7 +348,8 @@ in
         };
       in
       {
-        extraConfig = (lib.concatMapStringsSep "\n" (addr: "allow ${addr.v4};") popAddresses) + ''
+        extraConfig = ''
+          ${lib.concatMapStringsSep "\n" (addr: "allow ${addr.v4};") popAddresses}
           deny all;
 
           proxy_buffering off;

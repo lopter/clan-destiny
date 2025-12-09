@@ -48,7 +48,6 @@ in
 
   users = hassUser;
 
-  /*
   containers =
   let
     inherit (config.lib.clan-destiny) mkContainer;
@@ -79,6 +78,7 @@ in
             extraComponents = [
               "default_config"
               "lifx"
+              "nest"
               "zha"
             ];
             configDir = hassDir;
@@ -104,5 +104,4 @@ in
         };
     };
   };
-  */
 }

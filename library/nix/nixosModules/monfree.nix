@@ -10,7 +10,8 @@ let
   inherit (self.inputs.destiny-config.lib) popAddresses;
   inherit (self.inputs.destiny-core.packages.${system}) monfree;
   inherit (pkgs.stdenv.hostPlatform) system;
-  inherit (config.lib.clan-destiny) mkContainer usergroups;
+  inherit (config.lib.clan-destiny) mkContainer typed-tags usergroups;
+  inherit (config.clan-destiny.typed-tags) interfacesByRole;
   inherit (config.networking) hostName;
 
   intervalOption = lib.mkOption {
@@ -112,12 +113,6 @@ in
         CapabilityBoundingSet = [ "CAP_NET_RAW" ];
       };
     };
-    extraVeth = {
-      # 10.172.28 already used by syncthing, maybe we need some
-      # kind of registry and/or global allocator for those.
-      hostAddress = "10.172.27.1";
-      localAddress = "10.172.27.2";
-    };
 
     grafanaAdminPasswordHostPath = "/run/monfree/secrets/grafana-admin-password";
     grafanaAdminPasswordContainerPath = "/run/secrets/grafana-admin-password";
@@ -217,7 +212,6 @@ in
         ephemeral = false;
         privateNetwork = true;
         privateUsers = "pick";
-        extraVeths.monfree0 = extraVeth;
         additionalCapabilities  = [ "CAP_NET_RAW" ];
         bindMounts = {
           grafana-admin-password = {
@@ -233,6 +227,13 @@ in
           { config, pkgs, ... }:
           {
             inherit users;
+
+            imports = [
+              self.inputs.destiny-config.nixosModules.tailscale # TODO: make public
+              self.nixosModules.typed-tags
+            ];
+
+            clan-destiny.tailscale.interfaces = map (ifname: "mv-${ifname}") interfacesByRole.lan;
 
             systemd.services.monfree-exporter = lib.mkIf cfgExporter.enable exporterService;
 
@@ -285,28 +286,16 @@ in
               };
             };
 
+            services.tailscale.enable = true;
+
             networking.firewall = {
               enable = true;
-              extraInputRules = with extraVeth; ''
-                ip saddr ${hostAddress} tcp dport ${toString grafanaPort} accept comment "${hostName} -> grafana"
-              '';
+              interfaces = with config.services.tailscale; {
+                ${interfaceName}.allowedTCPPorts = [ grafanaPort ];
+              };
             };
             networking.nftables.enable = true;
           };
-      };
-
-      services.nginx.virtualHosts = {
-        ${cfgMonitor.guiVirtualHost} = {
-          extraConfig = ''
-            ${lib.concatMapStringsSep "\n" (addr: "allow ${addr.v4};") popAddresses}
-            deny all;
-
-            proxy_buffering off;
-          '';
-          locations."/" = {
-            proxyPass = "http://${extraVeth.localAddress}:${toString grafanaPort}";
-          };
-        };
       };
     })
   ];
