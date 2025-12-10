@@ -31,6 +31,10 @@ in
         description = "The list of endpoints (IPv4/6) to monitor using `mtr`";
         type = with lib.types; nonEmptyListOf nonEmptyStr;
       };
+      sources = lib.mkOption {
+        description = "Your public IPv4/6 used to monitor the endpoints using `mtr`";
+        type = with lib.types; nonEmptyListOf nonEmptyStr;
+      };
       port = lib.mkOption {
         type = lib.types.port;
         default = 9091;
@@ -82,7 +86,9 @@ in
           "--listen-addr=${cfgExporter.address}"
           "--port=${toString cfgExporter.port}"
           "--interval=${toString cfgExporter.interval}"
-        ] ++ map (endpoint: "--endpoint=${endpoint}") cfgExporter.endpoints);
+        ]
+        ++ map (endpoint: "--endpoint=${endpoint}") cfgExporter.endpoints
+        ++ map (source: "--source=${source}") cfgExporter.sources);
         LockPersonality = true;
         MemoryDenyWriteExecute = true;
         NoNewPrivileges = true;
