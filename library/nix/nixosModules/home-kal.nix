@@ -1261,6 +1261,7 @@ in
           noremap <silent> <Leader>w :set invwrap<CR>
           noremap <silent> <Leader>c :set invcursorcolumn<CR>
           vnoremap <silent> <Leader>s :'<,'>!sort<CR>
+          noremap <silent> <Leader>u :UndotreeToggle<CR>
           nnoremap <silent> <C-j> :tabnext<CR>
           nnoremap <silent> <C-k> :tabprevious<CR>
 
