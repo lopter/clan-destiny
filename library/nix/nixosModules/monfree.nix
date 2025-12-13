@@ -13,15 +13,6 @@ let
   inherit (config.lib.clan-destiny) mkContainer typed-tags usergroups;
   inherit (config.clan-destiny.typed-tags) interfacesByRole;
   inherit (config.networking) hostName;
-
-  intervalOption = lib.mkOption {
-    description = ''
-      The exporter will run mtr and will be scraped at this in interval
-      (seconds).
-    '';
-    type = lib.types.int;
-    default = 60;
-  };
 in
 {
   options.clan-destiny.monfree = {
@@ -43,7 +34,6 @@ in
         type = lib.types.nonEmptyStr;
         default = "0.0.0.0";
       };
-      interval = intervalOption;
     };
     monitor = {
       enable = lib.mkEnableOption ''
@@ -65,7 +55,11 @@ in
         description = "Admin email for Grafana";
         type = with lib.types; nullOr nonEmptyStr;
       };
-      interval = intervalOption;
+      interval = lib.mkOption {
+        description = "Prometheus scrape interval";
+        type = lib.types.int;
+        default = 60;
+      };
     };
   };
 
@@ -85,7 +79,6 @@ in
           (lib.getExe monfree) "exporter"
           "--listen-addr=${cfgExporter.address}"
           "--port=${toString cfgExporter.port}"
-          "--interval=${toString cfgExporter.interval}"
         ]
         ++ map (endpoint: "--endpoint=${endpoint}") cfgExporter.endpoints
         ++ map (source: "--source=${source}") cfgExporter.sources);
@@ -220,6 +213,7 @@ in
         privateUsers = "pick";
         additionalCapabilities  = [ "CAP_NET_RAW" ];
         bindMounts = {
+          # TODO: use systemd LoadCredential instead since it's much simpler.
           grafana-admin-password = {
             # See:
             # - https://www.freedesktop.org/software/systemd/man/latest/systemd-nspawn.html#--bind=
