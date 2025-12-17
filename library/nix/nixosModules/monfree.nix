@@ -113,9 +113,20 @@ in
       };
     };
 
-    grafanaAdminPasswordHostPath = "/run/monfree/secrets/grafana-admin-password";
-    grafanaAdminPasswordContainerPath = "/run/secrets/grafana-admin-password";
+    grafanaAdminPasswordHostPath = varsMonitor.files.grafana-admin-password.path;
+    # Credentials loaded via LoadCredential on the container service are propagated
+    # into the container and can be imported by services using ImportCredential.
+    # When imported by Grafana, the credential is available at this path:
+    grafanaAdminPasswordContainerPath = "/run/credentials/grafana.service/grafana-admin-password";
     grafanaPort = config.services.grafana.settings.server.http_port;
+    victoriaMetricsPort = 8428;
+
+    scrapeConfigs = [
+      {
+        job_name = "monfree";
+        static_configs = [{ targets = cfgMonitor.exporters; }];
+      }
+    ];
 
     users = with usergroups.users; {
       groups.grafana.gid = lib.mkForce grafana.gid;
@@ -169,40 +180,6 @@ in
         '';
       };
 
-      # We need to copy the secret out of where sops put it for a couple reasons:
-      #
-      # 1. `sops-nix` symlinks `/run/secrets/` to an actual secret generation in
-      #    `/run/secrets.d` but you can't idmap a file with a symlink in it;
-      # 2. `ramfs` which `sops-nix` uses does not seem to support the `idmap`
-      #    option.
-      #
-      # See: https://github.com/systemd/systemd/issues/38603.
-      system.activationScripts.monfreeSetupSecrets =
-        if config.sops.useSystemdActivation or false then
-          builtins.throw "Please add support for `sops.useSystemdActivation`"
-        else
-          {
-            deps = [
-              "setupSecrets"
-            ];
-            text = # bash
-            ''(
-              src="${varsMonitor.files.grafana-admin-password.path}"
-              dst="${grafanaAdminPasswordHostPath}"
-              mount_point="$(dirname "$dst")"
-              if [ "$NIXOS_ACTION" = "dry-activate" ]; then
-                printf 'Would copy `%s` to `%s`\n' "$src" "$dst"
-              else
-                install -d -m 751 "$mount_point"
-                eval $(findmnt --pairs --first --output TARGET "$mount_point")
-                if [ -z "$TARGET" ]; then
-                  mount -t tmpfs -o nosuid,nodev,noexec,relatime,mode=751 tmpfs "$mount_point"
-                fi
-                cp --preserve=all "$src" "$dst"
-              fi
-            )'';
-          };
-
       # Using a container allows us to run a separate Prometheus instance for
       # which I don't care about backing up its data.
       containers.monfree = mkContainer {
@@ -212,17 +189,11 @@ in
         privateNetwork = true;
         privateUsers = "pick";
         additionalCapabilities  = [ "CAP_NET_RAW" ];
-        bindMounts = {
-          # TODO: use systemd LoadCredential instead since it's much simpler.
-          grafana-admin-password = {
-            # See:
-            # - https://www.freedesktop.org/software/systemd/man/latest/systemd-nspawn.html#--bind=
-            # - https://github.com/NixOS/nixpkgs/issues/419007
-            # - https://github.com/NixOS/nixpkgs/issues/329530#issuecomment-2513815925
-            mountPoint = "${grafanaAdminPasswordContainerPath}:idmap";
-            hostPath = grafanaAdminPasswordHostPath;
-          };
-        };
+        # Pass the Grafana admin password to the container via systemd credentials.
+        # This works with Grafana's $__file{} mechanism via ImportCredential.
+        extraFlags = [
+          "--load-credential=grafana-admin-password:${grafanaAdminPasswordHostPath}"
+        ];
         config =
           { config, pkgs, ... }:
           {
@@ -241,30 +212,52 @@ in
               enable = true;
               listenAddress = "127.0.0.1";
               globalConfig.scrape_interval = "${toString cfgMonitor.interval}s";
-              scrapeConfigs = [
-                {
-                  job_name = "monfree";
-                  static_configs = [{ targets = cfgMonitor.exporters; }];
-                }
-              ];
+              inherit scrapeConfigs;
             };
+
+            services.victoriametrics = {
+              enable = true;
+              listenAddress = "127.0.0.1:${toString victoriaMetricsPort}";
+              prometheusConfig = {
+                global.scrape_interval = "${toString cfgMonitor.interval}s";
+                scrape_configs = scrapeConfigs;
+              };
+            };
+
+            # Import the credential propagated by systemd-nspawn from the host.
+            systemd.services.grafana.serviceConfig.ImportCredential = [
+              "grafana-admin-password"
+            ];
 
             services.grafana = {
               enable = true;
+              declarativePlugins = with pkgs.grafanaPlugins; [
+                victoriametrics-metrics-datasource
+              ];
               provision = {
                 enable = true;
                 datasources.settings = {
                   prune = false;
-                  datasources = [{
-                    name = "Prometheus";
-                    type = "prometheus";
-                    url = "http://127.0.0.1:${toString config.services.prometheus.port}";
-                    jsonData = {
-                      timeInterval = "${toString cfgMonitor.interval}s";
-                      prometheusType = "Prometheus";
-                      prometheusVersion = pkgs.prometheus.version;
-                    };
-                  }];
+                  datasources = [
+                    {
+                      name = "Prometheus";
+                      type = "prometheus";
+                      url = "http://127.0.0.1:${toString config.services.prometheus.port}";
+                      jsonData = {
+                        timeInterval = "${toString cfgMonitor.interval}s";
+                        prometheusType = "Prometheus";
+                        prometheusVersion = pkgs.prometheus.version;
+                      };
+                    }
+                    {
+                      name = "VictoriaMetrics";
+                      type = "victoriametrics-metrics-datasource";
+                      url = "http://127.0.0.1:${toString victoriaMetricsPort}";
+                      jsonData = {
+                        timeInterval = "${toString cfgMonitor.interval}s";
+                      };
+                    }
+                  ];
                 };
               };
               settings = {
