@@ -33,6 +33,8 @@
 
     nix-auth.url = "github:numtide/nix-auth";
     nix-auth.inputs.nixpkgs.follows = "nixpkgs";
+    nix-auth.inputs.flake-parts.follows = "flake-parts";
+    nix-auth.inputs.treefmt-nix.follows = "destiny-core/treefmt-nix";
 
     nixpkgs.follows = "destiny-core/nixpkgs";
     nixpkgs-unfree.follows = "destiny-core/nixpkgs-unfree";

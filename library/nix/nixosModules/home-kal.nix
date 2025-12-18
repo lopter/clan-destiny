@@ -640,8 +640,6 @@ in
 
       programs.git = { # {{{
         enable = true;
-        userName = "Louis Opter";
-        userEmail = "louis@opter.org";
         ignores = [
           # directories
           "**/debug/"
@@ -663,7 +661,11 @@ in
         ];
         # See: https://blog.gitbutler.com/how-git-core-devs-configure-git/
 
-        extraConfig = {
+        settings = {
+          user = {
+            name = "Louis Opter";
+            email = "louis@opter.org";
+          };
           column.ui = "auto";
           branch.sort = "-committerdate";
           tag.sort = "version:refname";
