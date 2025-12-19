@@ -147,7 +147,7 @@ in
           man-pages-posix
           mercurial
           minicom
-          nixpkgs-stable'.mindforger
+          mindforger
           # Until @teto merges the correct stuff:
           # See https://discourse.nixos.org/t/plugins-for-neovim-are-not-installed-for-neovim-qt/29712/10
           (neovim-qt.override { neovim = config.programs.neovim.finalPackage; })
