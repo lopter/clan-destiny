@@ -36,6 +36,7 @@ in
           sshHostname = "wks-sfo-wintermute.lightsd.io";
           systems = [ "x86_64-linux" ];
           supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
+          maxJobs = 32;
         };
       };
     };

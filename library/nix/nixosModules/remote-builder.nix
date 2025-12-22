@@ -37,7 +37,7 @@ let
   '');
 
   mkBuildMachines = servers: lib.flip map (lib.attrsToList servers) (pair: {
-    inherit (pair.value) systems supportedFeatures;
+    inherit (pair.value) systems supportedFeatures maxJobs;
     protocol = "ssh-ng";
     hostName = "clan-destiny-remote-builder-${pair.name}";
   });
@@ -58,6 +58,10 @@ in
             };
             supportedFeatures = lib.mkOption {
               type = with lib.types; listOf nonEmptyStr;
+            };
+            maxJobs = lib.mkOption {
+              type = types.int;
+              default = 1;
             };
           };
         });
