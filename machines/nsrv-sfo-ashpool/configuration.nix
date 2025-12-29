@@ -34,8 +34,12 @@ in
       containerHostnameSuffix = "ashpool";
     };
     usergroups.createNormalUsers = familyUserNames;
-    vault-server.enable = true;
+    vault-server = {
+      enable = true;
+      nodeId = "sfo1";
+    };
     vault-client.enable = true;
+    vault-snapshooter.enable = true;
   };
 
   services = {
