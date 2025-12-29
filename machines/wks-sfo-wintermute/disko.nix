@@ -1,7 +1,9 @@
-{ config, lib, pkgs, self, ... }:
+{ config, lib, self, ... }:
 let
   inherit (self.lib) diskById diskPart;
   inherit (config.networking) hostName;
+
+  hostId = lib.lists.last (builtins.split "-" hostName);
 
   nvmeSSD = diskById "nvme-Samsung_SSD_960_PRO_1TB_S3EVNX0J802801W";
 
@@ -11,9 +13,9 @@ let
   # Turn those two to true on bare-metal, we're ok with the security
   # implications:
   allowDiscards = true;
-  bypassWorkqueues = true;
 
   keyDrive = diskById "usb-USB_SanDisk_3.2Gen1_03023327042524070528-0:0";
+  zfsKeysDir = config.clan-destiny.load-zfs-keys.dir;
 
   ZfsBaseRootFsOptions = {
     acltype = "posix";
@@ -36,7 +38,6 @@ let
     let
       inherit (deviceCfg) zpoolName;
       driveBayNo = lib.optionalString (deviceCfg ? driveBayNo) "-${deviceCfg.driveBayNo}";
-      hostId = lib.lists.last (builtins.split "-" hostName);
     in
     {
       name = "zpool-${zpoolName}${driveBayNo}";
@@ -61,8 +62,6 @@ let
 
   zfsDevices = lib.mapAttrs' mkZfsDisk {
   };
-
-  zfsKeysDir = "/run/zfs-keys";
 in
 {
   # Note that using `enableConfig = false` and `legacy` ZFS mount points means
@@ -214,26 +213,12 @@ in
     };
   };
 
-  boot.initrd = {
-    # modules needed by load-zfs-keys service below:
-    kernelModules = [ "vfat" "nls_cp437" "nls_iso8859_1" ];
-    supportedFilesystems.zfs = true;
-    # no idea how we could get this to work with lanzaboote:
-    systemd.services.load-zfs-keys = {
-      before = [ "zfs-import-wintermute-system.service" ];
-      wantedBy = [ "zfs-import-wintermute-system.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        # barebone script since initrd is a different nix store:
-        ExecStart = ''/bin/bash -c " \
-          if [ ! -d ${zfsKeysDir} ] ; then \
-            /bin/mkdir ${zfsKeysDir} \
-            && /bin/mount -o ro,umask=377 ${diskPart 1 keyDrive} ${zfsKeysDir} ; \
-          fi \
-        "'';
-      };
-    };
+  clan-destiny.load-zfs-keys = {
+    enable = true;
+    device = diskPart 1 keyDrive;
+    zpools = [ "${hostId}-system" ];
   };
+
   boot.zfs.devNodes = "/dev/disk/by-id";
 
   fileSystems =
@@ -247,13 +232,6 @@ in
       fsType = "vfat";
       options = [ "umask=077" ] ++ lib.optionals allowDiscards [ "discard" ];
     };
-    # Even with `neededForBoot` this still gets mounted to late:
-    # ${zfsKeysDir} = {
-    #   device = diskPart 1 keyDrive;
-    #   fsType = "vfat";
-    #   options = [ "ro" "umask=377" ];
-    #   neededForBoot = true;
-    # };
     "/var" = {
       device = "wintermute-system/var";
       fsType = "zfs";

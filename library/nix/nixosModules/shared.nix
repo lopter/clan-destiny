@@ -25,6 +25,7 @@ in
     self.nixosModules.certbot-vault-agent
     self.nixosModules.hass-pam-authenticate
     self.nixosModules.lanzaboote
+    self.nixosModules.load-zfs-keys
     self.nixosModules.linux
     self.nixosModules.monfree
     self.nixosModules.nginx

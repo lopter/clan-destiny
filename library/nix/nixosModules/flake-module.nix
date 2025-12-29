@@ -13,6 +13,7 @@
     home-kal = ./home-kal.nix;
     kde = ./kde.nix;
     lanzaboote = ./lanzaboote.nix;
+    load-zfs-keys = ./load-zfs-keys.nix;
     linux = ./linux.nix;
     monfree = ./monfree.nix;
     nginx = ./nginx.nix;
