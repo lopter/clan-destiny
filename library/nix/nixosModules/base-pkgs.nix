@@ -43,5 +43,5 @@
       tree
       usbutils
     ]
-    ++ lib.optional config.powerManagement.powertop.enable powertop;
+    ++ lib.optionals config.powerManagement.powertop.enable [ powertop lm_sensors ];
 }
