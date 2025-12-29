@@ -1,5 +1,10 @@
-{ lib, self, ... }:
+{ config, lib, self, ... }:
 let
+  inherit (self.lib) diskById diskPart;
+  inherit (config.networking) hostName;
+
+  hostId = lib.lists.last (builtins.split "-" hostName);
+
   sataSSD = "/dev/disk/by-id/ata-Samsung_SSD_870_EVO_4TB_S6P3NS0W300955A";
 
   # https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)
@@ -8,16 +13,27 @@ let
   # Turn those two to true on bare-metal, we're ok with the security
   # implications:
   allowDiscards = true;
-  bypassWorkqueues = true;
 
-  # cryptsetup open --key-file /dev/disk/by-id/usb-USB_SanDisk_3.2Gen1_*\:0 --keyfile-size 4096 /dev/vda3 ashpool-luks
-  luksSettings = {
-    inherit allowDiscards bypassWorkqueues;
-    # Do that until we can manually add a passphrase or do secure boot with
-    # a fingerprint:
-    keyFileSize = 4096;
-    keyFile = "/dev/disk/by-id/usb-USB_SanDisk_3.2Gen1_03022020042524070315-0:0";
+  keyDrive = diskById "usb-USB_SanDisk_3.2Gen1_03022020042524070315-0:0";
+  zfsKeysDir = config.clan-destiny.load-zfs-keys.dir;
+
+  ZfsBaseRootFsOptions = {
+    acltype = "posix";
+    aclmode = "passthrough";
+    atime = "off";
+    compression = "zstd";
+    "com.sun:auto-snapshot" = "false";
+    encryption = "on";
+    keyformat = "passphrase";
+    # Use legacy since we'll use the fileSystems option to mount the zfs
+    # datasets (see note in `boot.zfs.extraPools`):
+    mountpoint = "legacy";
+    relatime = "on"; # effective when atime=on
+    xattr = "sa";
+    dnodesize = "auto";
   };
+
+  familyUsers = builtins.attrNames self.inputs.destiny-config.lib.usergroups.familyUsers;
 in
 {
   # Do not let Disko manage fileSystems.* config for NixOS.
@@ -39,6 +55,7 @@ in
               priority = 1;
               size = "1G";
               type = "EF00";
+              label = "${hostId}-boot";
               content = {
                 type = "filesystem";
                 format = "vfat";
@@ -49,93 +66,86 @@ in
             swap = {
               priority = 2;
               size = "32G";
+              label = "${hostId}-swap";
               content = {
                 type = "swap";
+                discardPolicy = "both";
                 randomEncryption = true;
               };
             };
-            luks = {
+            zfs = {
               priority = 3;
               size = "100%";
+              label = "${hostId}-zpool-system";
               content = {
-                name = "ashpool-luks";
-                type = "luks";
-                settings = luksSettings;
-                content = {
-                  type = "lvm_pv";
-                  vg = "vgAshpoolSystem";
-                };
+                type = "zfs";
+                pool = "${hostId}-system";
               };
             };
           };
         };
       };
     };
-    lvm_vg = {
-      vgAshpoolSystem = {
-        type = "lvm_vg";
-        lvs = {
-          lvRoot = {
-            size = "1G";
-            content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/";
-              mountOptions = [
-                "nodev"
-                "nosuid"
-              ] ++ lib.optionals allowDiscards [ "discard" ];
+    zpool = {
+      "${hostId}-system" = {
+        type = "zpool";
+        rootFsOptions = ZfsBaseRootFsOptions // {
+          keylocation = "file://${zfsKeysDir}/zpool-${hostId}-system.key";
+        };
+        options = {
+          ashift = "12";
+          autotrim = "on";
+        };
+        datasets =
+        let
+          mkHomeDataset = user: lib.nameValuePair "home/${user}" {
+            type = "zfs_fs";
+            options = {
+              "com.sun:auto-snapshot" = "true";
+              devices = "off";
+              setuid = "off";
             };
           };
-          # Having different volumes imposes some hard quotas:
-          lvVar = {
-            size = "80G";
-            content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/var";
-              mountOptions = [
-                "nodev"
-                "nosuid"
-              ] ++ lib.optionals allowDiscards [ "discard" ];
+          homeDatasets = lib.genAttrs' familyUsers mkHomeDataset;
+        in
+        homeDatasets // {
+          root.type = "zfs_fs";
+          nix = {
+            type = "zfs_fs";
+            options = {
+              devices = "off";
+              setuid = "off";
             };
           };
-          lvStash = {
-            size = "3T";
-            content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/stash";
-              mountOptions = [
-                "nodev"
-                "nosuid"
-              ] ++ lib.optionals allowDiscards [ "discard" ];
+          var = {
+            type = "zfs_fs";
+            options = {
+              devices = "off";
+              setuid = "off";
             };
           };
-          lvNix = {
-            size = "100G";
-            content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/nix";
-              mountOptions = [
-                "noatime"
-                "nodev"
-                "nosuid"
-              ] ++ lib.optionals allowDiscards [ "discard" ];
+          tmp = {
+            type = "zfs_fs";
+            options = {
+              devices = "off";
+              setuid = "off";
             };
           };
-          lvTmp = {
-            size = "20G";
-            content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/tmp";
-              mountOptions = [
-                "noatime"
-                "nodev"
-                "nosuid"
-              ] ++ lib.optionals allowDiscards [ "discard" ];
+          stash = {
+            type = "zfs_fs";
+            options = {
+              "com.sun:auto-snapshot" = "true";
+              devices = "off";
+              setuid = "off";
+            };
+          };
+          home = {
+            type = "zfs_fs";
+            options = {
+              "com.sun:auto-snapshot" = "true";
+              devices = "off";
+              setuid = "off";
+              canmount = "off";
             };
           };
         };
@@ -143,60 +153,47 @@ in
     };
   };
 
-  boot.initrd.luks.devices."ashpool-system" = luksSettings // {
-    device = self.lib.diskPart 3 sataSSD;
+  clan-destiny.load-zfs-keys = {
+    enable = true;
+    device = diskPart 1 keyDrive;
+    zpools = [ "${hostId}-system" ];
   };
 
-  fileSystems = {
-    "/" =
-      let
-        maybeOptions = if allowDiscards then { options = [ "discard" ]; } else { };
-      in
-      {
-        device = "/dev/vgAshpoolSystem/lvRoot";
-        fsType = "ext4";
-      }
-      // maybeOptions;
+  boot.zfs.devNodes = "/dev/disk/by-id";
+
+  fileSystems =
+  let
+    mkHomeFs = user: lib.nameValuePair "/stash/home/${user}" {
+      device = "${hostId}-system/home/${user}";
+      fsType = "zfs";
+    };
+    homeDirs = lib.genAttrs' familyUsers mkHomeFs;
+  in
+  homeDirs // {
+    "/" = {
+      device = "${hostId}-system/root";
+      fsType = "zfs";
+    };
     "/boot" = {
       device = self.lib.diskPart 1 sataSSD;
       fsType = "vfat";
       options = [ "umask=077" ] ++ lib.optionals allowDiscards [ "discard" ];
     };
     "/var" = {
-      device = "/dev/vgAshpoolSystem/lvVar";
-      fsType = "ext4";
-      options = [
-        "relatime"
-        "nodev"
-        "nosuid"
-      ] ++ lib.optionals allowDiscards [ "discard" ];
-    };
-    "/stash" = {
-      device = "/dev/vgAshpoolSystem/lvStash";
-      fsType = "ext4";
-      options = [
-        "relatime"
-        "nodev"
-        "nosuid"
-      ] ++ lib.optionals allowDiscards [ "discard" ];
+      device = "${hostId}-system/var";
+      fsType = "zfs";
     };
     "/nix" = {
-      device = "/dev/vgAshpoolSystem/lvNix";
-      fsType = "ext4";
-      options = [
-        "noatime"
-        "nodev"
-        "nosuid"
-      ] ++ lib.optionals allowDiscards [ "discard" ];
+      device = "${hostId}-system/nix";
+      fsType = "zfs";
     };
     "/tmp" = {
-      device = "/dev/vgAshpoolSystem/lvTmp";
-      fsType = "ext4";
-      options = [
-        "relatime"
-        "nodev"
-        "nosuid"
-      ] ++ lib.optionals allowDiscards [ "discard" ];
+      device = "${hostId}-system/tmp";
+      fsType = "zfs";
+    };
+    "/stash" = {
+      device = "${hostId}-system/stash";
+      fsType = "zfs";
     };
   };
 
@@ -205,13 +202,14 @@ in
   ];
 
   swapDevices = [
-    {
+    ({
       device = self.lib.diskPart 2 sataSSD;
       randomEncryption = {
         inherit allowDiscards;
         enable = true;
       };
-      discardPolicy = null;
-    }
+    } // lib.optionalAttrs allowDiscards {
+      discardPolicy = "both";
+    })
   ];
 }

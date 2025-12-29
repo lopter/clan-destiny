@@ -20,6 +20,8 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  networking.hostId = "78410b1c";
+
   clan.core.networking.zerotier.controller.enable = false;
 
   clan-destiny = {
