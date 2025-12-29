@@ -254,7 +254,15 @@ in
   boot.supportedFilesystems.zfs = true;
 
   fileSystems =
-  {
+  let
+    mkHomeFs = user: lib.nameValuePair "/stash/home/${user}" {
+      device = "zpool-goinfre/home/${user}";
+      fsType = "zfs";
+    };
+    familyUsers = builtins.attrNames self.inputs.destiny-config.lib.usergroups;
+    homeDirs = lib.genAttrs' familyUsers mkHomeFs;
+  in
+  homeDirs // {
     "/" = {
       device = "/dev/vgScyllaSystem/lvRoot";
       fsType = "ext4";

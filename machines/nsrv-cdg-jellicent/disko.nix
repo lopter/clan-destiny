@@ -220,8 +220,14 @@ in
         ++ options
         ++ lib.optionals allowDiscards [ "discard=async" ];
     };
+    mkHomeFs = user: lib.nameValuePair "/stash/home/${user}" {
+      device = "jellicent-storage/home/${user}";
+      fsType = "zfs";
+    };
+    familyUsers = builtins.attrNames self.inputs.destiny-config.lib.usergroups;
+    homeDirs = lib.genAttrs' familyUsers mkHomeFs;
   in
-  {
+  homeDirs // {
     "/" = jellicentSystemVolume {
       name = "root";
     };
