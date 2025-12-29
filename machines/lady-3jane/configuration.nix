@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   self,
   pkgs,
@@ -6,6 +7,7 @@
 }:
 let
   inherit (self.inputs) destiny-config nixos-hardware;
+  inherit (config.clan-destiny.typed-tags) knownHosts;
 
   enableSecureBoot = true;
 
@@ -32,8 +34,7 @@ in
       enable = true;
       servers = {
         wks-sfo-wintermute = {
-          # pull it from knownHosts.endpoint
-          sshHostname = "wks-sfo-wintermute.lightsd.io";
+          sshHostname = knownHosts.wks-sfo-wintermute.endPoint;
           systems = [ "x86_64-linux" ];
           supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
           maxJobs = 32;

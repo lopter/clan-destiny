@@ -6,6 +6,7 @@
       acl
       alacritty.terminfo
       attr
+      # Note bcc + bpftrace is quite heavy: almost 2G
       bcc
       bpftrace
       bridge-utils

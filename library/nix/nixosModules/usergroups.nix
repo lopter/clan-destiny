@@ -7,7 +7,7 @@ let
   userNames = builtins.attrNames cfg'.familyUsers;
 in
 {
-  # This is option is for use by our `destiny-config` input.
+  # This option is for use by our `destiny-config` input.
   options.clan-destiny.usergroups = {
     createNormalUsers = lib.mkOption {
       type = with lib.types; listOf (enum userNames);
