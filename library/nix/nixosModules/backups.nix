@@ -168,17 +168,13 @@ in
         else
           throw "Backup type ${details.type} not supported";
     in
-    {
+    lib.mkIf (builtins.length (builtins.attrNames cfg.jobsByName) > 0) {
       clan.core.vars.generators.clan-destiny-backups = mkBackupSecrets cfg.jobsByName;
       # clan.core.vars.generators.clan-destiny-backups = lib.filterAttrs notNull varGenerators;
       environment.etc."clan-destiny-backups.json" = {
         text = builtins.toJSON (configToJson cfg.jobsByName);
       };
-      environment.systemPackages = with pkgs; [
-        restic
-        rsync
-        destiny-core'.backups
-      ];
+      environment.systemPackages = [ destiny-core'.backups ];
       systemd.tmpfiles.rules = [
         "d ${cfg.restic.cacheDir} 0700 root root - -"
       ];
@@ -214,7 +210,7 @@ in
             $(systemctl status clan-destiny-backups.service)
 
             -- 
-              clan-destiny-backups-notify-fail running on ${hostName}
+            clan-destiny-backups-notify-fail running on ${hostName}
             EOF
           '';
         };
