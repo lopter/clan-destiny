@@ -28,7 +28,7 @@ in
     acl-watcher.enable = false; # TODO: see why it does not work
     certbot-vault.enable = true;
     nginx.nixos-proxy-cache.enable = true;
-    starrs-gate.enable = true;
+    starrs-gate.enable = false;
     syncthing = {
       createUserSystemInstances = [
         "kal"
