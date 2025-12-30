@@ -35,11 +35,17 @@ in
 {
   boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usb_storage" "uas" "usbhid" "sd_mod" "sr_mod" ];
   boot.initrd.kernelModules = [ "dm-snapshot" ];
-  boot.kernelModules = [ "kvm-amd" "nct6775" ];
+  # Load modules in explicit order for stable hwmon numbering (@lassulus):
+  boot.kernelModules = [ "kvm-amd" "nct6775" "k10temp" "amdgpu" ];
 
   nixpkgs.hostPlatform = lib.mkForce "x86_64-linux";
 
   environment.systemPackages = [ quietFans ];
 
   hardware.fancontrol.enable = true;
+
+  # Workaround resume-from-suspend issues with the builtin NICs
+  services.udev.extraRules = ''
+    SUBSYSTEM=="pci", ATTR{vendor}=="0x8086", ATTR{device}=="0x1539", ATTR{power/control}="on"
+  '';
 }
