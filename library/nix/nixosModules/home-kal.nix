@@ -166,6 +166,7 @@ in
           pwgen
           (python3.withPackages (
             ps: with ps; [
+              click
               ipython
               requests
               pyyaml
@@ -1628,6 +1629,7 @@ in
               "Expose" = "Meta+,";
               "Window Fullscreen" = "Meta+F";
               "Window Maximize" = "Meta+M";
+              "Minimize Window" = "Meta+N";
               "Switch Window Down" = "Meta+J";
               "Switch Window Left" = "Meta+H";
               "Switch Window Right" = "Meta+L";
