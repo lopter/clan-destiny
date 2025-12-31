@@ -26,7 +26,12 @@ in
   ];
 
   services = {
-    tailscale.enable = true;
+    tailscale = {
+      enable = true;
+      extraSetFlags = [
+        "--accept-routes"
+      ];
+    };
     fwupd.enable = true;
   };
 }
