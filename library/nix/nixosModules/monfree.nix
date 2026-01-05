@@ -7,12 +7,10 @@
   ...
 }:
 let
-  inherit (self.inputs.destiny-config.lib) popAddresses;
   inherit (self.inputs.destiny-core.packages.${system}) monfree;
   inherit (pkgs.stdenv.hostPlatform) system;
-  inherit (config.lib.clan-destiny) mkContainer typed-tags usergroups;
+  inherit (config.lib.clan-destiny) mkContainer usergroups;
   inherit (config.clan-destiny.typed-tags) interfacesByRole;
-  inherit (config.networking) hostName;
 in
 {
   options.clan-destiny.monfree = {
@@ -82,6 +80,8 @@ in
         ]
         ++ map (endpoint: "--endpoint=${endpoint}") cfgExporter.endpoints
         ++ map (source: "--source=${source}") cfgExporter.sources);
+        Restart = "on-failure";
+        RestartSec = 5;
         LockPersonality = true;
         MemoryDenyWriteExecute = true;
         NoNewPrivileges = true;
