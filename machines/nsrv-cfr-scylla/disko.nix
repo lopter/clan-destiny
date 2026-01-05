@@ -259,7 +259,7 @@ in
       device = "zpool-goinfre/home/${user}";
       fsType = "zfs";
     };
-    familyUsers = builtins.attrNames self.inputs.destiny-config.lib.usergroups;
+    familyUsers = builtins.attrNames self.inputs.destiny-config.lib.usergroups.familyUsers;
     homeDirs = lib.genAttrs' familyUsers mkHomeFs;
   in
   homeDirs // {
