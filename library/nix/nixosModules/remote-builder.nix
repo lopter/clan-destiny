@@ -30,10 +30,15 @@ let
 
   mkSshHostMatchBlocks = servers: lib.flip builtins.mapAttrs servers (server: cfg: ''
     Host clan-destiny-remote-builder-${server}
-      Hostname ${if cfg ? sshHostname then cfg.sshHostname else server}
       User nix-builder
+      Hostname ${if cfg ? sshHostname then cfg.sshHostname else server}
       BatchMode yes
       IdentityFile ${varsGenerators."${mkGeneratorName hostName server}".files.privateKey.path}
+      ControlMaster auto
+      ControlPath /run/nix-remote-builders/%h-%C.sock
+      ControlPersist 10m
+      ServerAliveInterval 20
+      ServerAliveCountMax 3
   '');
 
   mkBuildMachines = servers: lib.flip map (lib.attrsToList servers) (pair: {
@@ -112,6 +117,10 @@ in
       programs.ssh.extraConfig = builtins.concatStringsSep "\n" (
         builtins.attrValues (mkSshHostMatchBlocks clientCfg.servers)
       );
+
+      systemd.tmpfiles.rules = [
+        "d /run/nix-remote-builders 0750 root root - -"
+      ];
     })
   ];
 }
