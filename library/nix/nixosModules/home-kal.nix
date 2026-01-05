@@ -1629,6 +1629,8 @@ in
               "Expose" = "Meta+,";
               "Window Fullscreen" = "Meta+F";
               "Window Maximize" = "Meta+M";
+              "Window Maximize Vertically" = "Meta+B";
+              "Window Maximize Horizontally" = "Meta+Shift+B";
               "Minimize Window" = "Meta+N";
               "Switch Window Down" = "Meta+J";
               "Switch Window Left" = "Meta+H";
@@ -1650,7 +1652,9 @@ in
               "view_zoom_in" = "Alt++";
               "view_zoom_out" = "Alt+-";
             } // (repeat "Switch to Desktop" "Meta" 10);
-
+            org_kde_powerdevil = {
+              "powerProfile" = "Meta+/";
+            };
             plasmashell = {
               "activate application launcher" = "Meta+O";
             }; # // (repeat "Activate Task Manager Entry" "Ctrl" 9);
@@ -1686,7 +1690,8 @@ in
             controlPath = "/run/user/${toString usergroups.users.${user}.uid}/ssh/master-%r@%h:%p";
             controlPersist = "10m";
             forwardAgent = false;
-            serverAliveInterval = 180;
+            serverAliveInterval = 20;
+            serverAliveCountMax = 3;
             extraOptions = {
               VisualHostKey = "yes";
             };
