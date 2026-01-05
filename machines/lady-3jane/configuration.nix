@@ -43,6 +43,8 @@ in
     };
   };
 
+  nix.settings.max-jobs = 0; # remote builds only
+
   services = {
     tailscale.enable = true;
     fwupd.enable = true;
