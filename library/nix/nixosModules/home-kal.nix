@@ -1633,185 +1633,184 @@ in
         enableZshIntegration = true;
       };
 
-      programs.zsh = # {{{
-        {
-          defaultKeymap = "emacs";
-          enable = true;
-          envExtra = attrsToEnvironmentString {
-            attrs = environ;
-            export = true;
-          };
-          history = {
-            append = true;
-            ignoreDups = true;
-            size = 1000;
-            save = 10000;
-          };
-          initContent = ''
-            setopt EXTENDED_GLOB
+      programs.zsh = { # {{{
+        defaultKeymap = "emacs";
+        enable = true;
+        envExtra = attrsToEnvironmentString {
+          attrs = environ;
+          export = true;
+        };
+        history = {
+          append = true;
+          ignoreDups = true;
+          size = 1000;
+          save = 10000;
+        };
+        initContent = ''
+          setopt EXTENDED_GLOB
 
-            ulimit -c unlimited
-            ulimit -n 4096
+          ulimit -c unlimited
+          ulimit -n 4096
 
-            setopt HIST_REDUCE_BLANKS
-            HIST_ARCHIVE_DIR="''${HOME}/archives/zsh"
-            HIST_HOSTNAME="$(hostname -s)"
-            zshaddhistory() {
-              # NOTE: We should defer that to a more complex program that could write
-              #       that in a more structured & append-only format and eventually offer
-              #       more advanced features like archiving, securing and agreggating
-              #       history through a central location.
-              local histline=$1
+          setopt HIST_REDUCE_BLANKS
+          HIST_ARCHIVE_DIR="''${HOME}/archives/zsh"
+          HIST_HOSTNAME="$(hostname -s)"
+          zshaddhistory() {
+            # NOTE: We should defer that to a more complex program that could write
+            #       that in a more structured & append-only format and eventually offer
+            #       more advanced features like archiving, securing and agreggating
+            #       history through a central location.
+            local histline=$1
 
-              local year_month=$(date "+%Y-%m")
-              local cur_dir="''${HIST_ARCHIVE_DIR}/''${year_month}"
-              mkdir -p "''${cur_dir}"
+            local year_month=$(date "+%Y-%m")
+            local cur_dir="''${HIST_ARCHIVE_DIR}/''${year_month}"
+            mkdir -p "''${cur_dir}"
 
-              if [ $(print -rn -- "''${histline}" | grep -c "^[[:space:]]*$") -eq 0 ]; then
-                  local cur_time=$(date "+%H:%M:%S%z")
-                  local cur_file="''${year_month}-$(date "+%d")_''${USER}_''${HIST_HOSTNAME}.log"
-                  print -rn -- "''${cur_time} ''${histline}" >> "''${cur_dir}/''${cur_file}"
-              fi
-            }
-
-            PROMPT=$'%m:%j:%{\e[0;32m%}%~%{\e[0m%}%(?.%#.%{\e[1;34m%}%#%{\e[0m%}) '
-
-            alias p="ipython"
-            alias pu="pushd"
-            alias po="popd"
-            alias d="dirs -v"
-
-            if [ -f ~/.config/dirstack.zsh ]; then
-              . ~/.config/dirstack.zsh
-            else
-              dirs \
-                ~/src/nix/{clan-core,nixpkgs} \
-                ~/projs/clan-destiny \
-                ~/projs/clan-destiny/library/nix/packages/fly-io-pop \
-                ~/projs/destiny-{core,config} \
-                ~/projs/destiny-core/library/rust/blogon
+            if [ $(print -rn -- "''${histline}" | grep -c "^[[:space:]]*$") -eq 0 ]; then
+                local cur_time=$(date "+%H:%M:%S%z")
+                local cur_file="''${year_month}-$(date "+%d")_''${USER}_''${HIST_HOSTNAME}.log"
+                print -rn -- "''${cur_time} ''${histline}" >> "''${cur_dir}/''${cur_file}"
             fi
+          }
 
-            chelp() { cmake --help-command $1 | rst2html.py -q | lynx -stdin }
+          PROMPT=$'%m:%j:%{\e[0;32m%}%~%{\e[0m%}%(?.%#.%{\e[1;34m%}%#%{\e[0m%}) '
 
-            pclip() { env PASSWORD_STORE_X_SELECTION=clipboard pass "$@" }
-            compdef _pass pclip
+          alias p="ipython"
+          alias pu="pushd"
+          alias po="popd"
+          alias d="dirs -v"
 
-            # TODO: add an option to forget the selection:
-            clippy() { xclip "$@" }
+          if [ -f ~/.config/dirstack.zsh ]; then
+            . ~/.config/dirstack.zsh
+          else
+            dirs \
+              ~/src/nix/{clan-core,nixpkgs} \
+              ~/projs/clan-destiny \
+              ~/projs/clan-destiny/library/nix/packages/fly-io-pop \
+              ~/projs/destiny-{core,config} \
+              ~/projs/destiny-core/library/rust/blogon
+          fi
 
-            git() {
-              { [ $# -eq 1 ] && [ "$1" = "root" ] ; } && {
-                  command git rev-parse --show-toplevel;
-                  return;
-              }
+          chelp() { cmake --help-command $1 | rst2html.py -q | lynx -stdin }
 
-              { [ $# -eq 1 ] && [ "$1" = "branch" ]; } && {
-                  command git branch -vv;
-                  return;
-              }
+          pclip() { env PASSWORD_STORE_X_SELECTION=clipboard pass "$@" }
+          compdef _pass pclip
 
-              { [ "$1" = "diff" ] || [ "$1" = "show" ] ; } && {
-                  local files="$(command git "$@" --name-only --format=)"
-                  local total=$(echo "$files" | wc -l)
-                  local lock_files=$(echo "$files" | awk '/.*\.lock/ { matched++ } BEGIN { matched = 0 } END { print matched }')
+          # TODO: add an option to forget the selection:
+          clippy() { xclip "$@" }
 
-                  # Avoid empty output when only lock files changed
-                  [ $lock_files -eq $total ] && {
-                      command git "$@";
-                  } || {
-                      command git "$@" ":(exclude)*.lock";
-                  }
-                  return;
-              }
-
-              command git "$@";
+          git() {
+            { [ $# -eq 1 ] && [ "$1" = "root" ] ; } && {
+                command git rev-parse --show-toplevel;
+                return;
             }
 
-            ffmergeav() {
-              [ $# -eq 3 ] || {
-                  printf >&2 "Usage: ffmergeav audio video output\n";
-                  return 1;
-              }
-              ffmpeg -i "$1" -i "$2" -c:a copy -c:v copy "$3"
+            { [ $# -eq 1 ] && [ "$1" = "branch" ]; } && {
+                command git branch -vv;
+                return;
             }
 
-            firefox-dev() {
-              mkdir -p "$MY_BUILD/firefox"
-              firefox --new-instance --devtools --profile "$MY_BUILD/firefox"
+            { [ "$1" = "diff" ] || [ "$1" = "show" ] ; } && {
+                local files="$(command git "$@" --name-only --format=)"
+                local total=$(echo "$files" | wc -l)
+                local lock_files=$(echo "$files" | awk '/.*\.lock/ { matched++ } BEGIN { matched = 0 } END { print matched }')
+
+                # Avoid empty output when only lock files changed
+                [ $lock_files -eq $total ] && {
+                    command git "$@";
+                } || {
+                    command git "$@" ":(exclude)*.lock";
+                }
+                return;
             }
 
-            http-server() {
-              (
-                iptables -I INPUT -p tcp --dport 8000 -j ACCEPT
-                trap "iptables -D INPUT -p tcp --dport 8000 -j ACCEPT" EXIT
-                python -m http.server
-                exit $?
-              )
+            command git "$@";
+          }
+
+          ffmergeav() {
+            [ $# -eq 3 ] || {
+                printf >&2 "Usage: ffmergeav audio video output\n";
+                return 1;
             }
+            ffmpeg -i "$1" -i "$2" -c:a copy -c:v copy "$3"
+          }
 
-            nix-prefetch-github() {
-              command nix-prefetch-github --no-deep-clone --nix "@"
-            }
+          firefox-dev() {
+            mkdir -p "$MY_BUILD/firefox"
+            firefox --new-instance --devtools --profile "$MY_BUILD/firefox"
+          }
 
-            tree() {
-              command tree --dirsfirst --gitignore -FC "$@"
-            }
+          http-server() {
+            (
+              iptables -I INPUT -p tcp --dport 8000 -j ACCEPT
+              trap "iptables -D INPUT -p tcp --dport 8000 -j ACCEPT" EXIT
+              python -m http.server
+              exit $?
+            )
+          }
 
-            tl() {
-              tree "$@" | less -FRX
-            }
+          nix-prefetch-github() {
+            command nix-prefetch-github --no-deep-clone --nix "@"
+          }
 
-            # It says ls was aliased, even though home-manager does not set any default:
-            unalias ls
-            ls() {
-              command ls -NFh --group-directories-first --color=auto "$@";
-            }
+          tree() {
+            command tree --dirsfirst --gitignore -FC "$@"
+          }
 
-            playing() {
-              mpc \
-                  -h "''${1:-"localhost"}" \
-                  current \
-                  -f "/me is playing %artist% :: %album% :: %title%" \
-              | xclip
-            }
+          tl() {
+            tree "$@" | less -FRX
+          }
 
-            restart-agent() { gpgconf --kill gpg-agent; reload-agent }
+          # It says ls was aliased, even though home-manager does not set any default:
+          unalias ls
+          ls() {
+            command ls -NFh --group-directories-first --color=auto "$@";
+          }
 
-            # Those -untrusted helpers need to be turned into programs
-            # so that they can be wrapped up in other applications:
+          playing() {
+            mpc \
+                -h "''${1:-"localhost"}" \
+                current \
+                -f "/me is playing %artist% :: %album% :: %title%" \
+            | xclip
+          }
 
-            ssh-untrusted() {
-              ssh -a                                  \
-                  -o UserKnownHostsFile=/dev/null     \
-                  -o StrictHostKeyChecking=no         \
-                  -o GlobalKnownHostsFile=/dev/null   \
-                  "$@"
-            }
+          restart-agent() { gpgconf --kill gpg-agent; reload-agent }
 
-            scp-untrusted() {
-              scp -o UserKnownHostsFile=/dev/null     \
-                  -o StrictHostKeyChecking=no         \
-                  -o ForwardAgent=no                  \
-                  -o GlobalKnownHostsFile=/dev/null   \
-                  "$@"
-            }
+          # Those -untrusted helpers need to be turned into programs
+          # so that they can be wrapped up in other applications:
 
-            rsync-untrusted() {
-              local ssh_opts=(
-                -o ForwardAgent=no
-                -o UserKnownHostsFile=/dev/null
-                -o StrictHostKeyChecking=no
-                -o GlobalKnownHostsFile=/dev/null
-              )
-              rsync -e "ssh ''${ssh_opts[*]} $SSH_OPTS" "$@"
-            }
+          ssh-untrusted() {
+            ssh -a                                  \
+                -o UserKnownHostsFile=/dev/null     \
+                -o StrictHostKeyChecking=no         \
+                -o GlobalKnownHostsFile=/dev/null   \
+                "$@"
+          }
 
-            mosh() {
-              command mosh -p ${toString ports.mosh.from}:${toString ports.mosh.to} "$@"
-            }
-          '';
-        }; # }}}
+          scp-untrusted() {
+            scp -o UserKnownHostsFile=/dev/null     \
+                -o StrictHostKeyChecking=no         \
+                -o ForwardAgent=no                  \
+                -o GlobalKnownHostsFile=/dev/null   \
+                "$@"
+          }
+
+          rsync-untrusted() {
+            local ssh_opts=(
+              -o ForwardAgent=no
+              -o UserKnownHostsFile=/dev/null
+              -o StrictHostKeyChecking=no
+              -o GlobalKnownHostsFile=/dev/null
+            )
+            rsync -e "ssh ''${ssh_opts[*]} $SSH_OPTS" "$@"
+          }
+
+          mosh() {
+            command mosh -p ${toString ports.mosh.from}:${toString ports.mosh.to} "$@"
+          }
+        '';
+      }; # }}}
 
       # This value determines the Home Manager release that your
       # configuration is compatible with. This helps avoid breakage
