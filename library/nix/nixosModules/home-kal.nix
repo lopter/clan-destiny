@@ -46,7 +46,7 @@ let
     MANWIDTH = "80";
     MY_TMP = "/tmp/${user}/tmp";
     MY_BUILD = "/tmp/${user}/build";
-    PAGER = ''"less -FRX"'';
+    PAGER = "less -FRX";
     PASSWORD_STORE_X_SELECTION = "primary";
     PGTZ = "UTC";
     REPLYTO = "louis@opter.org";
@@ -1708,42 +1708,21 @@ in
         '';
       };
 
-      programs.zsh = # {{{
-        let
-          locale = "en_US.UTF-8";
-          zshenv = {
-            inherit locale;
-            LANG = locale;
-            LANGUAGE = locale;
-            LC.CTYPE = locale;
-            LC.NUMERIC = locale;
-            LC.TIME = locale;
-            LC.COLLATE = locale;
-            LC.MONETARY = locale;
-            LC.MESSAGES = locale;
-            LC.PAPER = locale;
-            LC.NAME = locale;
-            LC.ADDRESS = locale;
-            LC.TELEPHONE = locale;
-            LC.MEASUREMENT = locale;
-            LC.IDENTIFICATION = locale;
+      programs.zoxide = {
+        enable = true;
+        options = [ "--cmd" "j" ];
+        enableBashIntegration = true;
+        enableZshIntegration = true;
+      };
 
-            EMAIL = "louis@opter.org";
-            MANWIDTH = "80";
-            MY_TMP = "/tmp/${user}/tmp";
-            MY_BUILD = "/tmp/${user}/build";
-            PAGER = ''"less -FRX"'';
-            PASSWORD_STORE_X_SELECTION = "primary";
-            PGTZ = "UTC";
-            PULSE_SERVER = "rpi-sfo-arch.kalessin.fr";
-            REPLYTO = "louis@opter.org";
-            WINEDEBUG = "-all";
-          };
-        in
+      programs.zsh = # {{{
         {
           defaultKeymap = "emacs";
           enable = true;
-          envExtra = attrsToEnvironmentString { attrs = environ; };
+          envExtra = attrsToEnvironmentString {
+            attrs = environ;
+            export = true;
+          };
           history = {
             append = true;
             ignoreDups = true;
@@ -1778,14 +1757,6 @@ in
             }
 
             PROMPT=$'%m:%j:%{\e[0;32m%}%~%{\e[0m%}%(?.%#.%{\e[1;34m%}%#%{\e[0m%}) '
-
-            if [ -z "''${SSH_CONNECTION}" ]; then
-              export EDITOR="nvim-qt --nofork"
-              export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
-            else
-              export EDITOR="nvim"
-              export SSH_AUTH_SOCK="$(fd -1 -o $USER:$USER -p '.+ssh.+agent' /tmp)"
-            fi
 
             alias p="ipython"
             alias pu="pushd"
