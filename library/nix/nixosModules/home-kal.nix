@@ -1015,88 +1015,6 @@ in
               -- https://github.com/nvim-treesitter/nvim-treesitter
               -- https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
               vim.treesitter.language.register("hcl", "opentofu")
-
-              require('nvim-treesitter.configs').setup {
-                  highlight = {
-                      enable = true,
-                      -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-                      -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-                      -- Using this option may slow down your editor, and you may see some duplicate highlights.
-                      -- Instead of true it can also be a list of languages
-                      additional_vim_regex_highlighting = false,
-                  },
-                  indent = {
-                      enable = true
-                  },
-                  incremental_selection = {
-                      enable = true,
-                  },
-                  textobjects = {
-                      -- Define custom text objects for efficient code editing
-                      select = {
-                          enable = true,
-                          lookahead = true,                  -- Automatically jump to the next text object
-                          keymaps = {
-                              ['af'] = '@function.outer',    -- Select around a function, including the entire function definition and body
-                              ['if'] = '@function.inner',    -- Select inside a function, i.e., only the body of the function
-                              ['ac'] = '@class.outer',       -- Select around a class, including the class definition and body
-                              ['ic'] = '@class.inner',       -- Select inside a class, i.e., only the body of the class
-                              ['aC'] = '@call.outer',        -- Select around a function call, including the function name and arguments
-                              ['iC'] = '@call.inner',        -- Select inside a function call, i.e., only the arguments of the function call
-                              ['a#'] = '@comment.outer',     -- Select around a comment block, including any comment delimiters
-                              ['i#'] = '@comment.outer',     -- (Note: '@comment.inner' is the same as '@comment.outer' since comments don't have inner structure)
-                              ['ai'] = '@conditional.outer', -- Select around a conditional statement, including the condition and body (e.g., if, else if, else)
-                              ['ii'] = '@conditional.outer', -- Select inside a conditional statement (since conditionals may not have an 'inner' text object defined)
-                              ['al'] = '@loop.outer',        -- Select around a loop, including the loop declaration and body (e.g., for, while loops)
-                              ['il'] = '@loop.inner',        -- Select inside a loop, i.e., only the body of the loop
-                              ['aP'] = '@parameter.outer',   -- Select around a parameter or argument, including surrounding punctuation or whitespace
-                              ['iP'] = '@parameter.inner',   -- Select inside a parameter, i.e., the parameter name or value without any surrounding characters
-                          },
-                          selection_modes = {
-                              ['@parameter.outer'] = 'v', -- Use character-wise visual mode for parameters
-                              ['@function.outer'] = 'V',  -- Use line-wise visual mode for functions
-                              ['@class.outer'] = '<c-v>', -- Use block-wise visual mode for classes
-                          },
-                      },
-                      swap = {
-                          enable = true,
-                          swap_next = {
-                              ['<leader>a'] = '@parameter.inner',
-                          },
-                          swap_previous = {
-                              ['<leader>A'] = '@parameter.inner',
-                          },
-                      },
-                      move = {
-                          enable = true,
-                          set_jumps = true,                -- Set jumps in the jumplist when navigating (allows you to jump back with <C-o>)
-                          goto_next_start = {
-                              [']m'] = '@function.outer',  -- Jump to the start of the next function
-                              [']P'] = '@parameter.outer', -- Jump to the start of the next parameter
-                          },
-                          goto_next_end = {
-                              [']m'] = '@function.outer',  -- Jump to the end of the next function
-                              [']P'] = '@parameter.outer', -- Jump to the end of the next parameter
-                          },
-                          goto_previous_start = {
-                              ['[m'] = '@function.outer',  -- Jump to the start of the previous function
-                              ['[P'] = '@parameter.outer', -- Jump to the start of the previous parameter
-                          },
-                          goto_previous_end = {
-                              ['[m'] = '@function.outer',  -- Jump to the end of the previous function
-                              ['[P'] = '@parameter.outer', -- Jump to the end of the previous parameter
-                          },
-                      },
-                      lsp_interop = {
-                          enable = true,
-                          border = 'none',
-                          peek_definition_code = {
-                              ["<leader>df"] = "@function.outer", -- Peek function definition under the cursor
-                              ["<leader>dF"] = "@class.outer",    -- Peek class definition under the cursor
-                          },
-                      },
-                  },
-              }
               '';
           }) # }}}
           (usePlugin inlay-hint-nvim {
@@ -1276,7 +1194,7 @@ in
           nnoremap <silent> <C-p> :FzfLua files<CR>
           nnoremap <silent> <C-b> :FzfLua buffers<CR>
         '';
-        extraLuaConfig = ''
+        initLua = ''
 
           vim.opt.titlestring = [[%{fnamemodify(getcwd(), ":t")}/%f %h%m%r%w]]
           vim.opt.updatetime = 300
