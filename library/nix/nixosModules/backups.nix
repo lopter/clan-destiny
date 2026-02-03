@@ -16,7 +16,7 @@ in
     with types;
     {
       jobsByName = mkOption {
-        description = mdDoc ''
+        description = ''
           The list of backup jobs, the name of each backup job is used to look up
           public and private keys used with rsync jobs.
         '';
@@ -24,14 +24,14 @@ in
         type = attrsOf (submodule {
           options = {
             type = mkOption {
-              description = mdDoc "The backup method used by this job.";
+              description = "The backup method used by this job.";
               type = enum [
                 "restic-b2"
                 "rsync"
               ];
             };
             direction = mkOption {
-              description = mdDoc ''
+              description = ''
                 Whether this backup is pushed or pulled from `localHost`. For
                 `restic-b2` jobs only `push` is supported.
               '';
@@ -41,11 +41,11 @@ in
               ];
             };
             localHost = mkOption {
-              description = mdDoc "The FQDN of the local host";
+              description = "The FQDN of the local host";
               type = nonEmptyStr;
             };
             localPath = mkOption {
-              description = mdDoc ''
+              description = ''
                 When `direction` is `pull` then this is the path where to store
                 the backup at, otherwise it is the path to backup and send to
                 `remoteHost`.
@@ -53,14 +53,14 @@ in
               type = path;
             };
             remoteHost = mkOption {
-              description = mdDoc ''
+              description = ''
                 The FQDN of the remote host. This is only valid for `rsync` jobs.
               '';
               type = nullOr nonEmptyStr;
               default = null;
             };
             remotePath = mkOption {
-              description = mdDoc ''
+              description = ''
                 When `direction` is `pull` then this is the path to backup on
                 `remoteHost` otherwise this is the path where to store the
                 backup at on `remoteHost`. This only valid for `rsync` jobs.
@@ -68,15 +68,16 @@ in
               type = nullOr nonEmptyStr;
               default = null;
             };
-            oneFileSystem = mkEnableOption {
-              description = mdDoc ''
+            oneFileSystem = mkOption {
+              description = ''
                 Do not cross filesystem boundaries, this is option is not honored
                 and is always true with `rsync` jobs.
               '';
+              type = bool;
               default = true;
             };
             retention = mkOption {
-              description = mdDoc ''
+              description = ''
                 How long to keep backup history for. This only used with
                 `restic-b2` jobs. `rsync` jobs do not keep different versions.
 
@@ -92,14 +93,14 @@ in
       };
       restic = {
         cacheDir = mkOption {
-          description = mdDoc ''
+          description = ''
             Path to a cache directory that can be used by restic.
           '';
           type = path;
         };
         b2 = {
           bucket = mkOption {
-            description = mdDoc "B2 bucket where backups are stored.";
+            description = "B2 bucket where backups are stored.";
             type = nonEmptyStr;
           };
         };
@@ -111,12 +112,26 @@ in
       cfg = config.clan-destiny.backups;
       vars = config.clan.core.vars.generators.clan-destiny-backups;
       fqdn = with config.networking; "${hostName}.${domain}";
-      isLocalB2Job = details: details.type == "restic-b2" && fqdn == details.localHost;
-      hasB2Jobs = builtins.any isLocalB2Job (builtins.attrValues cfg.jobsByName);
-      mkBackupSecrets =
-        jobsByName:
+      isLocalJob = details: details.localHost == fqdn;
+      localJobsByName = lib.filterAttrs (jobName: isLocalJob) cfg.jobsByName;
+      isB2Job = details: details.type == "restic-b2";
+      hasB2Jobs = builtins.any isB2Job (builtins.attrValues localJobsByName);
+    in
+    # TODO: always write the config and then merge that with the conditional
+      # creation of the systemd stuff
+    lib.mkIf (builtins.length (builtins.attrNames localJobsByName) > 0) {
+      clan.core.vars.generators.clan-destiny-backups =
         let
-          jobSecrets = builtins.attrValues (builtins.mapAttrs mkJobSecrets jobsByName);
+          mkJobSecrets =
+            jobName: details:
+            lib.optionalAttrs (isB2Job details) {
+              prompts."${jobName}-password".persist = true;
+            };
+          jobSecrets = lib.pipe localJobsByName [
+            (builtins.mapAttrs mkJobSecrets)
+            builtins.attrValues
+            (builtins.filter (details: details != { }))
+          ];
           resticDetails = lib.optionalAttrs hasB2Jobs {
             prompts."restic-b2-key-id" = {
               persist = true;
@@ -129,50 +144,32 @@ in
           };
         in
           builtins.foldl' lib.recursiveUpdate { } (jobSecrets ++ [ resticDetails ]);
-      mkJobSecrets =
-        jobName: details:
-        if details.type == "restic-b2" then
-          lib.optionalAttrs (fqdn == details.localHost) {
-            prompts."${jobName}-password".persist = true;
-          }
-        else
-          throw "Backup type ${details.type} not supported";
-      # notNull = jobName: details: details != null;
-      configToJson =
-        jobsByName:
-        let
-          jobSecrets = builtins.mapAttrs hydrateWithVarsPaths jobsByName;
-          resticDetails = lib.optionalAttrs hasB2Jobs {
-            restic.cacheDir = cfg.restic.cacheDir;
-            restic.b2.bucket = cfg.restic.b2.bucket;
-            restic.b2.keyIdPath = vars.files."restic-b2-key-id".path;
-            restic.b2.applicationKeyPath = vars.files."restic-b2-application-key".path;
-          };
-        in
-        { jobsByName = jobSecrets; } // resticDetails;
-      hydrateWithVarsPaths =
-        jobName: details:
-        if details.type == "restic-b2" then
-          details
-          // (lib.optionalAttrs (fqdn == details.localHost) {
-            passwordPath = vars.files."${jobName}-password".path;
-          })
-        /*
-          else if details.type == "rsync" then
-            # Do it based on direction and host
-            details // {
-              publicKeyPath = vars.files."${jobName}-public-key-path".path;
-              privateKeyPath = vars.files."${jobName}-private-key-path".path;
-            }
-        */
-        else
-          throw "Backup type ${details.type} not supported";
-    in
-    lib.mkIf (builtins.length (builtins.attrNames cfg.jobsByName) > 0) {
-      clan.core.vars.generators.clan-destiny-backups = mkBackupSecrets cfg.jobsByName;
-      # clan.core.vars.generators.clan-destiny-backups = lib.filterAttrs notNull varGenerators;
-      environment.etc."clan-destiny-backups.json" = {
-        text = builtins.toJSON (configToJson cfg.jobsByName);
+      environment.etc."clan-destiny-backups.json".source = pkgs.writeTextFile {
+        name = "clan-destiny-backups.json";
+        text =
+          let
+            hydrateWithVarsPaths =
+              jobName: details:
+                details // (lib.optionalAttrs (isB2Job details) {
+                  passwordPath = vars.files."${jobName}-password".path;
+                });
+            jobsWithSecrets = builtins.mapAttrs hydrateWithVarsPaths localJobsByName;
+            jobsByName = cfg.jobsByName // jobsWithSecrets;
+            resticDetails = lib.optionalAttrs hasB2Jobs {
+              restic.cacheDir = cfg.restic.cacheDir;
+              restic.b2.bucket = cfg.restic.b2.bucket;
+              restic.b2.keyIdPath = vars.files."restic-b2-key-id".path;
+              restic.b2.applicationKeyPath = vars.files."restic-b2-application-key".path;
+            };
+          in
+            builtins.toJSON ({ inherit jobsByName; } // resticDetails);
+        checkPhase = ''
+          ${destiny-core'.backups}/bin/clan-destiny-backups \
+            --config-path "$out" \
+            validate-config \
+            --fqdn ${lib.escapeShellArg fqdn} \
+            --ignore-missing-paths
+        '';
       };
       environment.systemPackages = [ destiny-core'.backups ];
       systemd.tmpfiles.rules = [
@@ -193,7 +190,7 @@ in
         onFailure = [ "clan-destiny-backups-notify-fail.service" ];
         serviceConfig = {
           Type = "oneshot";
-          ExecStart = "${destiny-core'.backups}/bin/clan-destiny-backups-dump run";
+          ExecStart = "${destiny-core'.backups}/bin/clan-destiny-backups dump run";
           Nice = 10;
           IOSchedulingPriority = 7;
         };
