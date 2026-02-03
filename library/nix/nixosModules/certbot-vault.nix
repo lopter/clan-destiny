@@ -192,7 +192,7 @@ in
         inherit (instanceCfg) authenticator;
         mkPrompt = description: {
           inherit description;
-          persist = false;
+          persist = true;
           type = "hidden";
         };
         cases = {
@@ -208,7 +208,7 @@ in
                 name = "${name}-endpoint";
                 value = {
                   description = "The OVH API endpoint to use (must be one of: ${lib.concatStringsSep ", " ovhApiEndpoints})";
-                  persist = false;
+                  persist = true;
                   type = "line";
                 };
               }
@@ -262,12 +262,12 @@ in
       files = files // { vaultCredentials.owner = "certbot"; };
       prompts = prompts // {
         VaultRoleID = {
-          persist = false;
+          persist = true;
           description = "The Vault Role ID for certbot-vault";
           type = "hidden";
         };
        VaultSecretId = {
-          persist = false;
+          persist = true;
           description = "The Vault Secret ID for certbot-vault";
           type = "hidden";
         };
