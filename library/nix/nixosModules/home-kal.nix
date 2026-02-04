@@ -411,6 +411,11 @@ in
                   definedAliases = [ "bc" ];
                   icon = "https://s4.bcbits.com/img/favicon/favicon-32x32.png";
                 };
+                "Bazel Build" = {
+                  urls = [ { template = "https://bazel.build/s/results?q={searchTerms}"; } ];
+                  definedAliases = [ "bb" ];
+                  icon = "https://registry.bazel.build/favicon.png";
+                };
                 "Bazel Central Registry" = {
                   urls = [ { template = "https://registry.bazel.build/search?q={searchTerms}"; } ];
                   definedAliases = [ "bcr" ];
