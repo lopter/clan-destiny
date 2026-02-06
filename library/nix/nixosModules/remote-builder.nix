@@ -34,11 +34,6 @@ let
       Hostname ${if cfg ? sshHostname then cfg.sshHostname else server}
       BatchMode yes
       IdentityFile ${varsGenerators."${mkGeneratorName hostName server}".files.privateKey.path}
-      ControlMaster auto
-      ControlPath /run/nix-remote-builders/%h
-      ControlPersist 10m
-      ServerAliveInterval 20
-      ServerAliveCountMax 3
   '');
 
   mkBuildMachines = servers: lib.flip map (lib.attrsToList servers) (pair: {
