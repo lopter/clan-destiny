@@ -11,6 +11,7 @@ let
     clan-core
     destiny-core
     destiny-config
+    llm-agents
     nixpkgs-stable
     plasma-manager
     ;
@@ -120,7 +121,6 @@ in
           basedpyright
           bash-language-server
           binutils
-          claude-code
           devenv
           direnv
           distrobox
@@ -206,6 +206,9 @@ in
         ])
         ++ (with destiny-core.packages.${system}; [
           toolbelt
+        ])
+        ++ (with llm-agents.packages.${system}; [
+          claude-code
         ]);
 
       nixpkgs.config = nixpkgsCfg;

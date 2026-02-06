@@ -16,6 +16,28 @@
         "type": "github"
       }
     },
+    "blueprint": {
+      "inputs": {
+        "nixpkgs": [
+          "llm-agents",
+          "nixpkgs"
+        ],
+        "systems": "systems_2"
+      },
+      "locked": {
+        "lastModified": 1769353768,
+        "narHash": "sha256-zI+7cbMI4wMIR57jMjDSEsVb3grapTnURDxxJPYFIW0=",
+        "owner": "numtide",
+        "repo": "blueprint",
+        "rev": "c7da5c70ad1c9b60b6f5d4f674fbe205d48d8f6c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "blueprint",
+        "type": "github"
+      }
+    },
     "catppuccin": {
       "inputs": {
         "nixpkgs": [
@@ -139,11 +161,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1770016317,
-        "narHash": "sha256-VYB05kCh/hMu7+SVaz9boFHR1wjrC9mWx4mdnsaPUbU=",
+        "lastModified": 1770414742,
+        "narHash": "sha256-ZJk7HAWUmihaiGhIajvfDS5c0FrVMCACspQgpbreZv0=",
         "ref": "main",
-        "rev": "4e827c97f8208b9c6ed162a2a36c2bb895aedef7",
-        "revCount": 163,
+        "rev": "2bcc6c3ede73f041d718a98fec2713bd6b67064a",
+        "revCount": 170,
         "type": "git",
         "url": "ssh://gitolite@gitolite.kalessin.fr/louis/destiny-config"
       },
@@ -168,11 +190,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1770016236,
-        "narHash": "sha256-ScWeo907PuvQTaOYspPUwmZgf4dqfMRMn5cHhFq2CLE=",
+        "lastModified": 1770414369,
+        "narHash": "sha256-PX0bbkX2zOegQn8CayF0RTHDhexwIllN4sWPuNSdsS4=",
         "ref": "main",
-        "rev": "da01030bdc5bae1f418fd2a0adda8a4e3b480324",
-        "revCount": 161,
+        "rev": "52678776628e2ba0a933297e16c4c1f269e4962e",
+        "revCount": 163,
         "type": "git",
         "url": "ssh://gitolite@gitolite.kalessin.fr/destiny-core"
       },
@@ -334,6 +356,31 @@
         "type": "github"
       }
     },
+    "llm-agents": {
+      "inputs": {
+        "blueprint": "blueprint",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "treefmt-nix": [
+          "destiny-core",
+          "treefmt-nix"
+        ]
+      },
+      "locked": {
+        "lastModified": 1770325891,
+        "narHash": "sha256-7ipAUiPb798BRdV56+3bxa71fdleMxlS/XvIGUYO1qI=",
+        "owner": "numtide",
+        "repo": "llm-agents.nix",
+        "rev": "54aeaa16a2f836142fba98a455e0373e3f464ac5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "llm-agents.nix",
+        "type": "github"
+      }
+    },
     "nix-auth": {
       "inputs": {
         "flake-parts": [
@@ -449,10 +496,10 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1769992954,
-        "narHash": "sha256-vuy1hqKXYFHwL4Fa9zZvj+ulmAsfVQbI5mAG1AyqDaU=",
+        "lastModified": 1770187733,
+        "narHash": "sha256-QtWXKedRkkERCdQtDo3sWwh2+nxVGsC0T1Ht+R9XtF8=",
         "ref": "nixos-unstable-lo-patches",
-        "rev": "309dccfe74119b9bd8eb7f6b9fe3847dfcb3bd95",
+        "rev": "f33d17a99212ad04e41c8b0468f986feed9cff6a",
         "shallow": true,
         "type": "git",
         "url": "https://github.com/lopter/nixpkgs"
@@ -563,6 +610,7 @@
         ],
         "home-manager": "home-manager",
         "lanzaboote": "lanzaboote",
+        "llm-agents": "llm-agents",
         "nix-auth": "nix-auth",
         "nix2container": [
           "destiny-core",
@@ -649,6 +697,21 @@
       }
     },
     "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_2": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",

@@ -28,6 +28,10 @@
     lanzaboote.inputs.nixpkgs.follows = "nixpkgs";
     lanzaboote.inputs.crane.follows = "destiny-core/crane";
 
+    llm-agents.url = "github:numtide/llm-agents.nix";
+    llm-agents.inputs.nixpkgs.follows = "nixpkgs";
+    llm-agents.inputs.treefmt-nix.follows = "destiny-core/treefmt-nix";
+
     nix2container.follows = "destiny-core/nix2container";
     nix2container.inputs.nixpkgs.follows = "nixpkgs";
 
