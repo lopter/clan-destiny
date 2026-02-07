@@ -997,20 +997,10 @@ in
               jinja
               json
               latex
+              lua
               make
               markdown
               nix
-              (pkgs.tree-sitter.buildGrammar {
-                language = "orgmode";
-                version = "2.0.1";
-                src = pkgs.fetchFromGitHub {
-                  owner = "nvim-orgmode";
-                  repo = "tree-sitter-org";
-                  rev = "a146dd51d52e0eb5a736e427cd244d93375fbed9";
-                  sha256 = "sha256-k1g5+iyJvVWKOuAkFNaaKl42Xmmz9BN+vT0+IQ/4RQI=";
-                };
-                meta.homepage = "https://nvim-orgmode.github.io/";
-              })
               proto
               python
               rust
@@ -1019,12 +1009,27 @@ in
               yaml
             ] # }}}
           )) {
-            config = ''
+            config = # lua
+            ''
               -- Treesitter configuration for better syntax highlighting and code manipulation
               -- https://github.com/nvim-treesitter/nvim-treesitter
               -- https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
               vim.treesitter.language.register("hcl", "opentofu")
-              '';
+
+              require('nvim-treesitter').setup({})
+
+              -- Enable features via autocommands for modern nvim-treesitter
+              vim.api.nvim_create_autocmd("FileType", {
+                  group = augroup,
+                  pattern = "*",
+                  callback = function()
+                      pcall(vim.treesitter.start)
+                      vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+                      vim.wo[0][0].foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+                      vim.wo[0][0].foldmethod = 'expr'
+                  end,
+              })
+            '';
           }) # }}}
           (usePlugin inlay-hint-nvim {
             config = ''
@@ -1136,7 +1141,6 @@ in
           au BufRead,BufNewFile *.html,*.css setl ts=2 sts=2 sw=2
           au BufRead,BufNewFile *.smali setl ft=smali
           au BufRead,BufNewFile *.thrift setl ft=thrift
-          au BufRead,BufNewFile *.rs setl foldmethod=expr foldexpr=getline(v:lnum)=~'^\\s*//'
           au BufRead,BufNewFile *.tofu,*.tf setl ts=2 sts=2 sw=2 ft=opentofu
 
           """ Functions
@@ -1204,7 +1208,7 @@ in
           nnoremap <silent> <C-b> :FzfLua buffers<CR>
         '';
         initLua = ''
-
+          vim.o.foldlevelstart = 99 -- start with all folds opened
           vim.opt.titlestring = [[%{fnamemodify(getcwd(), ":t")}/%f %h%m%r%w]]
           vim.opt.updatetime = 300
         '';
