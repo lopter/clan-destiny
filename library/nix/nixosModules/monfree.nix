@@ -53,6 +53,11 @@ in
         description = "Admin email for Grafana";
         type = with lib.types; nullOr nonEmptyStr;
       };
+      fromAddress = lib.mkOption {
+        description = "The sender address for outgoing Grafana notification emails";
+        type = lib.types.nonEmptyStr;
+        default = "root@${config.clan-destiny.postfix-relay.domain}";
+      };
       interval = lib.mkOption {
         description = "Prometheus scrape interval";
         type = lib.types.int;
@@ -66,6 +71,11 @@ in
     cfgExporter = config.clan-destiny.monfree.exporter;
     cfgMonitor = config.clan-destiny.monfree.monitor;
     varsMonitor = config.clan.core.vars.generators.clan-destiny-monfree;
+
+    cfgPostfixRelay = config.clan-destiny.postfix-relay;
+    varsPostfixRelay = config.clan.core.vars.generators.postfix-relay;
+    smtpPasswordHostPath = varsPostfixRelay.files.password.path;
+    smtpPasswordContainerPath = "/run/credentials/grafana.service/smtp-password";
 
     exporterService = {
       after = [ "network.target" ];
@@ -193,6 +203,7 @@ in
         # This works with Grafana's $__file{} mechanism via ImportCredential.
         extraFlags = [
           "--load-credential=grafana-admin-password:${grafanaAdminPasswordHostPath}"
+          "--load-credential=smtp-password:${smtpPasswordHostPath}"
         ];
         config =
           { config, pkgs, ... }:
@@ -227,6 +238,7 @@ in
             # Import the credential propagated by systemd-nspawn from the host.
             systemd.services.grafana.serviceConfig.ImportCredential = [
               "grafana-admin-password"
+              "smtp-password"
             ];
 
             services.grafana = {
@@ -271,6 +283,15 @@ in
                   admin_password = "$__file{${grafanaAdminPasswordContainerPath}}";
                   strict_transport_security = true;
                   cookie_secure = true;
+                };
+                smtp = {
+                  enabled = true;
+                  host = "${cfgPostfixRelay.relayHost}:${toString cfgPostfixRelay.relayPort}";
+                  user = cfgPostfixRelay.relayUsername;
+                  password = "$__file{${smtpPasswordContainerPath}}";
+                  from_address = cfgMonitor.fromAddress;
+                  from_name = "Grafana";
+                  startTLS_policy = "MandatoryStartTLS";
                 };
                 users = {
                   default_theme = "system";

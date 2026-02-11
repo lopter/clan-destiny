@@ -39,20 +39,22 @@ in
 
   config.clan.core.vars.generators.postfix-relay = {
     files.credentials = { };
+    files.password = { };
     prompts.password = {
-      persist = false;
+      persist = true;
       description = ''
         Password used by Postifx for SASL authentication with the SMTPS relay.
       '';
       type = "hidden";
     };
     script = ''
-      printf "[%s]:%d %s:%s" \
+      printf "[%s]:%d %s:%s\n" \
         "${cfg.relayHost}" \
         "${toString cfg.relayPort}" \
         "${cfg.relayUsername}" \
         "$(cat "$prompts/password")" \
         > $out/credentials
+      cp "$prompts/password" "$out/password"
     '';
     share = true;
   };
